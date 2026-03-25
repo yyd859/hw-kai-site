@@ -15,8 +15,14 @@
     </filter>
   </defs>
 
-  <rect width="48" height="48" rx="8" fill="#0a0a0f"/>
-  <rect width="48" height="48" rx="8" fill="none" stroke="#ffffff" stroke-width="0.5" opacity="0.1"/>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1f3c"/>
+      <stop offset="100%" stop-color="#050e24"/>
+    </linearGradient>
+  </defs>
+  <rect width="48" height="48" rx="8" fill="url(#bg)"/>
+  <rect width="48" height="48" rx="8" fill="none" stroke="#4488cc" stroke-width="0.8" opacity="0.4"/>
 
   <!-- 大 K (占主要空间，左侧) -->
   <g fill="url(#silver)" filter="url(#glow)">
