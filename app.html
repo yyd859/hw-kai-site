@@ -1,0 +1,1353 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HW-KAI — App</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0a0a0f;
+      --bg2: #07070b;
+      --fg: #f0f0f5;
+      --accent: #6c63ff;
+      --accent2: #00d4ff;
+      --muted: rgba(240,240,245,0.35);
+      --grid: rgba(255,255,255,0.03);
+      --border: rgba(255,255,255,0.07);
+      --chat-bg: #060609;
+      --user-bubble: #1e1d2e;
+      --ai-bubble: rgba(108,99,255,0.15);
+    }
+
+    html, body {
+      width: 100%; height: 100%;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+      overflow: hidden;
+    }
+
+    /* ── SCREEN A : LOGIN ── */
+    #screen-login {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      background: var(--bg);
+    }
+    #screen-login::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+    }
+    #screen-login::after {
+      content: '';
+      position: fixed; inset: 0;
+      background: radial-gradient(ellipse 70% 60% at 50% 50%, rgba(108,99,255,0.1) 0%, rgba(0,212,255,0.05) 40%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .login-card {
+      position: relative;
+      z-index: 1;
+      width: 420px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2.5rem;
+      backdrop-filter: blur(20px);
+    }
+
+    .login-logo {
+      font-size: 1.3rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-align: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .login-title {
+      font-size: 1.6rem;
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 2rem;
+      color: var(--fg);
+    }
+
+    .tab-switch {
+      display: flex;
+      background: rgba(255,255,255,0.04);
+      border-radius: 8px;
+      padding: 3px;
+      margin-bottom: 1.8rem;
+    }
+    .tab-switch button {
+      flex: 1;
+      padding: 0.55em 0;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-size: 0.9rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.25s;
+      font-weight: 500;
+    }
+    .tab-switch button.active {
+      background: rgba(108,99,255,0.25);
+      color: var(--fg);
+    }
+
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; font-size: 0.75rem; color: var(--muted); margin-bottom: 0.4rem; letter-spacing: 0.05em; }
+    .form-group input {
+      width: 100%;
+      padding: 0.7em 1em;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--fg);
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .form-group input:focus { border-color: var(--accent); }
+
+    .btn-primary {
+      width: 100%;
+      padding: 0.75em;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 0.5rem;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+    .btn-primary:hover { opacity: 0.9; }
+    .btn-primary:active { transform: scale(0.99); }
+
+    .divider-or {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin: 1.5rem 0;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+    .divider-or::before, .divider-or::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .social-btns { display: flex; gap: 0.75rem; }
+    .social-btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.6em;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--fg);
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .social-btn:hover { background: rgba(255,255,255,0.08); }
+    .social-btn svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+    /* ── SCREEN B : MAIN APP ── */
+    #screen-app {
+      display: none;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    /* TOP NAV */
+    .top-nav {
+      height: 52px;
+      display: flex;
+      align-items: center;
+      padding: 0 1.5rem;
+      border-bottom: 1px solid var(--border);
+      gap: 1rem;
+      flex-shrink: 0;
+      background: rgba(10,10,15,0.95);
+      backdrop-filter: blur(10px);
+      position: relative;
+      z-index: 10;
+    }
+    .nav-logo {
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .nav-project {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .nav-project span {
+      color: var(--fg);
+      font-weight: 500;
+    }
+    .nav-spacer { flex: 1; }
+    .avatar {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; font-weight: 700; color: #fff;
+      cursor: pointer;
+    }
+
+    /* BODY SPLIT */
+    .app-body {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* ── LEFT CHAT PANEL ── */
+    .chat-panel {
+      width: 30%;
+      min-width: 280px;
+      max-width: 380px;
+      background: var(--chat-bg);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .chat-header {
+      padding: 1rem 1.2rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .chat-project-name {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--fg);
+    }
+    .btn-new {
+      font-size: 0.7rem;
+      padding: 0.3em 0.8em;
+      background: rgba(108,99,255,0.15);
+      border: 1px solid rgba(108,99,255,0.3);
+      border-radius: 4px;
+      color: var(--accent);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-new:hover { background: rgba(108,99,255,0.3); }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      scroll-behavior: smooth;
+    }
+    .chat-messages::-webkit-scrollbar { width: 4px; }
+    .chat-messages::-webkit-scrollbar-track { background: transparent; }
+    .chat-messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+    .msg {
+      display: flex;
+      flex-direction: column;
+      max-width: 88%;
+    }
+    .msg.ai { align-self: flex-start; }
+    .msg.user { align-self: flex-end; }
+
+    .msg-label {
+      font-size: 0.65rem;
+      color: var(--muted);
+      margin-bottom: 0.3rem;
+      padding: 0 0.2rem;
+    }
+    .msg.ai .msg-label { color: var(--accent); }
+
+    .msg-bubble {
+      padding: 0.65em 0.9em;
+      border-radius: 10px;
+      font-size: 0.82rem;
+      line-height: 1.55;
+    }
+    .msg.ai .msg-bubble {
+      background: var(--ai-bubble);
+      border: 1px solid rgba(108,99,255,0.2);
+      color: var(--fg);
+      border-radius: 4px 10px 10px 10px;
+    }
+    .msg.user .msg-bubble {
+      background: var(--user-bubble);
+      border: 1px solid rgba(255,255,255,0.06);
+      color: var(--fg);
+      border-radius: 10px 4px 10px 10px;
+    }
+
+    .typing-indicator {
+      display: none;
+      align-self: flex-start;
+    }
+    .typing-indicator .msg-bubble {
+      background: var(--ai-bubble);
+      border: 1px solid rgba(108,99,255,0.2);
+      border-radius: 4px 10px 10px 10px;
+      padding: 0.65em 1em;
+    }
+    .typing-dots { display: flex; gap: 4px; align-items: center; }
+    .typing-dots span {
+      width: 6px; height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: bounce 1.2s infinite;
+    }
+    .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce {
+      0%,60%,100% { transform: translateY(0); opacity: 0.6; }
+      30% { transform: translateY(-5px); opacity: 1; }
+    }
+
+    .chat-input-area {
+      padding: 0.75rem 1rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 0.5rem;
+      flex-shrink: 0;
+    }
+    .chat-input {
+      flex: 1;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.6em 0.9em;
+      color: var(--fg);
+      font-size: 0.83rem;
+      outline: none;
+      resize: none;
+      font-family: inherit;
+      max-height: 100px;
+      transition: border-color 0.2s;
+    }
+    .chat-input:focus { border-color: var(--accent); }
+    .send-btn {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: opacity 0.2s;
+    }
+    .send-btn:hover { opacity: 0.85; }
+
+    /* ── RIGHT WORKSPACE ── */
+    .workspace {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* grid background for workspace */
+    .workspace::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+      background-size: 32px 32px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .workspace-toolbar {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      padding: 0 1.5rem;
+      background: rgba(10,10,15,0.6);
+      backdrop-filter: blur(8px);
+      flex-shrink: 0;
+    }
+    .ws-tab {
+      padding: 0.9em 1.2em;
+      font-size: 0.82rem;
+      color: var(--muted);
+      cursor: pointer;
+      position: relative;
+      transition: color 0.2s;
+      font-weight: 500;
+      user-select: none;
+    }
+    .ws-tab.active { color: var(--fg); }
+    .ws-tab::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .ws-tab.active::after { opacity: 1; }
+
+    .workspace-content {
+      position: relative;
+      z-index: 1;
+      flex: 1;
+      overflow: auto;
+      padding: 1.5rem;
+    }
+
+    /* tab panels */
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* SCHEMATIC SVG */
+    .schematic-wrap {
+      background: rgba(255,255,255,0.015);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      height: calc(100vh - 52px - 45px - 3rem);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .schematic-wrap svg { max-width: 100%; max-height: 100%; }
+
+    /* BOM TABLE */
+    .bom-table-wrap {
+      overflow: auto;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.015);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+    thead th {
+      padding: 0.75em 1em;
+      text-align: left;
+      color: var(--muted);
+      font-size: 0.72rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255,255,255,0.02);
+      white-space: nowrap;
+    }
+    tbody td {
+      padding: 0.7em 1em;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      color: var(--fg);
+    }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr { transition: background 0.15s; }
+    tbody tr:hover { background: rgba(108,99,255,0.06); }
+    .bom-total {
+      margin-top: 0.75rem;
+      text-align: right;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .bom-total strong { color: var(--accent2); }
+
+    /* 3D PREVIEW */
+    .preview-3d {
+      height: calc(100vh - 52px - 45px - 3rem);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: rgba(255,255,255,0.015);
+      gap: 1.5rem;
+    }
+    .preview-3d .icon-3d {
+      width: 80px; height: 80px;
+      background: rgba(108,99,255,0.1);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.5rem;
+    }
+    .preview-3d p { color: var(--muted); font-size: 0.9rem; }
+    .progress-bar {
+      width: 200px; height: 3px;
+      background: rgba(255,255,255,0.07);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .progress-bar::after {
+      content: '';
+      display: block;
+      width: 40%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      border-radius: 3px;
+      animation: progress 2s ease-in-out infinite alternate;
+    }
+    @keyframes progress { from { width: 20%; } to { width: 80%; } }
+
+    /* PRODUCTION FILES */
+    .prod-files { display: flex; flex-direction: column; gap: 1rem; max-width: 500px; }
+    .download-item {
+      display: flex; align-items: center; gap: 1rem;
+      padding: 1rem 1.2rem;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .download-item:hover { background: rgba(108,99,255,0.08); border-color: rgba(108,99,255,0.3); }
+    .dl-icon {
+      width: 40px; height: 40px;
+      background: rgba(108,99,255,0.12);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+    .dl-info { flex: 1; }
+    .dl-name { font-size: 0.9rem; font-weight: 500; }
+    .dl-desc { font-size: 0.75rem; color: var(--muted); margin-top: 0.15rem; }
+    .dl-btn {
+      padding: 0.4em 1em;
+      background: rgba(0,212,255,0.1);
+      border: 1px solid rgba(0,212,255,0.25);
+      border-radius: 6px;
+      color: var(--accent2);
+      font-size: 0.78rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .dl-btn:hover { background: rgba(0,212,255,0.2); }
+
+    /* ORDER FLOAT BTN */
+    .order-float {
+      position: fixed;
+      right: 2rem;
+      bottom: 2rem;
+      z-index: 20;
+      display: none;
+    }
+    .order-btn {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.85em 1.6em;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border: none;
+      border-radius: 50px;
+      color: #fff;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 0 24px rgba(108,99,255,0.5), 0 0 48px rgba(0,212,255,0.2);
+      transition: transform 0.2s, box-shadow 0.2s;
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+    .order-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 36px rgba(108,99,255,0.7), 0 0 64px rgba(0,212,255,0.35);
+    }
+    @keyframes pulse-glow {
+      0%,100% { box-shadow: 0 0 24px rgba(108,99,255,0.5), 0 0 48px rgba(0,212,255,0.2); }
+      50% { box-shadow: 0 0 40px rgba(108,99,255,0.7), 0 0 70px rgba(0,212,255,0.35); }
+    }
+
+    /* ── ORDER MODAL ── */
+    .modal-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(6px);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: #0f0e1a;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      width: 480px;
+      max-width: 94vw;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 2rem;
+    }
+    .modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+    .modal-title {
+      font-size: 1.15rem; font-weight: 700;
+    }
+    .modal-close {
+      background: none; border: none;
+      color: var(--muted); font-size: 1.3rem;
+      cursor: pointer; line-height: 1;
+      transition: color 0.2s;
+    }
+    .modal-close:hover { color: var(--fg); }
+
+    .modal-section { margin-bottom: 1.25rem; }
+    .modal-label {
+      font-size: 0.72rem; color: var(--muted);
+      letter-spacing: 0.05em; text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+
+    .option-group { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .option-chip {
+      padding: 0.4em 1em;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: transparent;
+      color: var(--fg);
+    }
+    .option-chip.selected {
+      background: rgba(108,99,255,0.2);
+      border-color: var(--accent);
+      color: var(--fg);
+    }
+
+    .color-chips { display: flex; gap: 0.5rem; }
+    .color-chip {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: border-color 0.2s, transform 0.15s;
+      position: relative;
+    }
+    .color-chip.selected { border-color: var(--accent2); transform: scale(1.15); }
+    .color-chip[data-color="绿"] { background: #2d6a2d; }
+    .color-chip[data-color="黑"] { background: #1a1a1a; border: 2px solid rgba(255,255,255,0.15); }
+    .color-chip[data-color="蓝"] { background: #1a3a6a; }
+    .color-chip[data-color="红"] { background: #6a1a1a; }
+
+    .price-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0.75rem 0;
+      border-top: 1px solid var(--border);
+    }
+    .price-row:first-child { border-top: none; padding-top: 0; }
+    .price-label { font-size: 0.85rem; color: var(--muted); }
+    .price-val { font-size: 0.9rem; color: var(--fg); }
+    .price-total .price-label { color: var(--fg); font-weight: 600; }
+    .price-total .price-val { color: var(--accent2); font-weight: 700; font-size: 1.1rem; }
+
+    .form-row { display: flex; gap: 0.75rem; }
+    .form-row .form-group { flex: 1; }
+    .form-group.full { width: 100%; }
+    .modal .form-group label {
+      display: block; font-size: 0.72rem; color: var(--muted);
+      letter-spacing: 0.05em; text-transform: uppercase;
+      margin-bottom: 0.4rem;
+    }
+    .modal .form-group input, .modal .form-group textarea {
+      width: 100%;
+      padding: 0.65em 0.9em;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--fg);
+      font-size: 0.85rem;
+      outline: none;
+      font-family: inherit;
+      transition: border-color 0.2s;
+    }
+    .modal .form-group input:focus,
+    .modal .form-group textarea:focus { border-color: var(--accent); }
+    .modal .form-group textarea { resize: vertical; min-height: 80px; }
+
+    .modal-footer { margin-top: 1.5rem; }
+    .confirm-btn {
+      width: 100%;
+      padding: 0.85em;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .confirm-btn:hover { opacity: 0.9; }
+    .confirm-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .order-success {
+      display: none;
+      flex-direction: column; align-items: center;
+      gap: 1rem; padding: 2rem 0;
+      text-align: center;
+    }
+    .success-icon {
+      width: 64px; height: 64px;
+      background: rgba(0,212,255,0.1);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2rem;
+      border: 2px solid var(--accent2);
+    }
+    .success-title { font-size: 1.1rem; font-weight: 700; }
+    .success-sub { font-size: 0.85rem; color: var(--muted); }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .chat-panel { width: 100%; max-width: 100%; position: fixed; inset: 52px 0 0 0; z-index: 50; transform: translateX(-100%); transition: transform 0.3s; }
+      .chat-panel.open { transform: translateX(0); }
+      .workspace { width: 100%; }
+      .order-float { right: 1rem; bottom: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     SCREEN A: LOGIN
+════════════════════════════════════════════ -->
+<div id="screen-login">
+  <div class="login-card">
+    <div class="login-logo">HW-KAI</div>
+    <div class="login-title">开始创造</div>
+
+    <div class="tab-switch">
+      <button class="active" id="tab-login-btn" onclick="switchAuthTab('login')">登录</button>
+      <button id="tab-register-btn" onclick="switchAuthTab('register')">注册</button>
+    </div>
+
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" placeholder="you@example.com" id="email-input" />
+    </div>
+    <div class="form-group">
+      <label>密码</label>
+      <input type="password" placeholder="••••••••" id="password-input" />
+    </div>
+    <div class="form-group" id="confirm-pw-group" style="display:none;">
+      <label>确认密码</label>
+      <input type="password" placeholder="••••••••" />
+    </div>
+
+    <button class="btn-primary" id="auth-submit-btn" onclick="handleLogin()">登录</button>
+
+    <div class="divider-or">或者</div>
+
+    <div class="social-btns">
+      <button class="social-btn" onclick="handleLogin()">
+        <!-- GitHub SVG -->
+        <svg viewBox="0 0 24 24" fill="var(--fg)" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/>
+        </svg>
+        GitHub
+      </button>
+      <button class="social-btn" onclick="handleLogin()">
+        <!-- Google SVG -->
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+        </svg>
+        Google
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SCREEN B: MAIN APP
+════════════════════════════════════════════ -->
+<div id="screen-app">
+
+  <!-- TOP NAV -->
+  <nav class="top-nav">
+    <span class="nav-logo">HW — KAI</span>
+    <span class="nav-project">/ <span id="project-display">温湿度传感器 v1</span></span>
+    <div class="nav-spacer"></div>
+    <div class="avatar" title="用户">Y</div>
+  </nav>
+
+  <div class="app-body">
+
+    <!-- LEFT CHAT PANEL -->
+    <aside class="chat-panel" id="chat-panel">
+      <div class="chat-header">
+        <span class="chat-project-name">温湿度传感器 v1</span>
+        <button class="btn-new">＋ 新项目</button>
+      </div>
+
+      <div class="chat-messages" id="chat-messages">
+        <div class="msg ai">
+          <div class="msg-label">HW-KAI AI</div>
+          <div class="msg-bubble">你好！描述你想要做的硬件，我来帮你设计。</div>
+        </div>
+        <div class="msg user">
+          <div class="msg-label">你</div>
+          <div class="msg-bubble">我想做一个温湿度传感器，用 ESP32，支持 WiFi 上报数据</div>
+        </div>
+        <div class="msg ai">
+          <div class="msg-label">HW-KAI AI</div>
+          <div class="msg-bubble">好的，正在生成原理图...<br><br>✅ 已选型 <strong>AHT20 传感器 + ESP32-C3</strong><br>📦 BOM 共 12 个元件<br>💰 预估成本 <strong>¥45</strong></div>
+        </div>
+      </div>
+
+      <div class="typing-indicator" id="typing-indicator">
+        <div class="msg-bubble">
+          <div class="typing-dots">
+            <span></span><span></span><span></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-input-area">
+        <textarea class="chat-input" id="chat-input" placeholder="描述你的硬件需求..." rows="1"></textarea>
+        <button class="send-btn" onclick="sendMessage()" title="发送">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
+        </button>
+      </div>
+    </aside>
+
+    <!-- RIGHT WORKSPACE -->
+    <main class="workspace">
+      <div class="workspace-toolbar">
+        <div class="ws-tab active" onclick="switchTab('schematic', this)">原理图</div>
+        <div class="ws-tab" onclick="switchTab('bom', this)">BOM</div>
+        <div class="ws-tab" onclick="switchTab('preview3d', this)">3D 预览</div>
+        <div class="ws-tab" onclick="switchTab('production', this)">生产文件</div>
+      </div>
+
+      <div class="workspace-content">
+
+        <!-- SCHEMATIC TAB -->
+        <div class="tab-panel active" id="tab-schematic">
+          <div class="schematic-wrap">
+            <svg viewBox="0 0 800 520" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;">
+              <defs>
+                <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                  <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+                </pattern>
+                <marker id="arrow" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+                  <path d="M0,0 L0,6 L6,3 z" fill="rgba(0,212,255,0.6)"/>
+                </marker>
+              </defs>
+              <rect width="800" height="520" fill="url(#grid)"/>
+
+              <!-- ESP32-C3 module -->
+              <g transform="translate(280, 160)">
+                <rect x="0" y="0" width="200" height="200" rx="6" fill="#0d0d1a" stroke="#6c63ff" stroke-width="1.5"/>
+                <text x="100" y="22" text-anchor="middle" fill="#6c63ff" font-size="11" font-family="monospace" font-weight="bold">ESP32-C3</text>
+                <text x="100" y="38" text-anchor="middle" fill="rgba(255,255,255,0.3)" font-size="8" font-family="monospace">WiFi + BLE</text>
+                <!-- Pins left -->
+                <line x1="-20" y1="60" x2="0" y2="60" stroke="rgba(0,212,255,0.5)" stroke-width="1"/>
+                <text x="-25" y="64" text-anchor="end" fill="rgba(255,255,255,0.45)" font-size="8" font-family="monospace">3V3</text>
+                <line x1="-20" y1="80" x2="0" y2="80" stroke="rgba(0,212,255,0.5)" stroke-width="1"/>
+                <text x="-25" y="84" text-anchor="end" fill="rgba(255,255,255,0.45)" font-size="8" font-family="monospace">GND</text>
+                <line x1="-20" y1="100" x2="0" y2="100" stroke="rgba(0,212,255,0.5)" stroke-width="1"/>
+                <text x="-25" y="104" text-anchor="end" fill="rgba(255,255,255,0.45)" font-size="8" font-family="monospace">SDA</text>
+                <line x1="-20" y1="120" x2="0" y2="120" stroke="rgba(0,212,255,0.5)" stroke-width="1"/>
+                <text x="-25" y="124" text-anchor="end" fill="rgba(255,255,255,0.45)" font-size="8" font-family="monospace">SCL</text>
+                <!-- Pins right -->
+                <line x1="200" y1="60" x2="220" y2="60" stroke="rgba(0,212,255,0.5)" stroke-width="1"/>
+                <text x="225" y="64" fill="rgba(255,255,255,0.45)" font-size="8" font-family="monospace">TX</text>
+                <line x1="200" y1="80" x2="220" y2="80" stroke="rgba(0,212,255,0.5)" stroke-width="1"/>
+                <text x="225" y="84" fill="rgba(255,255,255,0.45)" font-size="8" font-family="monospace">RX</text>
+                <line x1="200" y1="100" x2="220" y2="100" stroke="rgba(0,212,255,0.5)" stroke-width="1"/>
+                <text x="225" y="104" fill="rgba(255,255,255,0.45)" font-size="8" font-family="monospace">IO2</text>
+                <!-- Center chip icon -->
+                <rect x="70" y="75" width="60" height="60" rx="4" fill="rgba(108,99,255,0.08)" stroke="rgba(108,99,255,0.3)" stroke-width="1"/>
+                <text x="100" y="104" text-anchor="middle" fill="rgba(108,99,255,0.7)" font-size="9" font-family="monospace">RISC-V</text>
+                <text x="100" y="118" text-anchor="middle" fill="rgba(108,99,255,0.4)" font-size="7" font-family="monospace">160MHz</text>
+              </g>
+
+              <!-- AHT20 Sensor -->
+              <g transform="translate(60, 190)">
+                <rect x="0" y="0" width="140" height="100" rx="6" fill="#0d0d1a" stroke="#00d4ff" stroke-width="1.5"/>
+                <text x="70" y="20" text-anchor="middle" fill="#00d4ff" font-size="11" font-family="monospace" font-weight="bold">AHT20</text>
+                <text x="70" y="34" text-anchor="middle" fill="rgba(255,255,255,0.3)" font-size="8" font-family="monospace">Temp + Humidity</text>
+                <text x="70" y="56" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="9" font-family="monospace">I²C</text>
+                <!-- pins right -->
+                <line x1="140" y1="40" x2="160" y2="40" stroke="rgba(0,212,255,0.5)" stroke-width="1"/>
+                <text x="145" y="37" fill="rgba(255,255,255,0.4)" font-size="7" font-family="monospace">VCC</text>
+                <line x1="140" y1="55" x2="160" y2="55" stroke="rgba(0,212,255,0.5)" stroke-width="1"/>
+                <text x="145" y="52" fill="rgba(255,255,255,0.4)" font-size="7" font-family="monospace">GND</text>
+                <line x1="140" y1="70" x2="160" y2="70" stroke="rgba(0,212,255,0.5)" stroke-width="1"/>
+                <text x="145" y="67" fill="rgba(255,255,255,0.4)" font-size="7" font-family="monospace">SDA</text>
+                <line x1="140" y1="85" x2="160" y2="85" stroke="rgba(0,212,255,0.5)" stroke-width="1"/>
+                <text x="145" y="82" fill="rgba(255,255,255,0.4)" font-size="7" font-family="monospace">SCL</text>
+              </g>
+
+              <!-- Wires from AHT20 to ESP32 -->
+              <line x1="220" y1="230" x2="260" y2="230" stroke="rgba(0,212,255,0.4)" stroke-width="1.5" stroke-dasharray="4,2"/>
+              <line x1="220" y1="245" x2="245" y2="245" x2="260" stroke="rgba(0,212,255,0.4)" stroke-width="1.5" stroke-dasharray="4,2"/>
+              <!-- SDA wire (to ESP32 SDA pin at 280,260) -->
+              <polyline points="220,270,250,270,250,300,260,300" fill="none" stroke="rgba(0,212,255,0.4)" stroke-width="1.5" stroke-dasharray="4,2"/>
+              <!-- SCL wire -->
+              <polyline points="220,285,245,285,245,320,260,320" fill="none" stroke="rgba(0,212,255,0.4)" stroke-width="1.5" stroke-dasharray="4,2"/>
+
+              <!-- Decoupling Capacitors -->
+              <g transform="translate(130, 90)">
+                <rect x="0" y="0" width="60" height="40" rx="4" fill="#0d0d1a" stroke="rgba(108,99,255,0.4)" stroke-width="1"/>
+                <text x="30" y="15" text-anchor="middle" fill="rgba(255,255,255,0.4)" font-size="8" font-family="monospace">C1</text>
+                <text x="30" y="27" text-anchor="middle" fill="rgba(108,99,255,0.6)" font-size="8" font-family="monospace">100nF</text>
+                <line x1="0" y1="20" x2="-20" y2="20" stroke="rgba(108,99,255,0.4)" stroke-width="1"/>
+                <line x1="60" y1="20" x2="80" y2="20" stroke="rgba(108,99,255,0.4)" stroke-width="1"/>
+              </g>
+
+              <g transform="translate(130, 140)">
+                <rect x="0" y="0" width="60" height="40" rx="4" fill="#0d0d1a" stroke="rgba(108,99,255,0.4)" stroke-width="1"/>
+                <text x="30" y="15" text-anchor="middle" fill="rgba(255,255,255,0.4)" font-size="8" font-family="monospace">C2</text>
+                <text x="30" y="27" text-anchor="middle" fill="rgba(108,99,255,0.6)" font-size="8" font-family="monospace">10µF</text>
+                <line x1="0" y1="20" x2="-20" y2="20" stroke="rgba(108,99,255,0.4)" stroke-width="1"/>
+                <line x1="60" y1="20" x2="80" y2="20" stroke="rgba(108,99,255,0.4)" stroke-width="1"/>
+              </g>
+
+              <!-- USB-C Connector -->
+              <g transform="translate(570, 200)">
+                <rect x="0" y="0" width="100" height="120" rx="6" fill="#0d0d1a" stroke="rgba(0,212,255,0.5)" stroke-width="1.5"/>
+                <text x="50" y="20" text-anchor="middle" fill="#00d4ff" font-size="10" font-family="monospace" font-weight="bold">USB-C</text>
+                <text x="50" y="34" text-anchor="middle" fill="rgba(255,255,255,0.3)" font-size="8" font-family="monospace">Power + Data</text>
+                <!-- pins -->
+                <line x1="-20" y1="50" x2="0" y2="50" stroke="rgba(0,212,255,0.5)" stroke-width="1"/>
+                <text x="-25" y="54" text-anchor="end" fill="rgba(255,255,255,0.4)" font-size="7" font-family="monospace">VBUS</text>
+                <line x1="-20" y1="70" x2="0" y2="70" stroke="rgba(0,212,255,0.5)" stroke-width="1"/>
+                <text x="-25" y="74" text-anchor="end" fill="rgba(255,255,255,0.4)" font-size="7" font-family="monospace">GND</text>
+                <line x1="-20" y1="90" x2="0" y2="90" stroke="rgba(0,212,255,0.5)" stroke-width="1"/>
+                <text x="-25" y="94" text-anchor="end" fill="rgba(255,255,255,0.4)" font-size="7" font-family="monospace">D+</text>
+                <line x1="-20" y1="110" x2="0" y2="110" stroke="rgba(0,212,255,0.5)" stroke-width="1"/>
+                <text x="-25" y="114" text-anchor="end" fill="rgba(255,255,255,0.4)" font-size="7" font-family="monospace">D-</text>
+              </g>
+
+              <!-- Wire from ESP32 to USB -->
+              <line x1="500" y1="260" x2="550" y2="260" stroke="rgba(0,212,255,0.35)" stroke-width="1.5" stroke-dasharray="4,2"/>
+
+              <!-- Power rail -->
+              <line x1="40" y1="80" x2="760" y2="80" stroke="rgba(255,80,80,0.25)" stroke-width="1" stroke-dasharray="6,3"/>
+              <text x="42" y="76" fill="rgba(255,80,80,0.5)" font-size="8" font-family="monospace">3.3V</text>
+              <!-- GND rail -->
+              <line x1="40" y1="460" x2="760" y2="460" stroke="rgba(255,255,255,0.1)" stroke-width="1" stroke-dasharray="6,3"/>
+              <text x="42" y="456" fill="rgba(255,255,255,0.3)" font-size="8" font-family="monospace">GND</text>
+
+              <!-- Pull-up resistors -->
+              <g transform="translate(220, 370)">
+                <rect x="0" y="0" width="50" height="30" rx="3" fill="#0d0d1a" stroke="rgba(108,99,255,0.35)" stroke-width="1"/>
+                <text x="25" y="12" text-anchor="middle" fill="rgba(255,255,255,0.35)" font-size="7" font-family="monospace">R1</text>
+                <text x="25" y="24" text-anchor="middle" fill="rgba(108,99,255,0.6)" font-size="7" font-family="monospace">4.7kΩ</text>
+              </g>
+              <g transform="translate(280, 370)">
+                <rect x="0" y="0" width="50" height="30" rx="3" fill="#0d0d1a" stroke="rgba(108,99,255,0.35)" stroke-width="1"/>
+                <text x="25" y="12" text-anchor="middle" fill="rgba(255,255,255,0.35)" font-size="7" font-family="monospace">R2</text>
+                <text x="25" y="24" text-anchor="middle" fill="rgba(108,99,255,0.6)" font-size="7" font-family="monospace">4.7kΩ</text>
+              </g>
+
+              <!-- LED indicator -->
+              <g transform="translate(540, 370)">
+                <circle cx="20" cy="20" r="14" fill="rgba(0,212,255,0.05)" stroke="#00d4ff" stroke-width="1.2"/>
+                <text x="20" y="15" text-anchor="middle" fill="rgba(255,255,255,0.3)" font-size="7" font-family="monospace">LED</text>
+                <text x="20" y="27" text-anchor="middle" fill="#00d4ff" font-size="7" font-family="monospace">D1</text>
+                <line x1="20" y1="-10" x2="20" y2="6" stroke="rgba(0,212,255,0.4)" stroke-width="1"/>
+                <line x1="20" y1="34" x2="20" y2="50" stroke="rgba(0,212,255,0.4)" stroke-width="1"/>
+              </g>
+
+              <!-- LDO Regulator -->
+              <g transform="translate(620, 100)">
+                <rect x="0" y="0" width="100" height="60" rx="5" fill="#0d0d1a" stroke="rgba(0,212,255,0.4)" stroke-width="1.2"/>
+                <text x="50" y="20" text-anchor="middle" fill="#00d4ff" font-size="10" font-family="monospace" font-weight="bold">AMS1117</text>
+                <text x="50" y="34" text-anchor="middle" fill="rgba(255,255,255,0.3)" font-size="8" font-family="monospace">3.3V LDO</text>
+                <text x="50" y="48" text-anchor="middle" fill="rgba(108,99,255,0.5)" font-size="8" font-family="monospace">800mA</text>
+              </g>
+
+              <!-- Labels -->
+              <text x="400" y="30" text-anchor="middle" fill="rgba(255,255,255,0.2)" font-size="12" font-family="monospace" font-weight="bold">温湿度传感器 — 原理图 v1.0</text>
+              <text x="400" y="48" text-anchor="middle" fill="rgba(255,255,255,0.1)" font-size="9" font-family="monospace">ESP32-C3 + AHT20 | Generated by HW-KAI</text>
+            </svg>
+          </div>
+        </div>
+
+        <!-- BOM TAB -->
+        <div class="tab-panel" id="tab-bom">
+          <div class="bom-table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>位号</th>
+                  <th>名称</th>
+                  <th>规格</th>
+                  <th>数量</th>
+                  <th>单价</th>
+                  <th>小计</th>
+                  <th>封装</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>1</td><td>U1</td><td>ESP32-C3-MINI-1</td><td>WiFi+BLE5 RISC-V 160MHz 4MB Flash</td><td>1</td><td>¥18.00</td><td>¥18.00</td><td>LCC-54</td></tr>
+                <tr><td>2</td><td>U2</td><td>AHT20</td><td>I²C 温湿度传感器 ±2%RH ±0.3°C</td><td>1</td><td>¥3.50</td><td>¥3.50</td><td>LGA-4</td></tr>
+                <tr><td>3</td><td>U3</td><td>AMS1117-3.3</td><td>LDO 稳压 3.3V 800mA</td><td>1</td><td>¥0.80</td><td>¥0.80</td><td>SOT-223</td></tr>
+                <tr><td>4</td><td>C1</td><td>陶瓷电容</td><td>100nF 10V X7R</td><td>4</td><td>¥0.10</td><td>¥0.40</td><td>0402</td></tr>
+                <tr><td>5</td><td>C2</td><td>铝电解电容</td><td>10µF 16V</td><td>2</td><td>¥0.30</td><td>¥0.60</td><td>0805</td></tr>
+                <tr><td>6</td><td>C3</td><td>陶瓷电容</td><td>1µF 10V X5R</td><td>2</td><td>¥0.15</td><td>¥0.30</td><td>0402</td></tr>
+                <tr><td>7</td><td>R1,R2</td><td>I²C 上拉电阻</td><td>4.7kΩ 1% 1/10W</td><td>2</td><td>¥0.05</td><td>¥0.10</td><td>0402</td></tr>
+                <tr><td>8</td><td>R3</td><td>限流电阻</td><td>330Ω 1% 1/10W</td><td>1</td><td>¥0.05</td><td>¥0.05</td><td>0402</td></tr>
+                <tr><td>9</td><td>D1</td><td>LED 电源指示</td><td>蓝色 3.0V 20mA</td><td>1</td><td>¥0.20</td><td>¥0.20</td><td>0402</td></tr>
+                <tr><td>10</td><td>J1</td><td>USB-C 连接器</td><td>16Pin 立式 5A</td><td>1</td><td>¥1.20</td><td>¥1.20</td><td>USB-C-16P</td></tr>
+                <tr><td>11</td><td>J2</td><td>排针 2.54mm</td><td>2×4P 直插</td><td>1</td><td>¥0.40</td><td>¥0.40</td><td>THT</td></tr>
+                <tr><td>12</td><td>PCB</td><td>PCB 板</td><td>2层 FR4 1.6mm 绿油 HASL</td><td>1</td><td>¥19.00</td><td>¥19.00</td><td>—</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="bom-total">
+            合计 12 种元件 &nbsp;|&nbsp; 总价：<strong>¥44.55</strong> &nbsp;|&nbsp; 预估加工费：<strong>¥0.45</strong> &nbsp;|&nbsp; <strong style="color:var(--accent)">总计 ≈ ¥45</strong>
+          </div>
+        </div>
+
+        <!-- 3D PREVIEW TAB -->
+        <div class="tab-panel" id="tab-preview3d">
+          <div class="preview-3d">
+            <div class="icon-3d">🔲</div>
+            <p>3D 预览生成中...</p>
+            <div class="progress-bar"></div>
+            <p style="font-size:0.75rem; color:var(--muted); margin-top:-0.5rem;">基于 KiCad 模型渲染，预计完成时间 ~30s</p>
+          </div>
+        </div>
+
+        <!-- PRODUCTION FILES TAB -->
+        <div class="tab-panel" id="tab-production">
+          <div class="prod-files">
+            <div class="download-item">
+              <div class="dl-icon">📐</div>
+              <div class="dl-info">
+                <div class="dl-name">Gerber 文件</div>
+                <div class="dl-desc">温湿度传感器_v1.0_gerber.zip · 2层 · 含钻孔文件</div>
+              </div>
+              <button class="dl-btn">下载</button>
+            </div>
+            <div class="download-item">
+              <div class="dl-icon">📋</div>
+              <div class="dl-info">
+                <div class="dl-name">BOM 清单</div>
+                <div class="dl-desc">温湿度传感器_v1.0_bom.xlsx · 12 元件 · 含供应商链接</div>
+              </div>
+              <button class="dl-btn">下载</button>
+            </div>
+            <div class="download-item">
+              <div class="dl-icon">🗂️</div>
+              <div class="dl-info">
+                <div class="dl-name">贴片坐标文件</div>
+                <div class="dl-desc">温湿度传感器_v1.0_cpl.csv · SMD 元件位置 + 旋转角度</div>
+              </div>
+              <button class="dl-btn">下载</button>
+            </div>
+            <div class="download-item">
+              <div class="dl-icon">📄</div>
+              <div class="dl-info">
+                <div class="dl-name">原理图 PDF</div>
+                <div class="dl-desc">温湿度传感器_v1.0_schematic.pdf · A3 格式</div>
+              </div>
+              <button class="dl-btn">下载</button>
+            </div>
+            <div class="download-item">
+              <div class="dl-icon">💾</div>
+              <div class="dl-info">
+                <div class="dl-name">KiCad 工程文件</div>
+                <div class="dl-desc">温湿度传感器_v1.0_kicad.zip · 完整工程，可二次编辑</div>
+              </div>
+              <button class="dl-btn">下载</button>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /workspace-content -->
+    </main>
+
+  </div><!-- /app-body -->
+</div><!-- /screen-app -->
+
+<!-- ORDER FLOAT BTN -->
+<div class="order-float" id="order-float">
+  <button class="order-btn" onclick="openOrder()">
+    🚀 一键下单到家
+  </button>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     ORDER MODAL
+════════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div id="modal-order-form">
+      <div class="modal-header">
+        <span class="modal-title">确认订单</span>
+        <button class="modal-close" onclick="closeOrder()">✕</button>
+      </div>
+
+      <!-- Project summary -->
+      <div class="modal-section">
+        <div class="modal-label">项目</div>
+        <div style="font-size:0.9rem; font-weight:600;">温湿度传感器 v1.0</div>
+        <div style="font-size:0.78rem; color:var(--muted); margin-top:0.25rem;">ESP32-C3 + AHT20 | 2层 FR4 | 尺寸 50×40mm</div>
+      </div>
+
+      <!-- Quantity -->
+      <div class="modal-section">
+        <div class="modal-label">板子数量</div>
+        <div class="option-group" id="qty-group">
+          <button class="option-chip" onclick="selectQty(this,'1')">1 片</button>
+          <button class="option-chip selected" onclick="selectQty(this,'5')">5 片</button>
+          <button class="option-chip" onclick="selectQty(this,'10')">10 片</button>
+          <button class="option-chip" onclick="selectQty(this,'50')">50 片</button>
+        </div>
+      </div>
+
+      <!-- Color -->
+      <div class="modal-section">
+        <div class="modal-label">板子颜色</div>
+        <div class="color-chips">
+          <div class="color-chip selected" data-color="绿" onclick="selectColor(this)" title="绿色"></div>
+          <div class="color-chip" data-color="黑" onclick="selectColor(this)" title="黑色"></div>
+          <div class="color-chip" data-color="蓝" onclick="selectColor(this)" title="蓝色"></div>
+          <div class="color-chip" data-color="红" onclick="selectColor(this)" title="红色"></div>
+        </div>
+      </div>
+
+      <!-- Price summary -->
+      <div class="modal-section" style="border:1px solid var(--border); border-radius:10px; padding:1rem;">
+        <div class="price-row">
+          <span class="price-label">元件费</span>
+          <span class="price-val">¥44.55</span>
+        </div>
+        <div class="price-row">
+          <span class="price-label">PCB 制造（×<span id="qty-display">5</span> 片）</span>
+          <span class="price-val" id="pcb-price">¥45.00</span>
+        </div>
+        <div class="price-row">
+          <span class="price-label">SMT 贴片加工</span>
+          <span class="price-val">¥30.00</span>
+        </div>
+        <div class="price-row">
+          <span class="price-label">运费</span>
+          <span class="price-val">¥12.00</span>
+        </div>
+        <div class="price-row price-total" style="border-top:1px solid var(--border); margin-top:0.25rem; padding-top:0.75rem;">
+          <span class="price-label">总计</span>
+          <span class="price-val" id="total-price">¥131.55</span>
+        </div>
+        <div style="margin-top:0.5rem; font-size:0.75rem; color:var(--muted);">
+          📦 预计交期：<strong style="color:var(--fg);">7 个工作日</strong>（顺丰到付）
+        </div>
+      </div>
+
+      <!-- Address -->
+      <div class="modal-section">
+        <div class="modal-label">收货地址</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>姓名</label>
+            <input type="text" placeholder="张三" />
+          </div>
+          <div class="form-group">
+            <label>手机号</label>
+            <input type="tel" placeholder="138 0000 0000" />
+          </div>
+        </div>
+        <div class="form-group full" style="margin-top:0.75rem;">
+          <label>详细地址</label>
+          <textarea placeholder="省 / 市 / 区 / 街道 / 门牌号"></textarea>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="confirm-btn" onclick="submitOrder()">确认下单</button>
+      </div>
+    </div>
+
+    <!-- Success state -->
+    <div class="order-success" id="order-success">
+      <div class="success-icon">✓</div>
+      <div class="success-title">订单已提交 ✓</div>
+      <div class="success-sub">我们将在 1 个工作日内审核并开始制作<br>预计 7 个工作日后送达</div>
+      <div style="margin-top:0.5rem; font-size:0.8rem; color:var(--muted);">订单号：HWK-2026-<strong style="color:var(--accent2);">0325-A7F2</strong></div>
+      <button class="btn-primary" style="width:auto; padding:0.6em 2em; margin-top:1rem;" onclick="closeOrder()">完成</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── Auth ──────────────────────────────────────
+  let currentTab = 'login';
+
+  function switchAuthTab(tab) {
+    currentTab = tab;
+    document.getElementById('tab-login-btn').classList.toggle('active', tab === 'login');
+    document.getElementById('tab-register-btn').classList.toggle('active', tab === 'register');
+    document.getElementById('confirm-pw-group').style.display = tab === 'register' ? 'block' : 'none';
+    document.getElementById('auth-submit-btn').textContent = tab === 'login' ? '登录' : '注册';
+  }
+
+  function handleLogin() {
+    document.getElementById('screen-login').style.display = 'none';
+    document.getElementById('screen-app').style.display = 'flex';
+    document.getElementById('order-float').style.display = 'block';
+  }
+
+  // ── Workspace tabs ────────────────────────────
+  function switchTab(id, el) {
+    document.querySelectorAll('.ws-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('tab-' + id).classList.add('active');
+  }
+
+  // ── Chat ─────────────────────────────────────
+  const aiReplies = [
+    '好的，正在分析需求...\n\n我会为你优化电路方案，预计稍后更新原理图。',
+    '明白了！这个改动需要调整 BOM 中的 2 个元件，成本变化约 ¥3。需要我立即更新吗？',
+    '已记录。建议在 PCB 布局时将去耦电容尽量靠近 IC 电源引脚，可以提升稳定性。',
+    '这是个好问题。ESP32-C3 的 I²C 支持 100kHz/400kHz，AHT20 在 400kHz Fast Mode 下工作更稳定，已帮你在固件配置中设置好了。',
+    '已完成优化。现在 BOM 总价 ¥45，PCB 面积 50×40mm，完全符合你的需求。可以下单了 🚀',
+  ];
+  let replyIndex = 0;
+
+  function sendMessage() {
+    const input = document.getElementById('chat-input');
+    const text = input.value.trim();
+    if (!text) return;
+
+    const messages = document.getElementById('chat-messages');
+    const typing = document.getElementById('typing-indicator');
+
+    // Add user message
+    const userMsg = document.createElement('div');
+    userMsg.className = 'msg user';
+    userMsg.innerHTML = `<div class="msg-label">你</div><div class="msg-bubble">${escapeHtml(text)}</div>`;
+    messages.appendChild(userMsg);
+    input.value = '';
+    input.style.height = 'auto';
+
+    // Show typing
+    typing.style.display = 'flex';
+    messages.appendChild(typing);
+    messages.scrollTop = messages.scrollHeight;
+
+    // AI reply after 2.5s
+    setTimeout(() => {
+      typing.style.display = 'none';
+      const reply = aiReplies[replyIndex % aiReplies.length];
+      replyIndex++;
+      const aiMsg = document.createElement('div');
+      aiMsg.className = 'msg ai';
+      aiMsg.innerHTML = `<div class="msg-label">HW-KAI AI</div><div class="msg-bubble">${reply.replace(/\n/g,'<br>')}</div>`;
+      messages.appendChild(aiMsg);
+      messages.scrollTop = messages.scrollHeight;
+    }, 2500);
+  }
+
+  function escapeHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  document.getElementById('chat-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+  });
+
+  document.getElementById('chat-input').addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+  });
+
+  // ── Order modal ───────────────────────────────
+  let selectedQty = 5;
+
+  function openOrder() {
+    document.getElementById('modal-overlay').classList.add('open');
+    document.getElementById('modal-order-form').style.display = 'block';
+    document.getElementById('order-success').style.display = 'none';
+  }
+
+  function closeOrder() {
+    document.getElementById('modal-overlay').classList.remove('open');
+  }
+
+  document.getElementById('modal-overlay').addEventListener('click', function(e) {
+    if (e.target === this) closeOrder();
+  });
+
+  const qtyPriceMap = { '1': 12, '5': 45, '10': 80, '50': 300 };
+  const baseCost = 44.55 + 30 + 12; // components + assembly + shipping
+
+  function selectQty(el, qty) {
+    document.querySelectorAll('#qty-group .option-chip').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedQty = qty;
+    document.getElementById('qty-display').textContent = qty;
+    const pcbPrice = qtyPriceMap[qty] || 45;
+    document.getElementById('pcb-price').textContent = '¥' + pcbPrice.toFixed(2);
+    document.getElementById('total-price').textContent = '¥' + (baseCost + pcbPrice).toFixed(2);
+  }
+
+  function selectColor(el) {
+    document.querySelectorAll('.color-chip').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  function submitOrder() {
+    const btn = document.querySelector('.confirm-btn');
+    btn.disabled = true;
+    btn.textContent = '提交中...';
+    setTimeout(() => {
+      document.getElementById('modal-order-form').style.display = 'none';
+      document.getElementById('order-success').style.display = 'flex';
+    }, 1200);
+  }
+
+  // ── Keyboard close modal ──────────────────────
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeOrder();
+  });
+</script>
+
+</body>
+</html>

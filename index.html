@@ -83,7 +83,6 @@
       padding: 0.3em 1em;
       border-radius: 2em;
       margin-bottom: 2.5rem;
-      opacity: 0;
       animation: fadeUp 0.8s ease forwards 0.2s;
     }
 
@@ -92,7 +91,6 @@
       font-weight: 700;
       line-height: 1.1;
       letter-spacing: -0.03em;
-      opacity: 0;
       animation: fadeUp 0.9s ease forwards 0.45s;
     }
 
@@ -121,7 +119,6 @@
       height: 1px;
       background: linear-gradient(90deg, var(--accent), var(--accent2));
       margin: 2rem auto;
-      opacity: 0;
       animation: fadeUp 0.8s ease forwards 0.7s;
     }
 
@@ -129,8 +126,54 @@
       font-size: 0.9rem;
       color: var(--muted);
       letter-spacing: 0.05em;
-      opacity: 0;
       animation: fadeUp 0.8s ease forwards 0.9s;
+    }
+
+    .cta-btn {
+      display: inline-block;
+      margin-top: 2rem;
+      padding: 0.75em 2em;
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      color: var(--fg);
+      text-decoration: none;
+      border-radius: 2em;
+      background: transparent;
+      border: 1.5px solid transparent;
+      background-clip: padding-box;
+      position: relative;
+      animation: fadeUp 0.8s ease forwards 1.1s;
+      opacity: 0;
+      transition: color 0.3s;
+    }
+    .cta-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 2em;
+      padding: 1.5px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: destination-out;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+    .cta-btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 2em;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      opacity: 0;
+      transition: opacity 0.3s;
+      z-index: -1;
+    }
+    .cta-btn:hover::after {
+      opacity: 1;
+    }
+    .cta-btn:hover {
+      color: #fff;
     }
 
     /* corner deco */
@@ -157,7 +200,6 @@
       text-transform: uppercase;
       color: var(--muted);
       z-index: 1;
-      opacity: 0;
       animation: fadeDown 0.8s ease forwards 0.1s;
     }
 
@@ -189,6 +231,7 @@
     </h1>
     <div class="divider"></div>
     <p class="sub">hw-kai.com</p>
+    <a href="app.html" class="cta-btn">开始创造 →</a>
   </div>
 
 </body>
