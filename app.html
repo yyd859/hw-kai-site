@@ -732,6 +732,158 @@
     .success-title { font-size: 1.1rem; font-weight: 700; }
     .success-sub { font-size: 0.85rem; color: var(--muted); }
 
+    /* ── SCREEN A.5 : MODE SELECTION ── */
+    #screen-mode {
+      display: none;
+      position: fixed;
+      inset: 0;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 2.5rem;
+      z-index: 90;
+      background: var(--bg);
+    }
+    #screen-mode::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+    }
+    #screen-mode::after {
+      content: '';
+      position: fixed; inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% 50%, rgba(108,99,255,0.08) 0%, rgba(0,212,255,0.04) 40%, transparent 70%);
+      pointer-events: none;
+    }
+    .mode-header {
+      position: relative; z-index: 1;
+      text-align: center;
+    }
+    .mode-greeting {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--fg);
+    }
+    .mode-greeting span {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .mode-sub {
+      margin-top: 0.5rem;
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+    .mode-cards {
+      position: relative; z-index: 1;
+      display: flex;
+      gap: 1.8rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .mode-card {
+      width: 300px;
+      background: rgba(255,255,255,0.025);
+      border-radius: 18px;
+      padding: 2.2rem 2rem;
+      cursor: pointer;
+      transition: transform 0.25s, box-shadow 0.25s, background 0.25s;
+      position: relative;
+      overflow: hidden;
+    }
+    .mode-card::before {
+      content: '';
+      position: absolute; inset: 0;
+      border-radius: 18px;
+      padding: 1.5px;
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+    }
+    .mode-card.quick::before {
+      background: linear-gradient(135deg, #6c63ff, #a855f7);
+    }
+    .mode-card.pro::before {
+      background: linear-gradient(135deg, #00d4ff, #0ea5e9);
+    }
+    .mode-card:hover {
+      transform: translateY(-6px);
+    }
+    .mode-card.quick:hover {
+      background: rgba(108,99,255,0.1);
+      box-shadow: 0 0 40px rgba(108,99,255,0.25), 0 20px 40px rgba(0,0,0,0.4);
+    }
+    .mode-card.pro:hover {
+      background: rgba(0,212,255,0.07);
+      box-shadow: 0 0 40px rgba(0,212,255,0.2), 0 20px 40px rgba(0,0,0,0.4);
+    }
+    .mode-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+    .mode-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+      color: var(--fg);
+    }
+    .mode-desc {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 1.4rem;
+      line-height: 1.5;
+    }
+    .mode-tags {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      margin-bottom: 1.8rem;
+    }
+    .mode-tags li {
+      font-size: 0.82rem;
+      color: var(--fg);
+      opacity: 0.75;
+    }
+    .mode-tags li::before {
+      content: '✓ ';
+      font-weight: 700;
+    }
+    .mode-card.quick .mode-tags li::before { color: #a855f7; }
+    .mode-card.pro .mode-tags li::before { color: #00d4ff; }
+    .mode-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.65em 1.4em;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+    .mode-btn:hover { opacity: 0.9; transform: scale(1.03); }
+    .mode-card.quick .mode-btn {
+      background: linear-gradient(135deg, #6c63ff, #a855f7);
+      color: #fff;
+    }
+    .mode-card.pro .mode-btn {
+      background: linear-gradient(135deg, #00d4ff, #0ea5e9);
+      color: #000;
+    }
+
+    /* fade transition */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .mode-card { animation: fadeInUp 0.4s ease both; }
+    .mode-card:nth-child(2) { animation-delay: 0.08s; }
+
     /* Responsive */
     @media (max-width: 768px) {
       .chat-panel { width: 100%; max-width: 100%; position: fixed; inset: 52px 0 0 0; z-index: 50; transform: translateX(-100%); transition: transform 0.3s; }
@@ -791,6 +943,44 @@
         </svg>
         Google
       </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SCREEN A.5: MODE SELECTION
+════════════════════════════════════════════ -->
+<div id="screen-mode">
+  <div class="mode-header">
+    <div class="mode-greeting">你好，<span>创造者</span> 👋</div>
+    <div class="mode-sub">选择你今天的工作方式</div>
+  </div>
+
+  <div class="mode-cards">
+    <!-- Quick Mode -->
+    <div class="mode-card quick" onclick="enterQuickMode()">
+      <div class="mode-icon">⚡</div>
+      <div class="mode-title">快速下单</div>
+      <div class="mode-desc">描述你的想法，AI 帮你搞定一切</div>
+      <ul class="mode-tags">
+        <li>自然语言描述</li>
+        <li>AI 自动选型</li>
+        <li>一键到家</li>
+      </ul>
+      <button class="mode-btn">开始 →</button>
+    </div>
+
+    <!-- Pro Mode -->
+    <div class="mode-card pro" onclick="enterProMode()">
+      <div class="mode-icon">🔬</div>
+      <div class="mode-title">专业工作区</div>
+      <div class="mode-desc">完整的 AI 设计环境，原理图 + BOM + 生产文件</div>
+      <ul class="mode-tags">
+        <li>原理图预览</li>
+        <li>BOM 管理</li>
+        <li>Gerber 导出</li>
+      </ul>
+      <button class="mode-btn">进入工作区 →</button>
     </div>
   </div>
 </div>
@@ -1229,6 +1419,15 @@
 
   function handleLogin() {
     document.getElementById('screen-login').style.display = 'none';
+    document.getElementById('screen-mode').style.display = 'flex';
+  }
+
+  function enterQuickMode() {
+    window.location.href = 'quick.html';
+  }
+
+  function enterProMode() {
+    document.getElementById('screen-mode').style.display = 'none';
     document.getElementById('screen-app').style.display = 'flex';
     document.getElementById('order-float').style.display = 'block';
   }

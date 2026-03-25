@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HW-KAI — 快速下单</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0a0a0f;
+      --bg2: #07070b;
+      --fg: #f0f0f5;
+      --accent: #6c63ff;
+      --accent2: #00d4ff;
+      --muted: rgba(240,240,245,0.35);
+      --grid: rgba(255,255,255,0.03);
+      --border: rgba(255,255,255,0.07);
+    }
+
+    html, body {
+      width: 100%; min-height: 100%;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* grid bg */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+      z-index: 0;
+    }
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background: radial-gradient(ellipse 70% 50% at 50% 30%, rgba(108,99,255,0.07) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── TOP BAR ── */
+    .topbar {
+      position: relative; z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      height: 60px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(10,10,15,0.9);
+      backdrop-filter: blur(10px);
+    }
+    .logo {
+      font-size: 1rem;
+      font-weight: 800;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .back-btn {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      padding: 0.4em 0.9em;
+      cursor: pointer;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .back-btn:hover { color: var(--fg); border-color: rgba(255,255,255,0.2); }
+
+    /* ── STEPPER ── */
+    .stepper-wrap {
+      position: relative; z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      padding: 1.5rem 2rem;
+    }
+    .step-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .step-circle {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--muted);
+      transition: all 0.3s;
+      position: relative;
+      z-index: 1;
+    }
+    .step-circle.active {
+      border-color: var(--accent);
+      background: rgba(108,99,255,0.15);
+      color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(108,99,255,0.1);
+    }
+    .step-circle.done {
+      border-color: var(--accent2);
+      background: rgba(0,212,255,0.15);
+      color: var(--accent2);
+    }
+    .step-label {
+      font-size: 0.78rem;
+      color: var(--muted);
+      transition: color 0.3s;
+      white-space: nowrap;
+    }
+    .step-item.active .step-label { color: var(--fg); }
+    .step-connector {
+      width: 60px; height: 2px;
+      background: var(--border);
+      margin: 0 0.5rem;
+      border-radius: 2px;
+      overflow: hidden;
+      position: relative;
+    }
+    .step-connector::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.4s ease;
+      border-radius: 2px;
+    }
+    .step-connector.filled::after { transform: scaleX(1); }
+
+    /* ── MAIN CONTENT ── */
+    .main-content {
+      position: relative; z-index: 1;
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 0 1.5rem 2rem;
+    }
+
+    /* ── STEP PANELS ── */
+    .step-panel {
+      display: none;
+      animation: fadeSlideIn 0.35s ease both;
+    }
+    .step-panel.active { display: block; }
+
+    @keyframes fadeSlideIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── STEP 1 ── */
+    .step-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      line-height: 1.3;
+    }
+    .step-subtitle {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-bottom: 1.5rem;
+    }
+    .idea-textarea {
+      width: 100%;
+      min-height: 200px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.2rem;
+      color: var(--fg);
+      font-size: 0.95rem;
+      line-height: 1.7;
+      resize: vertical;
+      outline: none;
+      font-family: inherit;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .idea-textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(108,99,255,0.1);
+    }
+    .quick-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    .quick-tag {
+      padding: 0.4em 0.9em;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      font-size: 0.8rem;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.2s;
+      background: transparent;
+    }
+    .quick-tag:hover {
+      border-color: var(--accent);
+      color: var(--fg);
+      background: rgba(108,99,255,0.08);
+    }
+
+    /* ── STEP 2 ── */
+    .ai-plan-card {
+      background: rgba(108,99,255,0.06);
+      border: 1px solid rgba(108,99,255,0.2);
+      border-radius: 14px;
+      padding: 1.8rem;
+      margin-bottom: 1.5rem;
+    }
+    .ai-plan-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .plan-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.6rem 2rem;
+      margin-bottom: 1rem;
+    }
+    .plan-row {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+    .plan-key {
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .plan-val {
+      font-size: 0.88rem;
+      color: var(--fg);
+      font-weight: 500;
+    }
+    .plan-highlight {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      font-size: 0.88rem;
+      color: var(--accent2);
+      font-weight: 600;
+    }
+    .bom-preview {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+    .bom-preview-title {
+      padding: 0.8rem 1.2rem;
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255,255,255,0.01);
+    }
+    .bom-preview table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+    }
+    .bom-preview th {
+      padding: 0.55em 1em;
+      text-align: left;
+      color: var(--muted);
+      font-size: 0.7rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      background: rgba(255,255,255,0.01);
+    }
+    .bom-preview td {
+      padding: 0.55em 1em;
+      border-top: 1px solid rgba(255,255,255,0.04);
+      color: var(--fg);
+    }
+    .bom-more-btn {
+      width: 100%;
+      padding: 0.6rem;
+      background: transparent;
+      border: none;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.78rem;
+      cursor: pointer;
+      transition: color 0.2s, background 0.2s;
+    }
+    .bom-more-btn:hover { background: rgba(255,255,255,0.02); color: var(--fg); }
+
+    /* ── STEP 3 ── */
+    .order-section {
+      margin-bottom: 1.6rem;
+    }
+    .order-section-label {
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 0.75rem;
+    }
+    .qty-options {
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+    .qty-chip {
+      position: relative;
+      padding: 0.55em 1.2em;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.88rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: transparent;
+      color: var(--fg);
+    }
+    .qty-chip.selected {
+      border-color: var(--accent);
+      background: rgba(108,99,255,0.15);
+      color: var(--fg);
+    }
+    .qty-chip .recommend-badge {
+      position: absolute;
+      top: -9px; right: -6px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff;
+      font-size: 0.6rem;
+      font-weight: 700;
+      padding: 0.15em 0.5em;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+    .color-options {
+      display: flex;
+      gap: 0.75rem;
+    }
+    .color-swatch {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.2s;
+      position: relative;
+    }
+    .color-swatch:hover { transform: scale(1.1); }
+    .color-swatch.selected {
+      border-color: white;
+      box-shadow: 0 0 0 2px var(--accent2);
+      transform: scale(1.12);
+    }
+    .color-swatch[data-c="green"] { background: #2d6a2d; }
+    .color-swatch[data-c="black"] { background: #222; border: 2px solid rgba(255,255,255,0.12); }
+    .color-swatch[data-c="blue"]  { background: #1a3a6a; }
+    .color-swatch[data-c="red"]   { background: #6a1a1a; }
+    .color-label {
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 0.3rem;
+    }
+
+    .price-display {
+      background: rgba(0,212,255,0.05);
+      border: 1px solid rgba(0,212,255,0.15);
+      border-radius: 12px;
+      padding: 1.2rem 1.5rem;
+      display: flex;
+      align-items: baseline;
+      gap: 0.5rem;
+    }
+    .price-main {
+      font-size: 2.2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .price-note {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .form-group { margin-bottom: 0.9rem; }
+    .form-group label {
+      display: block;
+      font-size: 0.72rem;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 0.4rem;
+    }
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 0.7em 1em;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--fg);
+      font-size: 0.88rem;
+      outline: none;
+      font-family: inherit;
+      transition: border-color 0.2s;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus { border-color: var(--accent); }
+    .form-row { display: flex; gap: 0.75rem; }
+    .form-row .form-group { flex: 1; }
+
+    .submit-btn {
+      width: 100%;
+      padding: 1em;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border: none;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 800;
+      cursor: pointer;
+      margin-top: 0.5rem;
+      box-shadow: 0 0 30px rgba(108,99,255,0.4), 0 0 60px rgba(0,212,255,0.15);
+      transition: transform 0.15s, box-shadow 0.2s, opacity 0.2s;
+      animation: btn-pulse 2.5s ease-in-out infinite;
+    }
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 50px rgba(108,99,255,0.6), 0 0 80px rgba(0,212,255,0.25);
+    }
+    .submit-btn:active { transform: scale(0.99); }
+    @keyframes btn-pulse {
+      0%,100% { box-shadow: 0 0 30px rgba(108,99,255,0.4), 0 0 60px rgba(0,212,255,0.15); }
+      50%      { box-shadow: 0 0 50px rgba(108,99,255,0.6), 0 0 80px rgba(0,212,255,0.3); }
+    }
+
+    /* ── BOTTOM NAV ── */
+    .bottom-nav {
+      position: relative; z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.2rem 2rem;
+      border-top: 1px solid var(--border);
+      background: rgba(10,10,15,0.8);
+      backdrop-filter: blur(10px);
+      max-width: 760px;
+      margin: 0 auto;
+    }
+    .nav-btn {
+      padding: 0.65em 1.5em;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .nav-btn.prev {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+    .nav-btn.prev:hover {
+      border-color: rgba(255,255,255,0.2);
+      color: var(--fg);
+    }
+    .nav-btn.next {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border: none;
+      color: #fff;
+    }
+    .nav-btn.next:hover { opacity: 0.88; }
+    .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+    .nav-btn.hidden { visibility: hidden; }
+
+    /* ── LOADING OVERLAY ── */
+    .loading-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(10,10,15,0.85);
+      backdrop-filter: blur(8px);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    .loading-overlay.show { display: flex; }
+    .loading-spinner {
+      width: 56px; height: 56px;
+      border: 3px solid rgba(108,99,255,0.2);
+      border-top-color: var(--accent);
+      border-right-color: var(--accent2);
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text {
+      font-size: 1rem;
+      color: var(--muted);
+    }
+    .loading-text span {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 700;
+    }
+
+    /* ── SUCCESS OVERLAY ── */
+    .success-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: var(--bg);
+      z-index: 300;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 1.2rem;
+      text-align: center;
+      padding: 2rem;
+    }
+    .success-overlay.show { display: flex; }
+    .success-check {
+      width: 88px; height: 88px;
+      border-radius: 50%;
+      border: 3px solid var(--accent2);
+      background: rgba(0,212,255,0.08);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.8rem;
+      animation: popIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+    @keyframes popIn {
+      from { transform: scale(0); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+    .success-title {
+      font-size: 1.5rem;
+      font-weight: 800;
+      animation: fadeInUp 0.4s 0.2s both;
+    }
+    .success-order-no {
+      font-size: 0.85rem;
+      color: var(--muted);
+      animation: fadeInUp 0.4s 0.35s both;
+    }
+    .success-order-no strong { color: var(--accent2); }
+    .success-delivery {
+      font-size: 0.9rem;
+      color: var(--muted);
+      animation: fadeInUp 0.4s 0.45s both;
+    }
+    .success-back-btn {
+      margin-top: 0.5rem;
+      padding: 0.7em 2em;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      animation: fadeInUp 0.4s 0.55s both;
+    }
+    .success-back-btn:hover { opacity: 0.88; }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="logo">HW — KAI</div>
+  <button class="back-btn" onclick="history.back()">← 返回</button>
+</div>
+
+<!-- STEPPER -->
+<div class="stepper-wrap">
+  <div class="step-item active" id="step-item-1">
+    <div class="step-circle active" id="step-circle-1">1</div>
+    <span class="step-label">描述想法</span>
+  </div>
+  <div class="step-connector" id="connector-1-2"></div>
+  <div class="step-item" id="step-item-2">
+    <div class="step-circle" id="step-circle-2">2</div>
+    <span class="step-label">AI 方案确认</span>
+  </div>
+  <div class="step-connector" id="connector-2-3"></div>
+  <div class="step-item" id="step-item-3">
+    <div class="step-circle" id="step-circle-3">3</div>
+    <span class="step-label">下单</span>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main-content">
+
+  <!-- STEP 1 -->
+  <div class="step-panel active" id="panel-1">
+    <div class="step-title">你想做什么？</div>
+    <div class="step-subtitle">用自然语言描述你的硬件想法，越详细越好</div>
+
+    <textarea class="idea-textarea" id="idea-input"
+      placeholder="例如：我想做一个温湿度传感器，用 WiFi 上报数据到手机，要求低功耗，户外使用..."></textarea>
+
+    <div class="quick-tags">
+      <button class="quick-tag" onclick="fillTag('温湿度传感器，用 WiFi 上报数据，低功耗，户外使用')">🌡️ 温湿度传感器</button>
+      <button class="quick-tag" onclick="fillTag('土壤湿度监测节点，太阳能供电，LoRa 无线传输数据')">🌱 土壤湿度监测</button>
+      <button class="quick-tag" onclick="fillTag('LED 控制器，支持 PWM 调光，可用手机 App 控制，支持蓝牙')">💡 LED 控制器</button>
+      <button class="quick-tag" onclick="fillTag('运动检测报警器，PIR 传感器，触发后发送手机推送通知')">🚨 运动检测报警</button>
+      <button class="quick-tag" onclick="fillTag('蓝牙遥控小车，双电机驱动，OLED 显示状态，手机 App 操控')">🚗 蓝牙遥控小车</button>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="step-panel" id="panel-2">
+    <div class="step-title">🤖 AI 已为你生成方案</div>
+    <div class="step-subtitle">基于你的描述，AI 生成了以下硬件方案</div>
+
+    <div class="ai-plan-card">
+      <div class="ai-plan-title">📋 方案摘要</div>
+      <div class="plan-grid">
+        <div class="plan-row">
+          <span class="plan-key">项目名称</span>
+          <span class="plan-val">WiFi 温湿度传感器节点</span>
+        </div>
+        <div class="plan-row">
+          <span class="plan-key">核心芯片</span>
+          <span class="plan-val">ESP32-C3</span>
+        </div>
+        <div class="plan-row">
+          <span class="plan-key">传感器</span>
+          <span class="plan-val">AHT20（温湿度）</span>
+        </div>
+        <div class="plan-row">
+          <span class="plan-key">通信</span>
+          <span class="plan-val">Wi-Fi 802.11 b/g/n</span>
+        </div>
+        <div class="plan-row">
+          <span class="plan-key">供电</span>
+          <span class="plan-val">USB-C 5V / 3.7V 锂电池</span>
+        </div>
+        <div class="plan-row">
+          <span class="plan-key">BOM 元件数</span>
+          <span class="plan-val">14 个</span>
+        </div>
+        <div class="plan-row">
+          <span class="plan-key">预估物料成本</span>
+          <span class="plan-val" style="color:var(--accent2);">¥38</span>
+        </div>
+        <div class="plan-row">
+          <span class="plan-key">打样费用</span>
+          <span class="plan-val">¥30（1片起打）</span>
+        </div>
+      </div>
+      <div class="plan-highlight">
+        <span style="font-size:1.1rem;">📦</span>
+        <span>预计总价 ¥68 起 &nbsp;·&nbsp; 7 个工作日到家</span>
+      </div>
+    </div>
+
+    <!-- BOM preview -->
+    <div class="bom-preview">
+      <div class="bom-preview-title">BOM 清单预览</div>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>位号</th>
+            <th>名称</th>
+            <th>规格</th>
+            <th>数量</th>
+            <th>单价</th>
+          </tr>
+        </thead>
+        <tbody id="bom-tbody">
+          <tr><td>1</td><td>U1</td><td>ESP32-C3-MINI-1</td><td>WiFi+BLE5 160MHz 4MB</td><td>1</td><td>¥18.00</td></tr>
+          <tr><td>2</td><td>U2</td><td>AHT20</td><td>I²C 温湿度 ±0.3°C</td><td>1</td><td>¥3.50</td></tr>
+          <tr><td>3</td><td>U3</td><td>AMS1117-3.3</td><td>LDO 3.3V 800mA</td><td>1</td><td>¥0.80</td></tr>
+          <tr><td>4</td><td>C1–C4</td><td>陶瓷电容</td><td>100nF / 1µF</td><td>6</td><td>¥0.10</td></tr>
+          <tr><td>5</td><td>R1,R2</td><td>I²C 上拉电阻</td><td>4.7kΩ 0402</td><td>2</td><td>¥0.05</td></tr>
+          <tr class="bom-hidden" style="display:none;"><td>6</td><td>J1</td><td>USB-C 连接器</td><td>16Pin 5A</td><td>1</td><td>¥1.20</td></tr>
+          <tr class="bom-hidden" style="display:none;"><td>7</td><td>D1</td><td>LED 电源指示</td><td>蓝色 20mA 0402</td><td>1</td><td>¥0.20</td></tr>
+          <tr class="bom-hidden" style="display:none;"><td>8</td><td>BAT1</td><td>锂电池连接器</td><td>JST-PH 2Pin</td><td>1</td><td>¥0.60</td></tr>
+        </tbody>
+      </table>
+      <button class="bom-more-btn" id="bom-expand-btn" onclick="toggleBom()">▼ 展开全部 8 项</button>
+    </div>
+
+    <div style="display:flex; gap:0.75rem; margin-top:0.5rem;">
+      <button class="nav-btn prev" onclick="goStep(1)" style="flex:1;">← 重新描述</button>
+      <button class="nav-btn next" onclick="goStep(3)" style="flex:2;">确认，去下单 →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="step-panel" id="panel-3">
+    <div class="step-title">📦 确认下单</div>
+    <div class="step-subtitle">选择数量、颜色，填写收货信息</div>
+
+    <!-- Qty -->
+    <div class="order-section">
+      <div class="order-section-label">板子数量</div>
+      <div class="qty-options">
+        <button class="qty-chip" onclick="selectQty(this, 1, 68)">1 片</button>
+        <button class="qty-chip selected" onclick="selectQty(this, 5, 180)">
+          5 片
+          <span class="recommend-badge">推荐</span>
+        </button>
+        <button class="qty-chip" onclick="selectQty(this, 10, 320)">10 片</button>
+        <button class="qty-chip" onclick="selectQty(this, 50, 1200)">50 片</button>
+      </div>
+    </div>
+
+    <!-- Color -->
+    <div class="order-section">
+      <div class="order-section-label">PCB 颜色</div>
+      <div style="display:flex; gap:1rem; align-items:flex-end;">
+        <div style="text-align:center;">
+          <div class="color-swatch selected" data-c="green" onclick="selectColor(this)"></div>
+          <div class="color-label">绿</div>
+        </div>
+        <div style="text-align:center;">
+          <div class="color-swatch" data-c="black" onclick="selectColor(this)"></div>
+          <div class="color-label">黑</div>
+        </div>
+        <div style="text-align:center;">
+          <div class="color-swatch" data-c="blue" onclick="selectColor(this)"></div>
+          <div class="color-label">蓝</div>
+        </div>
+        <div style="text-align:center;">
+          <div class="color-swatch" data-c="red" onclick="selectColor(this)"></div>
+          <div class="color-label">红</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Price -->
+    <div class="order-section">
+      <div class="order-section-label">预估总价</div>
+      <div class="price-display">
+        <div class="price-main" id="total-price">¥180</div>
+        <div class="price-note">（5片 · 含物料 + 打样 + 运费）</div>
+      </div>
+    </div>
+
+    <!-- Address -->
+    <div class="order-section">
+      <div class="order-section-label">收货信息</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>姓名</label>
+          <input type="text" placeholder="张三" />
+        </div>
+        <div class="form-group">
+          <label>手机</label>
+          <input type="tel" placeholder="138 0000 0000" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>地址</label>
+        <input type="text" placeholder="省 / 市 / 区 / 街道 / 门牌号" />
+      </div>
+    </div>
+
+    <button class="submit-btn" onclick="submitOrder()">🚀 提交订单</button>
+  </div>
+
+</div><!-- /main-content -->
+
+<!-- LOADING OVERLAY -->
+<div class="loading-overlay" id="loading-overlay">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">AI 正在分析方案 <span>...</span></div>
+</div>
+
+<!-- SUCCESS OVERLAY -->
+<div class="success-overlay" id="success-overlay">
+  <div class="success-check">✓</div>
+  <div class="success-title">订单已提交！</div>
+  <div class="success-order-no">订单号：<strong>HWK-20260325-001</strong></div>
+  <div class="success-delivery">📦 预计 7 个工作日送达</div>
+  <button class="success-back-btn" onclick="window.location.href='app.html'">返回主页</button>
+</div>
+
+<script>
+  let currentStep = 1;
+  let bomExpanded = false;
+
+  const priceMap = { 1: 68, 5: 180, 10: 320, 50: 1200 };
+  const priceNoteMap = {
+    1:  '（1片 · 含物料 + 打样 + 运费）',
+    5:  '（5片 · 含物料 + 打样 + 运费）',
+    10: '（10片 · 含物料 + 打样 + 运费）',
+    50: '（50片 · 含物料 + 打样 + 运费）',
+  };
+  let selectedQtyVal = 5;
+
+  function goStep(n) {
+    // hide current
+    document.getElementById('panel-' + currentStep).classList.remove('active');
+    updateStepUI(currentStep, 'done');
+
+    currentStep = n;
+    document.getElementById('panel-' + currentStep).classList.add('active');
+    updateStepUI(currentStep, 'active');
+  }
+
+  function updateStepUI(step, state) {
+    const circle = document.getElementById('step-circle-' + step);
+    const item   = document.getElementById('step-item-' + step);
+    circle.className = 'step-circle ' + state;
+    item.className   = 'step-item ' + (state === 'active' ? 'active' : '');
+    if (step === 1 && state === 'done') {
+      document.getElementById('connector-1-2').classList.add('filled');
+    }
+    if (step === 2 && state === 'done') {
+      document.getElementById('connector-2-3').classList.add('filled');
+    }
+  }
+
+  function nextFromStep1() {
+    const txt = document.getElementById('idea-input').value.trim();
+    if (!txt) {
+      document.getElementById('idea-input').focus();
+      return;
+    }
+    // Show loading overlay for 2 seconds
+    const overlay = document.getElementById('loading-overlay');
+    overlay.classList.add('show');
+    setTimeout(() => {
+      overlay.classList.remove('show');
+      goStep(2);
+    }, 2000);
+  }
+
+  function fillTag(text) {
+    document.getElementById('idea-input').value = text;
+    document.getElementById('idea-input').focus();
+  }
+
+  function toggleBom() {
+    bomExpanded = !bomExpanded;
+    document.querySelectorAll('.bom-hidden').forEach(tr => {
+      tr.style.display = bomExpanded ? '' : 'none';
+    });
+    document.getElementById('bom-expand-btn').textContent =
+      bomExpanded ? '▲ 收起' : '▼ 展开全部 8 项';
+  }
+
+  function selectQty(el, qty, price) {
+    document.querySelectorAll('.qty-chip').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedQtyVal = qty;
+    document.getElementById('total-price').textContent = '¥' + price;
+    document.querySelector('.price-note').textContent = priceNoteMap[qty];
+  }
+
+  function selectColor(el) {
+    document.querySelectorAll('.color-swatch').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  function submitOrder() {
+    const btn = document.querySelector('.submit-btn');
+    btn.disabled = true;
+    btn.textContent = '提交中...';
+    setTimeout(() => {
+      document.getElementById('success-overlay').classList.add('show');
+    }, 1200);
+  }
+
+  // Wire up step 1 "next" via the bottom-nav button (rendered inline)
+  // (buttons in step 2/3 call goStep directly)
+</script>
+
+<!-- BOTTOM NAV (only for step 1) -->
+<div class="bottom-nav" id="bottom-nav-1" style="position:sticky; bottom:0;">
+  <button class="nav-btn prev hidden">← 上一步</button>
+  <button class="nav-btn next" onclick="nextFromStep1()">下一步 →</button>
+</div>
+
+</body>
+</html>
