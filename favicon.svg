@@ -17,12 +17,12 @@
 
   <defs>
     <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0d1f3c"/>
-      <stop offset="100%" stop-color="#050e24"/>
+      <stop offset="0%" stop-color="#0a3a7a"/>
+      <stop offset="100%" stop-color="#041550"/>
     </linearGradient>
   </defs>
   <rect width="48" height="48" rx="8" fill="url(#bg)"/>
-  <rect width="48" height="48" rx="8" fill="none" stroke="#4488cc" stroke-width="0.8" opacity="0.4"/>
+  <rect width="48" height="48" rx="8" fill="none" stroke="#55aaff" stroke-width="0.8" opacity="0.6"/>
 
   <!-- 大 K (占主要空间，左侧) -->
   <g fill="url(#silver)" filter="url(#glow)">
