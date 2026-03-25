@@ -5,6 +5,10 @@
       <stop offset="45%" stop-color="#dde8f0"/>
       <stop offset="100%" stop-color="#8899bb"/>
     </linearGradient>
+    <linearGradient id="silver2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ccddee"/>
+      <stop offset="100%" stop-color="#667788"/>
+    </linearGradient>
     <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
       <feGaussianBlur stdDeviation="1.2" result="blur"/>
       <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
@@ -12,24 +16,30 @@
   </defs>
 
   <rect width="48" height="48" rx="8" fill="#0a0a0f"/>
-  <rect width="48" height="48" rx="8" fill="none" stroke="#ffffff" stroke-width="0.6" opacity="0.12"/>
+  <rect width="48" height="48" rx="8" fill="none" stroke="#ffffff" stroke-width="0.5" opacity="0.1"/>
 
+  <!-- 大 K (占主要空间，左侧) -->
   <g fill="url(#silver)" filter="url(#glow)">
-    <!-- K -->
-    <rect x="2" y="9" width="3" height="30" rx="1"/>
-    <polygon points="5,24 13,9 17,9 9,24"/>
-    <polygon points="5,24 13,39 17,39 9,24"/>
+    <!-- K 竖线 -->
+    <rect x="3" y="6" width="5" height="36" rx="2"/>
+    <!-- K 上斜 -->
+    <polygon points="8,24 20,6 26,6 14,24"/>
+    <!-- K 下斜 -->
+    <polygon points="8,24 20,42 26,42 14,24"/>
+  </g>
 
-    <!-- A -->
-    <polygon points="19,39 22.5,39 27,9 23.5,9"/>
-    <polygon points="27,9 30.5,9 34,39 30.5,39"/>
-    <rect x="22" y="27" width="10" height="3" rx="1"/>
+  <!-- 小 AI (右下角，约 K 的 1/3 大) -->
+  <g fill="url(#silver2)">
+    <!-- A 左斜 -->
+    <polygon points="28,42 30,42 33,28 31,28"/>
+    <!-- A 右斜 -->
+    <polygon points="33,28 35,28 38,42 36,42"/>
+    <!-- A 横 -->
+    <rect x="30" y="36" width="7" height="2" rx="0.8"/>
 
     <!-- I -->
-    <rect x="36.5" y="9" width="3" height="30" rx="1"/>
-    <!-- I 顶横 -->
-    <rect x="34" y="9" width="8" height="3" rx="1"/>
-    <!-- I 底横 -->
-    <rect x="34" y="36" width="8" height="3" rx="1"/>
+    <rect x="40" y="28" width="3" height="14" rx="1"/>
+    <rect x="39" y="28" width="5" height="2" rx="0.8"/>
+    <rect x="39" y="40" width="5" height="2" rx="0.8"/>
   </g>
 </svg>
