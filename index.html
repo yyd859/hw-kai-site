@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HW-KAI</title>
+  <style>
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #0a0a0f;
+      --fg: #f0f0f5;
+      --accent: #6c63ff;
+      --accent2: #00d4ff;
+      --muted: rgba(240, 240, 245, 0.35);
+      --grid: rgba(255, 255, 255, 0.03);
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    /* grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* radial glow */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(
+        ellipse 80% 60% at 50% 50%,
+        rgba(108, 99, 255, 0.08) 0%,
+        rgba(0, 212, 255, 0.04) 40%,
+        transparent 70%
+      );
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 0 2rem;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent2);
+      border: 1px solid rgba(0, 212, 255, 0.3);
+      padding: 0.3em 1em;
+      border-radius: 2em;
+      margin-bottom: 2.5rem;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.2s;
+    }
+
+    h1 {
+      font-size: clamp(2.8rem, 8vw, 6rem);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      opacity: 0;
+      animation: fadeUp 0.9s ease forwards 0.45s;
+    }
+
+    h1 .zh {
+      display: block;
+      background: linear-gradient(135deg, #fff 30%, rgba(255,255,255,0.55));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    h1 .en {
+      display: block;
+      font-size: 0.52em;
+      font-weight: 400;
+      letter-spacing: 0.01em;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-top: 0.25em;
+    }
+
+    .divider {
+      width: 40px;
+      height: 1px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      margin: 2rem auto;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.7s;
+    }
+
+    .sub {
+      font-size: 0.9rem;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.9s;
+    }
+
+    /* corner deco */
+    .corner {
+      position: fixed;
+      width: 80px;
+      height: 80px;
+      opacity: 0.15;
+    }
+    .corner.tl { top: 2rem; left: 2rem; border-top: 1px solid var(--accent2); border-left: 1px solid var(--accent2); }
+    .corner.tr { top: 2rem; right: 2rem; border-top: 1px solid var(--accent2); border-right: 1px solid var(--accent2); }
+    .corner.bl { bottom: 2rem; left: 2rem; border-bottom: 1px solid var(--accent2); border-left: 1px solid var(--accent2); }
+    .corner.br { bottom: 2rem; right: 2rem; border-bottom: 1px solid var(--accent2); border-right: 1px solid var(--accent2); }
+
+    /* wordmark */
+    .wordmark {
+      position: fixed;
+      top: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--muted);
+      z-index: 1;
+      opacity: 0;
+      animation: fadeDown 0.8s ease forwards 0.1s;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+      to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wordmark">HW — KAI</div>
+
+  <div class="corner tl"></div>
+  <div class="corner tr"></div>
+  <div class="corner bl"></div>
+  <div class="corner br"></div>
+
+  <div class="container">
+    <div class="badge">Est. 2026</div>
+    <h1>
+      <span class="zh">做点酷的</span>
+      <span class="en">Make yourself maker</span>
+    </h1>
+    <div class="divider"></div>
+    <p class="sub">hw-kai.com</p>
+  </div>
+
+</body>
+</html>
