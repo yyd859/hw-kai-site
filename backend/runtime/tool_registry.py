@@ -147,21 +147,86 @@ def build_plan_from_context(context: dict[str, Any]) -> dict[str, Any]:
     return generated
 
 
+def _apply_late_resolution(normalized: dict[str, Any]) -> dict[str, Any]:
+    late_resolved, late_unresolved = _resolve_roles(
+        normalized.get("abstract_bom", []),
+        normalized.get("capabilities", []),
+        normalized.get("project_brief", ""),
+    )
+    resolved_components = _merge_resolved_components(normalized.get("resolved_components", []), late_resolved)
+    unresolved_roles = _prune_unresolved_roles(
+        _merge_unresolved_roles(normalized.get("unresolved_roles", []), late_unresolved),
+        resolved_components,
+    )
+    selected_module_ids = _normalize_selected_module_ids(
+        [
+            *normalized.get("selected_module_ids", []),
+            *[item.get("module_id") for item in resolved_components if item.get("module_id")],
+        ]
+    )
+    return {
+        **normalized,
+        "resolved_components": resolved_components,
+        "unresolved_roles": unresolved_roles,
+        "selected_module_ids": selected_module_ids,
+        "legacy_spec": _context_to_legacy_spec(
+            normalized.get("project_brief", ""),
+            normalized.get("requirements", []),
+            normalized.get("constraints", []),
+            normalized.get("capabilities", []),
+            selected_module_ids,
+        ),
+    }
+
+
+
+def _missing_component_keys(unresolved_roles: list[dict[str, Any]]) -> list[str]:
+    missing: list[str] = []
+    for item in unresolved_roles:
+        key = str(item.get("capability") or item.get("role") or "").strip()
+        if key and key not in missing:
+            missing.append(key)
+    return missing
+
+
+
+def _missing_roles_from_keys(existing_unresolved: list[dict[str, Any]], missing_components: list[str]) -> list[dict[str, Any]]:
+    seen = {
+        str(item.get("capability") or item.get("role") or "").strip().lower()
+        for item in existing_unresolved
+        if str(item.get("capability") or item.get("role") or "").strip()
+    }
+    roles: list[dict[str, Any]] = []
+    for item in missing_components:
+        key = str(item or "").strip()
+        if not key or key.lower() in seen:
+            continue
+        seen.add(key.lower())
+        roles.append({"role": key, "capability": key})
+    return roles
+
+
+
 def preflight_build_context(context: dict[str, Any]) -> dict[str, Any]:
-    normalized = normalize_build_context(context)
+    normalized = _apply_late_resolution(normalize_build_context(context))
     unsupported = infer_unsupported_capabilities(normalized)
-    if unsupported:
+    unresolved_missing = _missing_component_keys(normalized["unresolved_roles"])
+    combined_missing = []
+    for item in [*unsupported, *unresolved_missing]:
+        if item and item not in combined_missing:
+            combined_missing.append(item)
+    if combined_missing:
         return {
             "buildable": False,
             "error_type": "missing_components",
-            "missing_components": unsupported,
+            "missing_components": combined_missing,
             "normalized_context": normalized,
             "selected_module_ids": normalized["selected_module_ids"],
             "board_id": normalized["selected_board_id"],
             "legacy_spec": normalized["legacy_spec"],
             "resolved_components": normalized["resolved_components"],
-            "unresolved_roles": _merge_unresolved_roles(normalized["unresolved_roles"], [{"role": item, "capability": item} for item in unsupported]),
-            "gap_analysis": _merge_gap_analysis(normalized, unsupported),
+            "unresolved_roles": _merge_unresolved_roles(normalized["unresolved_roles"], _missing_roles_from_keys(normalized["unresolved_roles"], unsupported)),
+            "gap_analysis": _merge_gap_analysis(normalized, combined_missing),
         }
 
     explicit_ids = normalized["selected_module_ids"]
@@ -594,10 +659,28 @@ def _merge_unresolved_roles(existing: list[dict[str, Any]], updates: list[dict[s
     return merged
 
 
+
+def _prune_unresolved_roles(unresolved_roles: list[dict[str, Any]], resolved_components: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    resolved_roles = {str(item.get("role") or "").strip().lower() for item in resolved_components if str(item.get("role") or "").strip()}
+    resolved_capabilities = {
+        str(item.get("capability") or "").strip().lower() for item in resolved_components if str(item.get("capability") or "").strip()
+    }
+    pruned: list[dict[str, Any]] = []
+    for item in unresolved_roles:
+        role = str(item.get("role") or "").strip().lower()
+        capability = str(item.get("capability") or "").strip().lower()
+        if role and role in resolved_roles:
+            continue
+        if capability and capability in resolved_capabilities:
+            continue
+        pruned.append(item)
+    return pruned
+
+
 def _merge_gap_analysis(normalized: dict[str, Any], missing_components: list[str]) -> dict[str, Any]:
     unresolved_roles = _merge_unresolved_roles(
         normalized.get("unresolved_roles", []),
-        [{"role": item, "capability": item} for item in missing_components],
+        _missing_roles_from_keys(normalized.get("unresolved_roles", []), missing_components),
     )
     return {
         "resolved": [_resolved_summary(item) for item in normalized.get("resolved_components", [])],

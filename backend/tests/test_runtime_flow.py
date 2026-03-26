@@ -104,6 +104,20 @@ class BuildCompatibilityTests(unittest.TestCase):
         )
         self.assertEqual(output["meta"]["combo"], "button_light")
 
+    def test_abstract_bom_only_can_late_resolve_and_build(self):
+        output = build_plan_from_context(
+            {
+                "project_brief": "按按钮亮灯",
+                "requirements": ["按下按钮时点亮灯环"],
+                "selected_direction": "直接做最简互动版",
+                "abstract_bom": [
+                    {"role": "trigger input", "capability": "button"},
+                    {"role": "light output", "capability": "light"},
+                ],
+            }
+        )
+        self.assertEqual(output["meta"]["combo"], "button_light")
+
     def test_auto_watering_still_builds(self):
         output = build_plan_from_context(
             {
@@ -148,6 +162,37 @@ class BuildCompatibilityTests(unittest.TestCase):
         self.assertFalse(preflight["buildable"])
         self.assertIn("gap_analysis", preflight)
         self.assertTrue(preflight["gap_analysis"]["unresolved"])
+
+    def test_preflight_uses_abstract_bom_resolution_before_build(self):
+        preflight = preflight_build_context(
+            {
+                "project_brief": "做一个按钮控制灯的桌面交互装置",
+                "selected_direction": "先做最小交互 MVP",
+                "abstract_bom": [
+                    {"role": "trigger input", "capability": "button"},
+                    {"role": "light output", "capability": "light"},
+                ],
+            }
+        )
+        self.assertTrue(preflight["buildable"])
+        self.assertEqual(preflight["selected_module_ids"], ["push_button", "ws2812_led_ring"])
+        self.assertFalse(preflight["unresolved_roles"])
+
+    def test_preflight_returns_partial_resolution_gap_before_build(self):
+        preflight = preflight_build_context(
+            {
+                "project_brief": "做一个识别宠物再自动喂食的装置",
+                "selected_direction": "先做最小可验证版",
+                "abstract_bom": [
+                    {"role": "pet detection", "capability": "camera_vision"},
+                    {"role": "feeder actuator", "capability": "actuator"},
+                ],
+            }
+        )
+        self.assertFalse(preflight["buildable"])
+        self.assertIn("relay_module", preflight["selected_module_ids"])
+        self.assertTrue(any(item.get("module_id") == "relay_module" for item in preflight["resolved_components"]))
+        self.assertTrue(any(item.get("capability") == "camera_vision" for item in preflight["unresolved_roles"]))
 
 
 if __name__ == "__main__":
