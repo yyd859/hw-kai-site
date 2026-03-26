@@ -1,0 +1,62 @@
+{
+  "id": "wemos_d1_mini",
+  "label": "Wemos D1 Mini (ESP8266)",
+  "category": "board",
+  "subcategory": "microcontroller",
+  "description": "Wemos D1 Mini，ESP8266 WiFi 开发板，体积小，有丰富的 Shield 生态",
+  "provides": [
+    "wifi",
+    "gpio",
+    "i2c",
+    "spi",
+    "uart",
+    "pwm",
+    "adc"
+  ],
+  "interface": "usb",
+  "pin_spec": {
+    "3V3": {
+      "type": "power_out",
+      "voltage": "3.3V",
+      "note": "3.3V 输出"
+    },
+    "5V": {
+      "type": "power_in",
+      "voltage": "5V",
+      "note": "5V 输入"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    },
+    "A0": {
+      "type": "analog_in",
+      "voltage": "0-3.2V",
+      "note": "模拟输入（已有分压，最大 3.2V）"
+    },
+    "D4": {
+      "type": "io",
+      "voltage": "3.3V",
+      "note": "板载 LED，低电平点亮"
+    }
+  },
+  "compatible_boards": [],
+  "library_required": "Arduino ESP8266 Core",
+  "specs": {
+    "cpu": "ESP8266 80/160MHz",
+    "flash": "4MB",
+    "ram": "80KB",
+    "wifi": "2.4GHz",
+    "gpio": 11
+  },
+  "notes": [
+    "D1 Mini 版本 A0 已有内部分压，最高 3.2V（非标准 1V）",
+    "有丰富的插拔式 Shield，如继电器/OLED/电机驱动"
+  ],
+  "price_cny": {
+    "min": 8,
+    "max": 20,
+    "typical": 12
+  }
+}

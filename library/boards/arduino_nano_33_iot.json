@@ -1,0 +1,60 @@
+{
+  "id": "arduino_nano_33_iot",
+  "label": "Arduino Nano 33 IoT",
+  "category": "board",
+  "subcategory": "microcontroller",
+  "description": "Arduino Nano 33 IoT，SAMD21 + NINA-W102，内置 WiFi+BLE，3.3V IO",
+  "provides": [
+    "wifi",
+    "bluetooth",
+    "gpio",
+    "i2c",
+    "spi",
+    "uart",
+    "pwm",
+    "adc",
+    "imu"
+  ],
+  "interface": "usb",
+  "pin_spec": {
+    "3V3": {
+      "type": "power_out",
+      "voltage": "3.3V",
+      "note": "3.3V 输出"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    },
+    "VIN": {
+      "type": "power_in",
+      "voltage": "5V",
+      "note": "5V 输入"
+    },
+    "A0-A7": {
+      "type": "analog_in",
+      "voltage": "0-3.3V",
+      "note": "模拟输入"
+    }
+  },
+  "compatible_boards": [],
+  "library_required": "Arduino SAMD Boards, WiFiNINA",
+  "specs": {
+    "cpu": "SAMD21 Cortex-M0+ 48MHz",
+    "flash": "256KB",
+    "ram": "32KB",
+    "wifi": "2.4GHz",
+    "bt": "BLE 4.2",
+    "imu": "LSM6DS3 6轴"
+  },
+  "notes": [
+    "IO 电压 3.3V，不耐 5V，注意兼容性",
+    "内置 IMU 传感器可直接用于姿态检测"
+  ],
+  "price_cny": {
+    "min": 85,
+    "max": 150,
+    "typical": 110
+  }
+}

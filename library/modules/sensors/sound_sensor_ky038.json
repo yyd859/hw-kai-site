@@ -1,0 +1,49 @@
+{
+  "id": "sound_sensor_ky038",
+  "label": "KY-038 声音检测模块",
+  "category": "input",
+  "subcategory": "sensor",
+  "description": "KY-038 声音检测传感器，检测环境声音是否超过阈值，双输出",
+  "provides": [
+    "sound_detection",
+    "clap_detection"
+  ],
+  "interface": "digital",
+  "pin_spec": {
+    "VCC": {
+      "type": "power_in",
+      "voltage": "5V",
+      "note": "5V 电源"
+    },
+    "A0": {
+      "type": "analog_out",
+      "voltage": "0-5V",
+      "note": "模拟输出"
+    },
+    "D0": {
+      "type": "digital_out",
+      "voltage": "5V",
+      "note": "数字输出，有声音低电平"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    }
+  },
+  "compatible_boards": [
+    "esp32_devkit_v1",
+    "arduino_uno_r3"
+  ],
+  "library_required": "无",
+  "specs": {},
+  "notes": [
+    "灵敏度通过板上电位器调节",
+    "不能分辨声音内容，只能做阈值触发"
+  ],
+  "price_cny": {
+    "min": 1,
+    "max": 5,
+    "typical": 2
+  }
+}

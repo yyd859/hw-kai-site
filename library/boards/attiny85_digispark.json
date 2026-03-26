@@ -1,0 +1,66 @@
+{
+  "id": "attiny85_digispark",
+  "label": "ATtiny85 Digispark",
+  "category": "board",
+  "subcategory": "microcontroller",
+  "description": "ATtiny85 超小型开发板，USB 直插，适合简单小型项目",
+  "provides": [
+    "gpio",
+    "i2c",
+    "spi",
+    "pwm",
+    "adc",
+    "usb_hid"
+  ],
+  "interface": "usb",
+  "pin_spec": {
+    "5V": {
+      "type": "power_out",
+      "voltage": "5V",
+      "note": "5V USB 电源"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    },
+    "P0": {
+      "type": "io",
+      "voltage": "5V",
+      "note": "SDA / PWM"
+    },
+    "P1": {
+      "type": "io",
+      "voltage": "5V",
+      "note": "LED / PWM"
+    },
+    "P2": {
+      "type": "io",
+      "voltage": "5V",
+      "note": "SCL / 模拟输入"
+    },
+    "P5": {
+      "type": "io",
+      "voltage": "5V",
+      "note": "复位引脚（需熔丝位配置才能用）"
+    }
+  },
+  "compatible_boards": [],
+  "library_required": "Digispark Board Package",
+  "specs": {
+    "cpu": "ATtiny85 16.5MHz",
+    "flash": "8KB",
+    "ram": "512B",
+    "gpio": 6,
+    "adc": "4ch 10bit"
+  },
+  "notes": [
+    "USB 软件模拟，不是真正的 USB 硬件",
+    "P3/P4 为 USB D-/D+，不能随意使用"
+  ],
+  "price_cny": {
+    "min": 5,
+    "max": 15,
+    "typical": 8
+  }
+}

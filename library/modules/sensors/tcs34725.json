@@ -1,0 +1,64 @@
+{
+  "id": "tcs34725",
+  "label": "TCS34725 RGB 颜色传感器",
+  "category": "input",
+  "subcategory": "sensor",
+  "description": "AMS TCS34725 RGB+Clear 颜色传感器，带 IR 滤波，支持 I2C",
+  "provides": [
+    "color_sensing",
+    "rgb_detection",
+    "light_sensing"
+  ],
+  "interface": "i2c",
+  "pin_spec": {
+    "VCC": {
+      "type": "power_in",
+      "voltage": "3.3V",
+      "note": "电源"
+    },
+    "SDA": {
+      "type": "i2c_data",
+      "voltage": "3.3V",
+      "note": "I2C 数据"
+    },
+    "SCL": {
+      "type": "i2c_clk",
+      "voltage": "3.3V",
+      "note": "I2C 时钟"
+    },
+    "LED": {
+      "type": "digital_in",
+      "voltage": "3.3V",
+      "note": "控制板载 LED（接地关闭）"
+    },
+    "INT": {
+      "type": "digital_out",
+      "voltage": "3.3V",
+      "note": "中断引脚"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    }
+  },
+  "compatible_boards": [
+    "esp32_devkit_v1",
+    "arduino_uno_r3"
+  ],
+  "library_required": "Adafruit TCS34725",
+  "specs": {
+    "i2c_addr": "0x29",
+    "channels": "R/G/B/Clear 各 16bit",
+    "gain": "1x/4x/16x/60x可选"
+  },
+  "notes": [
+    "内置 IR 截止滤波，颜色测量更准确",
+    "测量时让 LED 打开并贴近被测物效果最好"
+  ],
+  "price_cny": {
+    "min": 8,
+    "max": 20,
+    "typical": 12
+  }
+}

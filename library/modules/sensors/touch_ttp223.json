@@ -1,0 +1,48 @@
+{
+  "id": "touch_ttp223",
+  "label": "TTP223 单点电容触摸",
+  "category": "input",
+  "subcategory": "sensor",
+  "description": "TTP223 单触点电容触摸模块，触摸时输出高/低电平",
+  "provides": [
+    "touch_detection",
+    "capacitive_touch",
+    "button_replacement"
+  ],
+  "interface": "digital",
+  "pin_spec": {
+    "VCC": {
+      "type": "power_in",
+      "voltage": "2-5.5V",
+      "note": "电源"
+    },
+    "I/O": {
+      "type": "digital_out",
+      "voltage": "VCC",
+      "note": "触摸时输出高电平（默认）"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    }
+  },
+  "compatible_boards": [
+    "esp32_devkit_v1",
+    "arduino_uno_r3"
+  ],
+  "library_required": "无",
+  "specs": {
+    "response_time": "<60ms",
+    "size": "约 24x24mm"
+  },
+  "notes": [
+    "可通过焊接 A/B 焊盘改变触发模式（自锁/点触）",
+    "金属和液体会干扰检测，注意安装环境"
+  ],
+  "price_cny": {
+    "min": 1,
+    "max": 5,
+    "typical": 2
+  }
+}

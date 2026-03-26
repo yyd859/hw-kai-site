@@ -1,0 +1,53 @@
+{
+  "id": "mq2",
+  "label": "MQ-2 烟雾/可燃气体传感器",
+  "category": "input",
+  "subcategory": "sensor",
+  "description": "MQ-2 气体传感器，检测烟雾、LPG、甲烷、丙烷、氢气等可燃气体",
+  "provides": [
+    "gas_detection",
+    "smoke_detection",
+    "lpg_detection"
+  ],
+  "interface": "analog",
+  "pin_spec": {
+    "VCC": {
+      "type": "power_in",
+      "voltage": "5V",
+      "note": "5V 电源（加热丝需要）"
+    },
+    "AOUT": {
+      "type": "analog_out",
+      "voltage": "0-5V",
+      "note": "模拟输出，气体浓度越高电压越高"
+    },
+    "DOUT": {
+      "type": "digital_out",
+      "voltage": "5V",
+      "note": "数字输出，超过阈值输出低电平"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    }
+  },
+  "compatible_boards": [
+    "esp32_devkit_v1",
+    "arduino_uno_r3"
+  ],
+  "library_required": "无（直接读 ADC）",
+  "specs": {
+    "sensitivity": "100-10000ppm LPG",
+    "preheat": "20秒预热"
+  },
+  "notes": [
+    "使用前需预热 20-60 秒等传感器稳定",
+    "DOUT 阈值通过板上蓝色电位器调节"
+  ],
+  "price_cny": {
+    "min": 3,
+    "max": 10,
+    "typical": 6
+  }
+}

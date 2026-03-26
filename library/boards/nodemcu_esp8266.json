@@ -1,0 +1,64 @@
+{
+  "id": "nodemcu_esp8266",
+  "label": "NodeMCU ESP8266",
+  "category": "board",
+  "subcategory": "microcontroller",
+  "description": "基于 ESP8266 的 WiFi 开发板，性价比极高，适合 IoT 入门",
+  "provides": [
+    "wifi",
+    "gpio",
+    "i2c",
+    "spi",
+    "uart",
+    "pwm",
+    "adc"
+  ],
+  "interface": "usb",
+  "pin_spec": {
+    "3V3": {
+      "type": "power_out",
+      "voltage": "3.3V",
+      "note": "3.3V 输出"
+    },
+    "VIN": {
+      "type": "power_in",
+      "voltage": "5V",
+      "note": "5V 输入"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    },
+    "D0": {
+      "type": "io",
+      "voltage": "3.3V",
+      "note": "GPIO16，无中断"
+    },
+    "A0": {
+      "type": "analog_in",
+      "voltage": "0-1V",
+      "note": "唯一模拟输入，最大 1V"
+    }
+  },
+  "compatible_boards": [],
+  "library_required": "Arduino ESP8266 Core",
+  "specs": {
+    "cpu": "Tensilica L106 80/160MHz",
+    "flash": "4MB",
+    "ram": "80KB",
+    "wifi": "2.4GHz 802.11b/g/n",
+    "gpio": 11,
+    "adc": "1ch 10bit"
+  },
+  "notes": [
+    "A0 最高只能输入 1V，超过会损坏",
+    "GPIO6-11 为 flash 占用，不可用",
+    "I/O 为 3.3V，不耐 5V"
+  ],
+  "price_cny": {
+    "min": 8,
+    "max": 20,
+    "typical": 12
+  }
+}

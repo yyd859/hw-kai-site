@@ -1,0 +1,43 @@
+{
+  "id": "reed_switch",
+  "label": "干簧管开关",
+  "category": "input",
+  "subcategory": "sensor",
+  "description": "磁控干簧管，有磁场时触点闭合，常用于门窗开关检测",
+  "provides": [
+    "magnetic_detection",
+    "door_sensor",
+    "contact_sensor"
+  ],
+  "interface": "digital",
+  "pin_spec": {
+    "A": {
+      "type": "io",
+      "voltage": "任意",
+      "note": "开关一端"
+    },
+    "B": {
+      "type": "io",
+      "voltage": "任意",
+      "note": "开关另一端"
+    }
+  },
+  "compatible_boards": [
+    "esp32_devkit_v1",
+    "arduino_uno_r3"
+  ],
+  "library_required": "无",
+  "specs": {
+    "contact_resistance": "<0.15Ω",
+    "voltage": "最高 100V DC"
+  },
+  "notes": [
+    "需要搭配上拉电阻使用，或启用 MCU 内部上拉",
+    "与磁铁配对使用，磁铁靠近时触点闭合"
+  ],
+  "price_cny": {
+    "min": 0.5,
+    "max": 3,
+    "typical": 1
+  }
+}

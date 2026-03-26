@@ -1,0 +1,55 @@
+{
+  "id": "lis3dh",
+  "label": "LIS3DH 低功耗加速度传感器",
+  "category": "input",
+  "subcategory": "sensor",
+  "description": "ST LIS3DH，超低功耗 3轴加速度传感器，适合电池设备",
+  "provides": [
+    "accelerometer",
+    "tilt_sensing",
+    "tap_detection",
+    "low_power"
+  ],
+  "interface": "i2c",
+  "pin_spec": {
+    "VCC": {
+      "type": "power_in",
+      "voltage": "1.71-3.6V",
+      "note": "低压电源"
+    },
+    "SDA": {
+      "type": "i2c_data",
+      "voltage": "1.8-3.3V",
+      "note": "I2C 数据"
+    },
+    "SCL": {
+      "type": "i2c_clk",
+      "voltage": "1.8-3.3V",
+      "note": "I2C 时钟"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    }
+  },
+  "compatible_boards": [
+    "esp32_devkit_v1",
+    "seeed_xiao_esp32s3"
+  ],
+  "library_required": "Adafruit LIS3DH",
+  "specs": {
+    "range": "±2/4/8/16g",
+    "resolution": "12bit",
+    "current_low_power": "2μA"
+  },
+  "notes": [
+    "低功耗模式仅 2μA，适合长期电池供电",
+    "I2C 地址 0x18/0x19 可选"
+  ],
+  "price_cny": {
+    "min": 8,
+    "max": 20,
+    "typical": 12
+  }
+}

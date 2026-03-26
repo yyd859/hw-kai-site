@@ -1,0 +1,50 @@
+{
+  "id": "uln2003_driver_board",
+  "label": "ULN2003 驱动板",
+  "category": "output",
+  "subcategory": "motor_drivers",
+  "description": "适合 28BYJ-48 等小电流单极步进电机",
+  "provides": [
+    "stepper_control",
+    "transistor_array_drive"
+  ],
+  "interface": "gpio",
+  "pin_spec": {
+    "VCC": {
+      "type": "power_in",
+      "voltage": "3.3V/5V",
+      "note": "电源输入"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    },
+    "SIG": {
+      "type": "io",
+      "voltage": "3.3V/5V",
+      "note": "gpio / 控制信号"
+    }
+  },
+  "compatible_boards": [
+    "esp32_devkit_v1",
+    "arduino_uno_r3",
+    "raspberry_pi_pico",
+    "esp32_s3_devkit",
+    "wemos_d1_mini"
+  ],
+  "library_required": "Depends on platform / common Arduino libraries",
+  "specs": {
+    "channels": 4,
+    "voltage": "5V"
+  },
+  "notes": [
+    "参数按常见模块版本整理，实际购买前请核对卖家资料",
+    "涉及电机、泵、风扇、加热等负载时建议外部供电并与控制板共地"
+  ],
+  "price_cny": {
+    "min": 3,
+    "max": 80,
+    "typical": 15
+  }
+}

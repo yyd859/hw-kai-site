@@ -1,0 +1,65 @@
+{
+  "id": "vl53l0x",
+  "label": "VL53L0X ToF 激光测距",
+  "category": "input",
+  "subcategory": "sensor",
+  "description": "ST VL53L0X 飞行时间激光测距传感器，精度高，不受颜色影响",
+  "provides": [
+    "distance_sensing",
+    "laser_ranging",
+    "proximity_detection"
+  ],
+  "interface": "i2c",
+  "pin_spec": {
+    "VCC": {
+      "type": "power_in",
+      "voltage": "3.3V",
+      "note": "电源"
+    },
+    "SDA": {
+      "type": "i2c_data",
+      "voltage": "3.3V",
+      "note": "I2C 数据"
+    },
+    "SCL": {
+      "type": "i2c_clk",
+      "voltage": "3.3V",
+      "note": "I2C 时钟"
+    },
+    "XSHUT": {
+      "type": "digital_in",
+      "voltage": "3.3V",
+      "note": "关断引脚，多传感器时用来修改地址"
+    },
+    "GPIO1": {
+      "type": "digital_out",
+      "voltage": "3.3V",
+      "note": "中断输出"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    }
+  },
+  "compatible_boards": [
+    "esp32_devkit_v1",
+    "arduino_uno_r3"
+  ],
+  "library_required": "Adafruit VL53L0X / Pololu VL53L0X",
+  "specs": {
+    "range": "0-200cm",
+    "accuracy": "±5%",
+    "i2c_addr": "0x29（可改）",
+    "fov": "25°"
+  },
+  "notes": [
+    "默认 I2C 地址 0x29，通过 XSHUT 可修改为其他地址（多传感器场景）",
+    "强光环境（直射阳光）会影响测距精度"
+  ],
+  "price_cny": {
+    "min": 8,
+    "max": 20,
+    "typical": 12
+  }
+}

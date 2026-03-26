@@ -1,0 +1,65 @@
+{
+  "id": "lolin32_lite",
+  "label": "LOLIN32 Lite (ESP32 + 锂电池)",
+  "category": "board",
+  "subcategory": "microcontroller",
+  "description": "LOLIN32 Lite，ESP32 开发板，内置锂电池充放电管理，适合便携项目",
+  "provides": [
+    "wifi",
+    "bluetooth",
+    "gpio",
+    "i2c",
+    "spi",
+    "uart",
+    "pwm",
+    "adc",
+    "battery_management"
+  ],
+  "interface": "usb",
+  "pin_spec": {
+    "3V3": {
+      "type": "power_out",
+      "voltage": "3.3V",
+      "note": "3.3V 输出"
+    },
+    "5V": {
+      "type": "power_in",
+      "voltage": "5V",
+      "note": "USB 5V"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    },
+    "BAT": {
+      "type": "battery",
+      "voltage": "3.7V",
+      "note": "锂电池接口"
+    },
+    "EN": {
+      "type": "io",
+      "voltage": "3.3V",
+      "note": "芯片使能引脚"
+    }
+  },
+  "compatible_boards": [],
+  "library_required": "Arduino ESP32 Core",
+  "specs": {
+    "cpu": "ESP32 dual-core 240MHz",
+    "flash": "4MB",
+    "ram": "520KB",
+    "wifi": "2.4GHz",
+    "bt": "BT4.2+BLE",
+    "battery": "内置 TP4054 充电"
+  },
+  "notes": [
+    "内置充电 IC，直接接 3.7V 锂电池即可充放",
+    "充电电流默认 500mA，可通过焊盘调整"
+  ],
+  "price_cny": {
+    "min": 25,
+    "max": 50,
+    "typical": 35
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "aht20",
+  "label": "AHT20 温湿度传感器",
+  "category": "input",
+  "subcategory": "sensor",
+  "description": "I2C 接口高精度温湿度传感器，精度优于 DHT22，性价比高",
+  "provides": [
+    "temperature_sensing",
+    "humidity_sensing"
+  ],
+  "interface": "i2c",
+  "pin_spec": {
+    "VCC": {
+      "type": "power_in",
+      "voltage": "2-5.5V",
+      "note": "电源"
+    },
+    "SDA": {
+      "type": "i2c_data",
+      "voltage": "3.3V",
+      "note": "I2C 数据"
+    },
+    "SCL": {
+      "type": "i2c_clk",
+      "voltage": "3.3V",
+      "note": "I2C 时钟"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    }
+  },
+  "compatible_boards": [
+    "esp32_devkit_v1",
+    "arduino_uno_r3",
+    "raspberry_pi_pico"
+  ],
+  "library_required": "Adafruit AHTX0",
+  "specs": {
+    "temp_range": "-40-85°C",
+    "temp_accuracy": "±0.3°C",
+    "humidity_range": "0-100%",
+    "humidity_accuracy": "±2%",
+    "i2c_addr": "0x38"
+  },
+  "notes": [
+    "I2C 地址固定为 0x38，无法更改",
+    "上电后需等待 20ms 初始化完成"
+  ],
+  "price_cny": {
+    "min": 3,
+    "max": 10,
+    "typical": 5
+  }
+}

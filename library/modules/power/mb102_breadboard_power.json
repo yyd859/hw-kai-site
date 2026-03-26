@@ -1,0 +1,50 @@
+{
+  "id": "mb102_breadboard_power",
+  "label": "MB102 面包板电源模块",
+  "category": "power",
+  "subcategory": "power",
+  "description": "提供 3.3V/5V 双路面包板供电",
+  "provides": [
+    "breadboard_power",
+    "prototype_power"
+  ],
+  "interface": "dc_jack",
+  "pin_spec": {
+    "VCC": {
+      "type": "power_in",
+      "voltage": "3.3V/5V",
+      "note": "电源输入"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    },
+    "SIG": {
+      "type": "io",
+      "voltage": "3.3V/5V",
+      "note": "检测/调节/状态接口（若有）"
+    }
+  },
+  "compatible_boards": [
+    "esp32_devkit_v1",
+    "arduino_uno_r3",
+    "raspberry_pi_pico",
+    "esp32_s3_devkit",
+    "wemos_d1_mini"
+  ],
+  "library_required": "Depends on platform / common Arduino libraries",
+  "specs": {
+    "output": "3.3V/5V",
+    "input": "6.5-12V"
+  },
+  "notes": [
+    "参数按常见模块版本整理，实际购买前请核对卖家资料",
+    "涉及电机、泵、风扇、加热等负载时建议外部供电并与控制板共地"
+  ],
+  "price_cny": {
+    "min": 3,
+    "max": 80,
+    "typical": 15
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "id": "esp32_s3_devkit",
+  "label": "ESP32-S3 DevKit",
+  "category": "board",
+  "subcategory": "microcontroller",
+  "description": "乐鑫 ESP32-S3 开发板，支持 WiFi+BT5+USB OTG，内置 AI 加速",
+  "provides": [
+    "wifi",
+    "bluetooth5",
+    "usb_otg",
+    "ai_acceleration",
+    "gpio",
+    "i2c",
+    "spi",
+    "uart",
+    "pwm",
+    "adc"
+  ],
+  "interface": "usb",
+  "pin_spec": {
+    "3V3": {
+      "type": "power_out",
+      "voltage": "3.3V",
+      "note": "3.3V 电源输出"
+    },
+    "5V": {
+      "type": "power_in",
+      "voltage": "5V",
+      "note": "5V 供电输入"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    },
+    "GPIO0": {
+      "type": "io",
+      "voltage": "3.3V",
+      "note": "Boot 模式选择"
+    },
+    "GPIO38": {
+      "type": "io",
+      "voltage": "3.3V",
+      "note": "默认 SPI MISO"
+    },
+    "GPIO39": {
+      "type": "io",
+      "voltage": "3.3V",
+      "note": "默认 SPI CLK"
+    },
+    "GPIO40": {
+      "type": "io",
+      "voltage": "3.3V",
+      "note": "默认 SPI MOSI"
+    }
+  },
+  "compatible_boards": [],
+  "library_required": "Arduino ESP32 Core",
+  "specs": {
+    "cpu": "Xtensa LX7 dual-core 240MHz",
+    "flash": "8MB",
+    "ram": "512KB",
+    "wifi": "2.4GHz 802.11b/g/n",
+    "bt": "BLE 5.0",
+    "gpio": 45,
+    "adc": "20ch 12bit",
+    "usb": "OTG FS"
+  },
+  "notes": [
+    "GPIO35-42 为输入专用引脚，不能输出",
+    "USB OTG 可直接模拟 HID 设备如键盘鼠标",
+    "AI 向量指令集加速神经网络推理"
+  ],
+  "price_cny": {
+    "min": 25,
+    "max": 55,
+    "typical": 38
+  }
+}

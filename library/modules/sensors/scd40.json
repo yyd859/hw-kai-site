@@ -1,0 +1,55 @@
+{
+  "id": "scd40",
+  "label": "SCD40 真实 CO2 传感器",
+  "category": "input",
+  "subcategory": "sensor",
+  "description": "Sensirion SCD40，光声学原理真实 CO2 传感器，同时测温湿度",
+  "provides": [
+    "co2_sensing",
+    "temperature_sensing",
+    "humidity_sensing",
+    "real_co2"
+  ],
+  "interface": "i2c",
+  "pin_spec": {
+    "VCC": {
+      "type": "power_in",
+      "voltage": "3.3-5V",
+      "note": "宽压电源"
+    },
+    "SDA": {
+      "type": "i2c_data",
+      "voltage": "3.3V",
+      "note": "I2C 数据"
+    },
+    "SCL": {
+      "type": "i2c_clk",
+      "voltage": "3.3V",
+      "note": "I2C 时钟"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    }
+  },
+  "compatible_boards": [
+    "esp32_devkit_v1",
+    "arduino_uno_r3"
+  ],
+  "library_required": "Sensirion I2C SCD4x",
+  "specs": {
+    "co2_range": "400-2000ppm",
+    "co2_accuracy": "±50ppm±5%",
+    "i2c_addr": "0x62"
+  },
+  "notes": [
+    "光声学原理测量真实 CO2，非 VOC 推算，精度高得多",
+    "地址固定 0x62，周期测量模式每 5 秒出一组数据"
+  ],
+  "price_cny": {
+    "min": 60,
+    "max": 120,
+    "typical": 85
+  }
+}
