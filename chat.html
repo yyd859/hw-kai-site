@@ -703,32 +703,34 @@
 
   // ── DOM refs ─────────────────────────────────────────────────────────────
   const messagesEl = document.getElementById('messages');
-  const inputEl    = document.getElementById('user-input');
-  const sendBtn    = document.getElementById('send-btn');
-  const statusDot  = document.getElementById('status-dot');
+  const inputEl = document.getElementById('user-input');
+  const sendBtn = document.getElementById('send-btn');
+  const statusDot = document.getElementById('status-dot');
   const statusLabel = document.getElementById('status-label');
-  const tabBar     = document.getElementById('tab-bar');
+  const tabBar = document.getElementById('tab-bar');
   const resultBody = document.getElementById('result-body');
   const resultTitle = document.getElementById('result-title');
+
+  const TAB_DEFS = [
+    { key: 'bom', label: '📦 BOM' },
+    { key: 'wiring', label: '🔌 接线' },
+    { key: 'code', label: '💻 代码' },
+    { key: 'steps', label: '📝 步骤' }
+  ];
 
   // ── API status check ─────────────────────────────────────────────────────
   async function checkApiStatus() {
     try {
-      const r = await fetch(`${API_BASE}/api/chat`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ session_id: SESSION_ID, message: '__ping__', action: 'chat' }),
+      const r = await fetch(`${API_BASE}/health`, {
         signal: AbortSignal.timeout(3000)
       });
-      if (r.ok || r.status === 400 || r.status === 422) {
-        statusDot.className = 'status-dot online';
-        statusLabel.textContent = '在线';
-      } else {
-        throw new Error('not ok');
-      }
+
+      if (!r.ok) throw new Error('not ok');
+      statusDot.className = 'status-dot online';
+      statusLabel.textContent = '在线';
     } catch {
       statusDot.className = 'status-dot offline';
-      statusLabel.textContent = 'Mock 模式';
+      statusLabel.textContent = '离线';
     }
   }
 
@@ -739,12 +741,13 @@
 
     const bubble = document.createElement('div');
     bubble.className = 'bubble';
-    bubble.textContent = text;
+    bubble.textContent = String(text || '');
 
     if (extra.isMock) {
       const badge = document.createElement('span');
       badge.className = 'badge-mock';
       badge.textContent = 'mock';
+      bubble.appendChild(document.createTextNode(' '));
       bubble.appendChild(badge);
     }
 
@@ -755,28 +758,32 @@
   }
 
   function appendOptions(options, parentRow) {
-    if (!options || options.length === 0) return;
+    if (!Array.isArray(options) || options.length === 0) return;
+
     const optRow = document.createElement('div');
     optRow.className = 'options-row';
+
     options.forEach(opt => {
       const btn = document.createElement('button');
       btn.className = 'option-btn';
-      btn.textContent = opt;
+      btn.textContent = String(opt);
       btn.addEventListener('click', () => {
         disableOptions(parentRow);
-        sendMessage(opt);
+        sendMessage(String(opt));
       });
       optRow.appendChild(btn);
     });
+
     parentRow.appendChild(optRow);
     scrollBottom();
   }
 
   function disableOptions(row) {
-    row.querySelectorAll('.option-btn').forEach(b => {
-      b.disabled = true;
-      b.style.opacity = '0.4';
-      b.style.cursor = 'default';
+    if (!row) return;
+    row.querySelectorAll('.option-btn, .btn-confirm, .btn-retry').forEach(btn => {
+      btn.disabled = true;
+      btn.style.opacity = '0.4';
+      btn.style.cursor = 'default';
     });
   }
 
@@ -784,9 +791,11 @@
     const row = document.createElement('div');
     row.className = 'msg-row assistant';
     row.id = 'typing-row';
+
     const bubble = document.createElement('div');
     bubble.className = 'typing-bubble';
     bubble.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+
     row.appendChild(bubble);
     messagesEl.appendChild(row);
     scrollBottom();
@@ -797,19 +806,23 @@
     if (el) el.remove();
   }
 
-  function appendConfirmCard(msgText, spec) {
+  function appendConfirmCard(response) {
     const row = document.createElement('div');
     row.className = 'msg-row assistant';
+
+    const confirmText = String(response?.options?.[0] || '确认，开始生成');
+    const reviseText = String(response?.options?.[1] || '我再补充一下');
+    const summary = getAssistantText(response) || '如果这版理解没问题，就可以继续生成。';
 
     const card = document.createElement('div');
     card.className = 'confirm-card';
     card.innerHTML = `
-      <div class="confirm-card-title">📋 方案确认</div>
-      <div class="confirm-card-body">我理解你想做的是：</div>
-      <div class="confirm-card-desc">${escHtml(msgText)}</div>
+      <div class="confirm-card-title">🚀 可以继续生成</div>
+      <div class="confirm-card-body">当前 runtime 已认为方案基本齐备。你可以直接确认继续，也可以先补充细节。</div>
+      <div class="confirm-card-desc">${escHtml(summary)}</div>
       <div class="confirm-actions">
-        <button class="btn-confirm" id="btn-do-confirm">✅ 确认，生成方案</button>
-        <button class="btn-retry" id="btn-do-retry">🔄 重新描述</button>
+        <button class="btn-confirm">✅ ${escHtml(confirmText)}</button>
+        <button class="btn-retry">✏️ ${escHtml(reviseText)}</button>
       </div>
     `;
 
@@ -817,18 +830,18 @@
     messagesEl.appendChild(row);
     scrollBottom();
 
-    card.querySelector('#btn-do-confirm').addEventListener('click', () => {
-      card.querySelector('#btn-do-confirm').disabled = true;
-      card.querySelector('#btn-do-retry').disabled = true;
-      card.style.opacity = '0.6';
-      doGenerate(spec);
+    const confirmBtn = card.querySelector('.btn-confirm');
+    const reviseBtn = card.querySelector('.btn-retry');
+
+    confirmBtn.addEventListener('click', () => {
+      disableOptions(row);
+      sendMessage(confirmText);
     });
 
-    card.querySelector('#btn-do-retry').addEventListener('click', () => {
-      card.style.opacity = '0.6';
-      card.querySelector('#btn-do-confirm').disabled = true;
-      card.querySelector('#btn-do-retry').disabled = true;
-      appendMessage('assistant', '好的，我们重新来过。告诉我你想做什么？');
+    reviseBtn.addEventListener('click', () => {
+      disableOptions(row);
+      appendMessage('assistant', '好的，你可以继续补充需求、约束或偏好，我会按新的上下文继续推进。');
+      inputEl.focus();
     });
   }
 
@@ -836,17 +849,176 @@
     messagesEl.scrollTop = messagesEl.scrollHeight;
   }
 
-  function escHtml(str) {
-    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+  function escHtml(value) {
+    return String(value ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/\n/g, '<br>');
+  }
+
+  function getAssistantText(data) {
+    return String(data?.message || data?.assistant_message || data?.error || '').trim();
+  }
+
+  function hasBuildOutput(payload) {
+    if (!payload || typeof payload !== 'object') return false;
+    return ['bom', 'wiring', 'code', 'instructions', 'recipe_label', 'hardware_plan'].some(key => key in payload);
+  }
+
+  function normalizeBuildOutput(data) {
+    if (hasBuildOutput(data?.build_output)) return data.build_output;
+    if (hasBuildOutput(data)) return data;
+    return null;
+  }
+
+  function setResultPlaceholder(title = '方案详情', text = '继续对话后，这里会显示方案结果、缺口分析或错误信息。') {
+    generatedData = null;
+    tabBar.style.display = 'none';
+    resultTitle.textContent = title;
+    resultBody.innerHTML = `
+      <div class="result-placeholder">
+        <div class="icon">🔧</div>
+        <p>${escHtml(text)}</p>
+      </div>`;
+  }
+
+  function renderListSection(title, items, emptyText = '暂无') {
+    const listItems = (Array.isArray(items) ? items : []).filter(Boolean);
+    const body = listItems.length
+      ? `<ul style="margin:8px 0 0 18px;line-height:1.7">${listItems.map(item => `<li>${escHtml(typeof item === 'string' ? item : JSON.stringify(item, null, 2))}</li>`).join('')}</ul>`
+      : `<p style="color:var(--text-dim);font-size:13px;margin-top:8px">${escHtml(emptyText)}</p>`;
+
+    return `
+      <div style="background:var(--bg3);border:1px solid var(--border2);border-radius:12px;padding:14px 16px;margin-bottom:14px;">
+        <div style="font-size:13px;font-weight:600;color:var(--accent2);margin-bottom:4px">${escHtml(title)}</div>
+        ${body}
+      </div>`;
+  }
+
+  function renderSpecSnapshot(spec) {
+    if (!spec || typeof spec !== 'object') return '';
+
+    const summary = [];
+    if (spec.project_brief) summary.push(`项目：${spec.project_brief}`);
+    if (Array.isArray(spec.requirements) && spec.requirements.length) summary.push(`需求：${spec.requirements.join('；')}`);
+    if (Array.isArray(spec.constraints) && spec.constraints.length) summary.push(`约束：${spec.constraints.join('；')}`);
+    if (Array.isArray(spec.selected_module_ids) && spec.selected_module_ids.length) summary.push(`候选模块：${spec.selected_module_ids.join(', ')}`);
+    if (spec.selected_board_id) summary.push(`板卡：${spec.selected_board_id}`);
+
+    if (!summary.length) return '';
+
+    return `
+      <div style="background:var(--bg3);border:1px solid var(--border2);border-radius:12px;padding:14px 16px;margin-top:14px;">
+        <div style="font-size:13px;font-weight:600;color:var(--accent2);margin-bottom:8px">当前上下文</div>
+        <div style="font-size:13px;line-height:1.7;color:var(--text)">${escHtml(summary.join('\n'))}</div>
+      </div>`;
+  }
+
+  function renderGapAnalysis(data) {
+    resultTitle.textContent = data?.error_type ? `缺口分析 · ${data.error_type}` : '缺口分析';
+    tabBar.style.display = 'none';
+    generatedData = null;
+
+    const gap = data?.gap_analysis || {};
+    resultBody.innerHTML = `
+      <div style="margin-bottom:14px;padding:14px 16px;border-radius:12px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2)">
+        <div style="font-size:13px;font-weight:700;color:#fbbf24;margin-bottom:8px">当前还不能直接 build</div>
+        <div style="font-size:14px;line-height:1.7;color:var(--text)">${escHtml(getAssistantText(data) || '后端返回了 gap handling 结果。')}</div>
+      </div>
+      ${renderListSection('已 resolve / 可落地部分', gap.resolved, '暂时没有已 resolve 的角色')}
+      ${renderListSection('未 resolve / 缺口', gap.unresolved, '暂无明显缺口')}
+      ${renderListSection('建议路径', gap.suggestions, '暂无建议')}
+      ${renderSpecSnapshot(data?.current_spec)}
+    `;
+  }
+
+  function renderErrorResult(data) {
+    resultTitle.textContent = data?.error_type ? `运行错误 · ${data.error_type}` : '运行错误';
+    tabBar.style.display = 'none';
+    generatedData = null;
+
+    const details = [];
+    if (data?.error) details.push(`错误：${data.error}`);
+    if (data?.error_type) details.push(`类型：${data.error_type}`);
+    if (Array.isArray(data?.missing_components) && data.missing_components.length) {
+      details.push(`缺失组件：${data.missing_components.join(', ')}`);
+    }
+
+    resultBody.innerHTML = `
+      <div style="margin-bottom:14px;padding:14px 16px;border-radius:12px;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2)">
+        <div style="font-size:13px;font-weight:700;color:#f87171;margin-bottom:8px">后端返回错误</div>
+        <div style="font-size:14px;line-height:1.7;color:var(--text)">${escHtml(getAssistantText(data) || '请求失败')}</div>
+      </div>
+      ${renderListSection('错误详情', details, '无更多细节')}
+      ${renderSpecSnapshot(data?.current_spec)}
+    `;
+  }
+
+  function updateTabs() {
+    if (!generatedData) {
+      tabBar.style.display = 'none';
+      return;
+    }
+
+    tabBar.innerHTML = TAB_DEFS.map((tab, index) => `
+      <div class="tab${index === 0 ? ' active' : ''}" data-tab="${tab.key}">${tab.label}</div>
+    `).join('');
+    tabBar.style.display = 'flex';
+  }
+
+  function renderBuildResult(payload) {
+    generatedData = payload;
+    resultTitle.textContent = payload.recipe_label || '方案详情';
+    updateTabs();
+    renderTab('bom');
+  }
+
+  function renderRuntimeResponse(data) {
+    currentSpec = data?.current_spec || currentSpec;
+
+    const buildOutput = normalizeBuildOutput(data);
+    if (buildOutput) {
+      renderBuildResult(buildOutput);
+      return;
+    }
+
+    if (data?.gap_analysis) {
+      renderGapAnalysis(data);
+      return;
+    }
+
+    if (data?.error_type || data?.error) {
+      renderErrorResult(data);
+      return;
+    }
+
+    if (data?.ready_to_build || data?.is_ready_for_final) {
+      resultTitle.textContent = '等待确认';
+      resultBody.innerHTML = `
+        <div class="result-placeholder">
+          <div class="icon">✅</div>
+          <p>runtime 认为当前上下文已经接近可生成。确认后会继续走 build。</p>
+        </div>`;
+      tabBar.style.display = 'none';
+      generatedData = null;
+      return;
+    }
+
+    if (!generatedData) {
+      setResultPlaceholder('方案详情', '继续补充需求后，这里会显示生成结果、缺口分析或错误详情。');
+    }
   }
 
   // ── Send ─────────────────────────────────────────────────────────────────
   async function sendMessage(text) {
-    if (!text.trim() || isTyping) return;
+    const trimmed = String(text || '').trim();
+    if (!trimmed || isTyping) return;
+
     isTyping = true;
     sendBtn.disabled = true;
 
-    appendMessage('user', text.trim());
+    appendMessage('user', trimmed);
     inputEl.value = '';
     autoResize();
     showTyping();
@@ -857,46 +1029,61 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           session_id: SESSION_ID,
-          message: text.trim(),
+          message: trimmed,
           action: 'chat'
         }),
         signal: AbortSignal.timeout(30000)
       });
 
+      const data = await res.json().catch(() => ({}));
       hideTyping();
 
       if (!res.ok) {
-        throw new Error(`HTTP ${res.status}`);
+        const httpData = {
+          ...data,
+          message: getAssistantText(data) || `请求失败（HTTP ${res.status}）`,
+          error: data?.error || `HTTP ${res.status}`,
+          error_type: data?.error_type || `http_${res.status}`
+        };
+        appendMessage('assistant', `⚠️ ${getAssistantText(httpData)}`);
+        renderRuntimeResponse(httpData);
+        return;
       }
 
-      const data = await res.json();
-      currentSpec = data.current_spec || currentSpec;
-
+      const assistantText = getAssistantText(data) || '后端返回了空消息。';
       const isMock = data.intent_source === 'mock';
-      const msgRow = appendMessage('assistant', data.assistant_message || '', { isMock });
+      const msgRow = appendMessage('assistant', assistantText, { isMock });
 
-      if (data.is_ready_for_final) {
-        appendConfirmCard(data.assistant_message, data.current_spec);
-      } else {
+      renderRuntimeResponse(data);
+
+      if (normalizeBuildOutput(data)) {
+        appendMessage('assistant', '✅ 已收到 build_output，右侧可以查看 BOM、接线、代码和步骤。');
+      } else if (data?.ready_to_build || data?.is_ready_for_final) {
+        appendConfirmCard(data);
+      } else if (Array.isArray(data?.options) && data.options.length) {
         appendOptions(data.options, msgRow);
       }
-
     } catch (err) {
       hideTyping();
-      const errMsg = err.name === 'TimeoutError'
+      const errMsg = err?.name === 'TimeoutError'
         ? '请求超时，请检查后端是否在线'
-        : `出了点问题：${err.message}`;
+        : `出了点问题：${err?.message || err}`;
+      const errorData = { message: errMsg, error: errMsg, error_type: err?.name || 'request_failed' };
       appendMessage('assistant', `⚠️ ${errMsg}`);
+      renderErrorResult(errorData);
+    } finally {
+      isTyping = false;
+      sendBtn.disabled = false;
+      inputEl.focus();
     }
-
-    isTyping = false;
-    sendBtn.disabled = false;
-    inputEl.focus();
   }
 
-  // ── Generate ──────────────────────────────────────────────────────────────
+  // ── Generate fallback ────────────────────────────────────────────────────
   async function doGenerate(spec) {
+    if (!spec) return;
+
     resultTitle.textContent = '生成中…';
+    tabBar.style.display = 'none';
     resultBody.innerHTML = `
       <div class="result-placeholder">
         <div class="generating-badge"><div class="spin"></div>正在生成硬件方案…</div>
@@ -911,26 +1098,33 @@
         signal: AbortSignal.timeout(60000)
       });
 
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      generatedData = data;
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        renderRuntimeResponse({
+          ...data,
+          message: getAssistantText(data) || `生成失败（HTTP ${res.status}）`,
+          error: data?.error || `HTTP ${res.status}`,
+          error_type: data?.error_type || `http_${res.status}`
+        });
+        return;
+      }
 
-      resultTitle.textContent = data.recipe_label || '方案详情';
-      tabBar.style.display = 'flex';
-      renderTab('bom');
-      appendMessage('assistant', `✅ 方案已生成！右侧查看 BOM、接线、代码和安装步骤。`);
-
+      renderRuntimeResponse(data);
+      appendMessage('assistant', '✅ 方案已生成，右侧可查看详细内容。');
     } catch (err) {
-      resultTitle.textContent = '生成失败';
-      resultBody.innerHTML = `<div class="result-placeholder"><p style="color:#f87171">⚠️ 生成失败：${escHtml(err.message)}</p></div>`;
-      appendMessage('assistant', `⚠️ 生成方案时出了问题：${err.message}，请重试。`);
+      renderErrorResult({
+        message: err?.name === 'TimeoutError' ? '生成超时，请稍后重试。' : `生成失败：${err?.message || err}`,
+        error: err?.message || String(err),
+        error_type: err?.name || 'generate_failed'
+      });
+      appendMessage('assistant', `⚠️ 生成方案时出了问题：${err?.message || err}`);
     }
   }
 
   // ── Tabs ──────────────────────────────────────────────────────────────────
   tabBar.addEventListener('click', e => {
     const tab = e.target.closest('.tab');
-    if (!tab) return;
+    if (!tab || !generatedData) return;
     tabBar.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
     renderTab(tab.dataset.tab);
@@ -941,65 +1135,78 @@
     const d = generatedData;
 
     if (name === 'bom') {
-      const rows = (d.bom || []).map(item => `
+      const rows = (Array.isArray(d.bom) ? d.bom : []).map(item => `
         <tr>
-          <td>${escHtml(String(item.name || item.component || ''))}</td>
-          <td>${escHtml(String(item.qty || item.quantity || 1))}</td>
-          <td>${escHtml(String(item.unit_price_cny || item.price || ''))}</td>
-          <td>${escHtml(String(item.note || item.description || ''))}</td>
+          <td>${escHtml(item?.name || item?.component || '')}</td>
+          <td>${escHtml(item?.qty || item?.quantity || 1)}</td>
+          <td>${escHtml(item?.unit_price_cny || item?.price || '')}</td>
+          <td>${escHtml(item?.note || item?.description || '')}</td>
         </tr>`).join('');
-      resultBody.innerHTML = `
+
+      resultBody.innerHTML = rows ? `
         <table class="bom-table">
           <thead><tr><th>名称</th><th>数量</th><th>单价(¥)</th><th>备注</th></tr></thead>
           <tbody>${rows}</tbody>
         </table>
-        <div class="bom-total">总计：<span>¥${d.bom_total_cny || 0}</span></div>`;
+        <div class="bom-total">总计：<span>¥${escHtml(d.bom_total_cny || 0)}</span></div>` :
+        '<p style="color:var(--text-dim);font-size:13px">暂无 BOM 数据</p>';
+      return;
     }
 
-    else if (name === 'wiring') {
-      const rows = (d.wiring || []).map(w => `
+    if (name === 'wiring') {
+      const rows = (Array.isArray(d.wiring) ? d.wiring : []).map(w => `
         <tr>
-          <td>${escHtml(String(w.from || ''))}</td>
+          <td>${escHtml(w?.from || '')}</td>
           <td class="arrow">→</td>
-          <td>${escHtml(String(w.to || ''))}</td>
-          <td>${escHtml(String(w.note || w.description || ''))}</td>
+          <td>${escHtml(w?.to || '')}</td>
+          <td>${escHtml(w?.note || w?.description || '')}</td>
         </tr>`).join('');
-      resultBody.innerHTML = `
+
+      resultBody.innerHTML = rows ? `
         <table class="wiring-table">
           <thead><tr><th>From</th><th></th><th>To</th><th>说明</th></tr></thead>
           <tbody>${rows}</tbody>
-        </table>`;
+        </table>` :
+        '<p style="color:var(--text-dim);font-size:13px">暂无接线数据</p>';
+      return;
     }
 
-    else if (name === 'code') {
-      const code = d.code || '// 暂无代码';
+    if (name === 'code') {
+      const code = String(d.code || '// 暂无代码');
       resultBody.innerHTML = `
         <div class="code-header">
-          <span class="code-label">${escHtml(d.board || 'Arduino')}</span>
+          <span class="code-label">${escHtml(d?.board?.name || d?.board?.id || 'Code')}</span>
           <button class="copy-btn" id="copy-code-btn">📋 复制</button>
         </div>
         <pre class="code-block">${escHtml(code)}</pre>`;
+
       document.getElementById('copy-code-btn').addEventListener('click', async () => {
         try {
           await navigator.clipboard.writeText(code);
           const btn = document.getElementById('copy-code-btn');
           btn.textContent = '✅ 已复制';
           btn.classList.add('copied');
-          setTimeout(() => { btn.textContent = '📋 复制'; btn.classList.remove('copied'); }, 2000);
-        } catch { alert('复制失败，请手动选择代码'); }
+          setTimeout(() => {
+            btn.textContent = '📋 复制';
+            btn.classList.remove('copied');
+          }, 2000);
+        } catch {
+          alert('复制失败，请手动选择代码');
+        }
       });
+      return;
     }
 
-    else if (name === 'steps') {
+    if (name === 'steps') {
       const inst = d.instructions || {};
-      const assembly = Array.isArray(inst.assembly) ? inst.assembly
-        : Array.isArray(inst) ? inst : [];
+      const assembly = Array.isArray(inst.assembly) ? inst.assembly : Array.isArray(inst) ? inst : [];
       const upload = Array.isArray(inst.upload) ? inst.upload : [];
+      const validationWarnings = Array.isArray(d?.validation?.warnings) ? d.validation.warnings : [];
 
-      const makeSteps = (arr) => arr.map((s, i) => `
+      const makeSteps = arr => arr.map((s, i) => `
         <div class="step-item">
-          <div class="step-num">${i+1}</div>
-          <div class="step-text">${escHtml(String(s))}</div>
+          <div class="step-num">${i + 1}</div>
+          <div class="step-text">${escHtml(s)}</div>
         </div>`).join('');
 
       let html = '';
@@ -1008,6 +1215,9 @@
       }
       if (upload.length) {
         html += `<div class="steps-section"><div class="steps-section-title">💾 烧录步骤</div>${makeSteps(upload)}</div>`;
+      }
+      if (validationWarnings.length) {
+        html += `<div class="steps-section"><div class="steps-section-title">⚠️ 提示</div>${makeSteps(validationWarnings)}</div>`;
       }
       if (!html) {
         html = '<p style="color:var(--text-dim);font-size:13px">暂无步骤信息</p>';
@@ -1035,17 +1245,18 @@
 
   // ── Init ──────────────────────────────────────────────────────────────────
   function init() {
-    // AI greeting
-    appendMessage('assistant',
-      '你好！我是 HW-KAI，你的硬件方案助手 🛠️\n\n告诉我你想做什么？不需要懂技术，用你自己的话描述就好。\n\n比如：\n• 做一个按钮触发会发光的装置\n• 做一个自动浇花的系统\n• 做一个门开了会提醒我的东西'
+    appendMessage(
+      'assistant',
+      '你好！我是 HW-KAI。现在这个页面已经按 mvp0.2 runtime 的节奏工作：我会直接显示后端返回的 message / assistant_message，并在右侧展示生成结果、缺口分析或错误信息。\n\n告诉我你想做什么，例如：\n• 做一个按钮触发会发光的装置\n• 做一个自动浇花系统\n• 做一个门开了会提醒我的东西'
     );
 
+    setResultPlaceholder();
     checkApiStatus();
     setInterval(checkApiStatus, 30000);
-
     inputEl.focus();
   }
 
+  window.hwKaiGenerate = doGenerate;
   init();
 </script>
 </body>
