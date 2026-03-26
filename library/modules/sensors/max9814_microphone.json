@@ -1,0 +1,54 @@
+{
+  "id": "max9814_microphone",
+  "label": "MAX9814 自动增益麦克风",
+  "category": "input",
+  "subcategory": "sensor",
+  "description": "MAX9814 自动增益控制麦克风，动态范围更好，适合语音检测",
+  "provides": [
+    "sound_detection",
+    "audio_capture",
+    "microphone",
+    "agc"
+  ],
+  "interface": "analog",
+  "pin_spec": {
+    "VDD": {
+      "type": "power_in",
+      "voltage": "2.7-5.5V",
+      "note": "电源"
+    },
+    "OUT": {
+      "type": "analog_out",
+      "voltage": "VDD/2 ± signal",
+      "note": "模拟音频输出"
+    },
+    "GAIN": {
+      "type": "io",
+      "voltage": "3.3V",
+      "note": "增益控制：悬空=40dB，GND=50dB，VDD=60dB"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    }
+  },
+  "compatible_boards": [
+    "esp32_devkit_v1",
+    "arduino_uno_r3"
+  ],
+  "library_required": "无",
+  "specs": {
+    "gain": "40/50/60dB 可选",
+    "thd": "0.04%"
+  },
+  "notes": [
+    "AGC 自动调节增益，远近声音都能清晰检测",
+    "三种固定增益可通过 GAIN 引脚选择"
+  ],
+  "price_cny": {
+    "min": 8,
+    "max": 20,
+    "typical": 12
+  }
+}

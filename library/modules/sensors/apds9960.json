@@ -1,0 +1,60 @@
+{
+  "id": "apds9960",
+  "label": "APDS9960 手势+颜色+接近",
+  "category": "input",
+  "subcategory": "sensor",
+  "description": "Broadcom APDS9960，集成手势识别、RGB 颜色检测、接近检测",
+  "provides": [
+    "gesture_detection",
+    "color_sensing",
+    "proximity_detection",
+    "ambient_light"
+  ],
+  "interface": "i2c",
+  "pin_spec": {
+    "VCC": {
+      "type": "power_in",
+      "voltage": "3.3V",
+      "note": "电源（3.3V 专用）"
+    },
+    "SDA": {
+      "type": "i2c_data",
+      "voltage": "3.3V",
+      "note": "I2C 数据"
+    },
+    "SCL": {
+      "type": "i2c_clk",
+      "voltage": "3.3V",
+      "note": "I2C 时钟"
+    },
+    "INT": {
+      "type": "digital_out",
+      "voltage": "3.3V",
+      "note": "中断输出（低有效）"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    }
+  },
+  "compatible_boards": [
+    "esp32_devkit_v1",
+    "arduino_nano_33_iot"
+  ],
+  "library_required": "Adafruit APDS9960 / SparkFun APDS9960",
+  "specs": {
+    "i2c_addr": "0x39",
+    "gesture_distance": "约 10-20cm",
+    "color_channels": "R/G/B/Clear"
+  },
+  "notes": [
+    "仅支持 3.3V 电源，5V 会损坏芯片",
+    "手势检测需要特定的读取时序，建议使用库"
+  ],
+  "price_cny": {
+    "min": 8,
+    "max": 20,
+    "typical": 12
+  }
+}

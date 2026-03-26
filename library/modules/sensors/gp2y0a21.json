@@ -1,0 +1,48 @@
+{
+  "id": "gp2y0a21",
+  "label": "GP2Y0A21 红外距离传感器",
+  "category": "input",
+  "subcategory": "sensor",
+  "description": "夏普 GP2Y0A21 模拟红外距离传感器，测距 10-80cm",
+  "provides": [
+    "distance_sensing",
+    "obstacle_detection"
+  ],
+  "interface": "analog",
+  "pin_spec": {
+    "VCC": {
+      "type": "power_in",
+      "voltage": "5V",
+      "note": "5V 电源"
+    },
+    "VOUT": {
+      "type": "analog_out",
+      "voltage": "0-3.1V",
+      "note": "模拟电压输出，距离越近电压越高"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    }
+  },
+  "compatible_boards": [
+    "esp32_devkit_v1",
+    "arduino_uno_r3"
+  ],
+  "library_required": "无（直接读模拟值）",
+  "specs": {
+    "range": "10-80cm",
+    "output": "模拟电压 0.4-3.1V",
+    "response_time": "38ms"
+  },
+  "notes": [
+    "输出是非线性的，需查手册曲线或用映射公式换算距离",
+    "测量透明物体和黑色物体时精度下降"
+  ],
+  "price_cny": {
+    "min": 10,
+    "max": 25,
+    "typical": 15
+  }
+}

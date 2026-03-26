@@ -1,0 +1,54 @@
+{
+  "id": "veml7700",
+  "label": "VEML7700 高精度光照传感器",
+  "category": "input",
+  "subcategory": "sensor",
+  "description": "Vishay VEML7700，I2C 高精度环境光传感器，量程高达 120k lux",
+  "provides": [
+    "light_sensing",
+    "lux_measurement",
+    "ambient_light"
+  ],
+  "interface": "i2c",
+  "pin_spec": {
+    "VCC": {
+      "type": "power_in",
+      "voltage": "3.3V",
+      "note": "电源"
+    },
+    "SDA": {
+      "type": "i2c_data",
+      "voltage": "3.3V",
+      "note": "I2C 数据"
+    },
+    "SCL": {
+      "type": "i2c_clk",
+      "voltage": "3.3V",
+      "note": "I2C 时钟"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    }
+  },
+  "compatible_boards": [
+    "esp32_devkit_v1",
+    "arduino_uno_r3"
+  ],
+  "library_required": "Adafruit VEML7700",
+  "specs": {
+    "range": "0-120000 lux",
+    "i2c_addr": "0x10",
+    "resolution": "0.0036 lux（最低增益）"
+  },
+  "notes": [
+    "地址固定 0x10，总线只能挂一个",
+    "自动增益可简化代码，但手动设置更精准"
+  ],
+  "price_cny": {
+    "min": 8,
+    "max": 20,
+    "typical": 12
+  }
+}

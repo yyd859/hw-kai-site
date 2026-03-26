@@ -1,0 +1,64 @@
+{
+  "id": "arduino_mega_2560",
+  "label": "Arduino Mega 2560",
+  "category": "board",
+  "subcategory": "microcontroller",
+  "description": "Arduino Mega 2560，ATmega2560，54 路 IO，4 路 UART，适合大型项目",
+  "provides": [
+    "gpio",
+    "i2c",
+    "spi",
+    "uart",
+    "pwm",
+    "adc"
+  ],
+  "interface": "usb",
+  "pin_spec": {
+    "5V": {
+      "type": "power_out",
+      "voltage": "5V",
+      "note": "5V 电源"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    },
+    "VIN": {
+      "type": "power_in",
+      "voltage": "7-12V",
+      "note": "外部电源"
+    },
+    "A0-A15": {
+      "type": "analog_in",
+      "voltage": "0-5V",
+      "note": "16路模拟输入"
+    },
+    "D0-D53": {
+      "type": "io",
+      "voltage": "5V",
+      "note": "54路数字IO"
+    }
+  },
+  "compatible_boards": [],
+  "library_required": "内置",
+  "specs": {
+    "cpu": "ATmega2560 16MHz",
+    "flash": "256KB",
+    "ram": "8KB",
+    "eeprom": "4KB",
+    "gpio": 54,
+    "adc": "16ch 10bit",
+    "uart": 4,
+    "pwm": "15ch"
+  },
+  "notes": [
+    "4 路 UART 适合连接多个串口设备",
+    "兼容大多数 Uno Shield（注意引脚排列差异）"
+  ],
+  "price_cny": {
+    "min": 25,
+    "max": 60,
+    "typical": 40
+  }
+}

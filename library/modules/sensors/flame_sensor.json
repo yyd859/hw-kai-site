@@ -1,0 +1,53 @@
+{
+  "id": "flame_sensor",
+  "label": "火焰传感器",
+  "category": "input",
+  "subcategory": "sensor",
+  "description": "红外火焰传感器，检测 760-1100nm 波长，可检测打火机等火焰",
+  "provides": [
+    "flame_detection",
+    "fire_detection"
+  ],
+  "interface": "analog",
+  "pin_spec": {
+    "VCC": {
+      "type": "power_in",
+      "voltage": "3.3-5V",
+      "note": "电源"
+    },
+    "AOUT": {
+      "type": "analog_out",
+      "voltage": "0-5V",
+      "note": "模拟输出，有火焰电压降低"
+    },
+    "DOUT": {
+      "type": "digital_out",
+      "voltage": "3.3-5V",
+      "note": "数字输出，有火焰低电平"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    }
+  },
+  "compatible_boards": [
+    "esp32_devkit_v1",
+    "arduino_uno_r3"
+  ],
+  "library_required": "无",
+  "specs": {
+    "wavelength": "760-1100nm",
+    "angle": "60°",
+    "distance": "约 1m"
+  },
+  "notes": [
+    "强烈阳光会误触发，室外使用需增加遮光",
+    "数字输出阈值通过电位器调节"
+  ],
+  "price_cny": {
+    "min": 1,
+    "max": 5,
+    "typical": 2
+  }
+}

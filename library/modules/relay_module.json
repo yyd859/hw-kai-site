@@ -1,0 +1,34 @@
+{
+  "id": "relay_module",
+  "label": "继电器模块",
+  "category": "output",
+  "subcategory": "actuator",
+  "description": "电磁继电器，用低压信号控制高压/大电流回路，适合控制水泵、灯等",
+  "provides": ["switching", "actuator_control", "pump_control"],
+  "interface": "digital_output",
+  "pin_spec": {
+    "IN":  {"type": "digital_output", "note": "LOW 触发（大多数模块），也有 HIGH 触发型"},
+    "VCC": {"type": "power", "voltage": "5V（大多数）"},
+    "GND": {"type": "ground"},
+    "COM": {"type": "relay_common"},
+    "NO":  {"type": "relay_normally_open"},
+    "NC":  {"type": "relay_normally_closed"}
+  },
+  "specs": {
+    "trigger": "LOW（大多数模块，ESP32 GPIO 输出 LOW 时继电器吸合）",
+    "max_ac": "250V 10A",
+    "max_dc": "30V 10A"
+  },
+  "compatible_boards": ["esp32_devkit_v1", "arduino_uno", "arduino_nano"],
+  "notes": [
+    "大多数模块低电平触发，GPIO 输出 LOW 时继电器动作",
+    "ESP32 GPIO 电流有限，继电器线圈电流较大，建议用光耦隔离模块",
+    "控制强电（220V）时注意安全，必须做好绝缘",
+    "COM 接公共端，NO 接常开（继电器吸合时接通），NC 接常闭"
+  ],
+  "price_cny": {
+    "min": 5,
+    "max": 15,
+    "typical": 8
+  }
+}

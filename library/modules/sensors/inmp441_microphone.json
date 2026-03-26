@@ -1,0 +1,65 @@
+{
+  "id": "inmp441_microphone",
+  "label": "INMP441 I2S 数字麦克风",
+  "category": "input",
+  "subcategory": "sensor",
+  "description": "InvenSense INMP441，I2S 接口数字麦克风，高质量音频，适合 ESP32",
+  "provides": [
+    "digital_audio",
+    "microphone",
+    "i2s_audio",
+    "voice_capture"
+  ],
+  "interface": "i2s",
+  "pin_spec": {
+    "VDD": {
+      "type": "power_in",
+      "voltage": "3.3V",
+      "note": "3.3V 电源"
+    },
+    "SD": {
+      "type": "i2s_data",
+      "voltage": "3.3V",
+      "note": "I2S 数据输出"
+    },
+    "WS": {
+      "type": "i2s_ws",
+      "voltage": "3.3V",
+      "note": "I2S 字时钟"
+    },
+    "SCK": {
+      "type": "i2s_clk",
+      "voltage": "3.3V",
+      "note": "I2S 位时钟"
+    },
+    "L/R": {
+      "type": "io",
+      "voltage": "3.3V",
+      "note": "声道选择：低=左，高=右"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    }
+  },
+  "compatible_boards": [
+    "esp32_devkit_v1",
+    "seeed_xiao_esp32s3"
+  ],
+  "library_required": "ESP32 I2S (内置)",
+  "specs": {
+    "snr": "61dBFS",
+    "frequency": "60-15000Hz",
+    "sensitivity": "-26dBFS"
+  },
+  "notes": [
+    "ESP32 原生支持 I2S，无需外部库",
+    "两个 INMP441 L/R 引脚不同可组成立体声"
+  ],
+  "price_cny": {
+    "min": 8,
+    "max": 20,
+    "typical": 12
+  }
+}

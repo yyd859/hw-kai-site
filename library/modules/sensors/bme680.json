@@ -1,0 +1,57 @@
+{
+  "id": "bme680",
+  "label": "BME680 环境传感器",
+  "category": "input",
+  "subcategory": "sensor",
+  "description": "Bosch BME680，四合一温湿度气压+VOC 气体传感器",
+  "provides": [
+    "temperature_sensing",
+    "humidity_sensing",
+    "pressure_sensing",
+    "voc_sensing",
+    "air_quality"
+  ],
+  "interface": "i2c",
+  "pin_spec": {
+    "VCC": {
+      "type": "power_in",
+      "voltage": "3.3V",
+      "note": "电源"
+    },
+    "SDA": {
+      "type": "i2c_data",
+      "voltage": "3.3V",
+      "note": "I2C 数据"
+    },
+    "SCL": {
+      "type": "i2c_clk",
+      "voltage": "3.3V",
+      "note": "I2C 时钟"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    }
+  },
+  "compatible_boards": [
+    "esp32_devkit_v1",
+    "arduino_uno_r3"
+  ],
+  "library_required": "Adafruit BME680 / BSEC",
+  "specs": {
+    "temp_range": "-40-85°C",
+    "pressure_range": "300-1100hPa",
+    "humidity_range": "0-100%",
+    "gas_resistance": "IAQ 指数"
+  },
+  "notes": [
+    "VOC 气体检测需要加热内部电阻，功耗较高",
+    "Bosch BSEC 库提供 IAQ 空气质量指数计算"
+  ],
+  "price_cny": {
+    "min": 15,
+    "max": 40,
+    "typical": 25
+  }
+}

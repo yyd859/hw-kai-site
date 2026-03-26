@@ -1,0 +1,30 @@
+{
+  "id": "active_buzzer",
+  "label": "有源蜂鸣器（Active Buzzer）",
+  "category": "output",
+  "subcategory": "sound",
+  "description": "内置振荡电路，只需给电就会响，不需要 PWM",
+  "provides": ["sound", "beep", "alarm"],
+  "interface": "digital_output",
+  "pin_spec": {
+    "SIG": {"type": "digital_output", "voltage": "3.3V or 5V", "note": "HIGH 响，LOW 停（部分型号相反，看模块标注）"},
+    "VCC": {"type": "power", "voltage": "3.3V or 5V"},
+    "GND": {"type": "ground"}
+  },
+  "compatible_boards": ["esp32_devkit_v1", "arduino_uno", "arduino_nano"],
+  "variants": [
+    {"id": "active_buzzer_3v3", "label": "3.3V 有源蜂鸣器", "voltage": "3.3V", "price_cny": 1.5},
+    {"id": "active_buzzer_5v",  "label": "5V 有源蜂鸣器",   "voltage": "5V",   "price_cny": 2.0}
+  ],
+  "vs_passive": "有源蜂鸣器只能发单一频率；无源蜂鸣器需要 PWM 但可以发不同音调",
+  "notes": [
+    "注意区分有源（active）和无源（passive），外观相似但用法不同",
+    "驱动电流较大时建议用三极管或 MOSFET 驱动，不要直接用 GPIO",
+    "部分模块低电平触发，注意看模块正面标注"
+  ],
+  "price_cny": {
+    "min": 1,
+    "max": 3,
+    "typical": 2
+  }
+}

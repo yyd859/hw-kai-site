@@ -1,0 +1,60 @@
+{
+  "id": "sht31",
+  "label": "SHT31 温湿度传感器",
+  "category": "input",
+  "subcategory": "sensor",
+  "description": "Sensirion SHT31，高精度 I2C 温湿度传感器，工业级",
+  "provides": [
+    "temperature_sensing",
+    "humidity_sensing"
+  ],
+  "interface": "i2c",
+  "pin_spec": {
+    "VCC": {
+      "type": "power_in",
+      "voltage": "2.4-5.5V",
+      "note": "电源"
+    },
+    "SDA": {
+      "type": "i2c_data",
+      "voltage": "3.3V",
+      "note": "I2C 数据"
+    },
+    "SCL": {
+      "type": "i2c_clk",
+      "voltage": "3.3V",
+      "note": "I2C 时钟"
+    },
+    "ADDR": {
+      "type": "io",
+      "voltage": "3.3V",
+      "note": "地址选择，低=0x44，高=0x45"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    }
+  },
+  "compatible_boards": [
+    "esp32_devkit_v1",
+    "arduino_uno_r3"
+  ],
+  "library_required": "Adafruit SHT31",
+  "specs": {
+    "temp_range": "-40-125°C",
+    "temp_accuracy": "±0.3°C",
+    "humidity_range": "0-100%",
+    "humidity_accuracy": "±2%",
+    "i2c_addr": "0x44/0x45"
+  },
+  "notes": [
+    "支持双地址，同一总线可挂两个",
+    "内置加热器可消除冷凝，适合恶劣环境"
+  ],
+  "price_cny": {
+    "min": 8,
+    "max": 25,
+    "typical": 15
+  }
+}

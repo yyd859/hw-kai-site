@@ -1,0 +1,50 @@
+{
+  "id": "tft_st7789_1_9",
+  "label": "TFT 1.9寸 ST7789",
+  "category": "output",
+  "subcategory": "displays",
+  "description": "常用 170x320 SPI 彩屏",
+  "provides": [
+    "color_display",
+    "dashboard_display"
+  ],
+  "interface": "spi",
+  "pin_spec": {
+    "VCC": {
+      "type": "power_in",
+      "voltage": "3.3V/5V",
+      "note": "电源输入"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    },
+    "SIG": {
+      "type": "io",
+      "voltage": "3.3V/5V",
+      "note": "spi / 控制信号"
+    }
+  },
+  "compatible_boards": [
+    "esp32_devkit_v1",
+    "arduino_uno_r3",
+    "raspberry_pi_pico",
+    "esp32_s3_devkit",
+    "wemos_d1_mini"
+  ],
+  "library_required": "Depends on platform / common Arduino libraries",
+  "specs": {
+    "resolution": "170x320",
+    "driver": "ST7789"
+  },
+  "notes": [
+    "参数按常见模块版本整理，实际购买前请核对卖家资料",
+    "涉及电机、泵、风扇、加热等负载时建议外部供电并与控制板共地"
+  ],
+  "price_cny": {
+    "min": 3,
+    "max": 80,
+    "typical": 15
+  }
+}

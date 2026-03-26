@@ -1,0 +1,56 @@
+{
+  "id": "hc_sr04",
+  "label": "HC-SR04 超声波测距",
+  "category": "input",
+  "subcategory": "sensor",
+  "description": "经典超声波测距模块，测距范围 2-400cm，使用简单",
+  "provides": [
+    "distance_sensing",
+    "obstacle_detection"
+  ],
+  "interface": "digital",
+  "pin_spec": {
+    "VCC": {
+      "type": "power_in",
+      "voltage": "5V",
+      "note": "5V 电源（必须 5V）"
+    },
+    "TRIG": {
+      "type": "digital_out",
+      "voltage": "3.3-5V",
+      "note": "触发引脚，10μs 高脉冲触发"
+    },
+    "ECHO": {
+      "type": "digital_in",
+      "voltage": "5V",
+      "note": "回波引脚，高电平时间对应距离（5V！）"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    }
+  },
+  "compatible_boards": [
+    "esp32_devkit_v1",
+    "arduino_uno_r3",
+    "arduino_nano"
+  ],
+  "library_required": "NewPing 或 内置 pulseIn()",
+  "specs": {
+    "range": "2-400cm",
+    "accuracy": "±3mm",
+    "angle": "15°",
+    "frequency": "40kHz",
+    "trigger_pulse": "10μs"
+  },
+  "notes": [
+    "ECHO 引脚输出 5V，连接 3.3V MCU 需分压或电平转换",
+    "障碍物材质影响反射效果，镜面等光滑物体可能失准"
+  ],
+  "price_cny": {
+    "min": 2,
+    "max": 8,
+    "typical": 4
+  }
+}

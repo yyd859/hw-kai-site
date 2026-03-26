@@ -1,0 +1,62 @@
+{
+  "id": "mpu9250",
+  "label": "MPU9250 9轴 IMU",
+  "category": "input",
+  "subcategory": "sensor",
+  "description": "InvenSense MPU9250，3轴陀螺+3轴加速+AK8963 磁力计，9轴融合",
+  "provides": [
+    "gyroscope",
+    "accelerometer",
+    "magnetometer",
+    "imu",
+    "compass",
+    "ahrs"
+  ],
+  "interface": "i2c",
+  "pin_spec": {
+    "VCC": {
+      "type": "power_in",
+      "voltage": "3.3V",
+      "note": "3.3V 电源"
+    },
+    "SDA": {
+      "type": "i2c_data",
+      "voltage": "3.3V",
+      "note": "I2C 数据"
+    },
+    "SCL": {
+      "type": "i2c_clk",
+      "voltage": "3.3V",
+      "note": "I2C 时钟"
+    },
+    "AD0": {
+      "type": "io",
+      "voltage": "3.3V",
+      "note": "地址选择"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    }
+  },
+  "compatible_boards": [
+    "esp32_devkit_v1",
+    "arduino_uno_r3"
+  ],
+  "library_required": "MPU9250 by hideakitai",
+  "specs": {
+    "gyro_range": "±250-2000°/s",
+    "accel_range": "±2-16g",
+    "mag_range": "±4800μT"
+  },
+  "notes": [
+    "MPU9250 已停产，市售多为克隆版，磁力计可能为 QMC5883L",
+    "磁力计需要罗差校准才能准确导向"
+  ],
+  "price_cny": {
+    "min": 8,
+    "max": 25,
+    "typical": 15
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "id": "ws2812_led_ring",
+  "label": "WS2812 RGB LED Ring",
+  "category": "output",
+  "subcategory": "light",
+  "description": "可编程全彩 LED 环，每颗可独立控制颜色和亮度",
+  "provides": ["light", "color", "blink", "animation", "pulse"],
+  "interface": "single_wire_digital",
+  "pin_spec": {
+    "DIN": {"type": "digital_output", "voltage": "5V_preferred_3v3_ok", "note": "数据输入，接主控数字 IO"},
+    "VCC": {"type": "power", "voltage": "5V", "note": "建议接 5V，3.3V 亮度会略低"},
+    "GND": {"type": "ground"}
+  },
+  "variants": [
+    {"id": "ws2812_ring_8",  "label": "8颗 LED Ring",  "led_count": 8,  "diameter_mm": 32, "price_cny": 6},
+    {"id": "ws2812_ring_12", "label": "12颗 LED Ring", "led_count": 12, "diameter_mm": 38, "price_cny": 8},
+    {"id": "ws2812_ring_16", "label": "16颗 LED Ring", "led_count": 16, "diameter_mm": 44, "price_cny": 10},
+    {"id": "ws2812_ring_24", "label": "24颗 LED Ring", "led_count": 24, "diameter_mm": 65, "price_cny": 14}
+  ],
+  "compatible_boards": ["esp32_devkit_v1", "arduino_uno", "arduino_nano"],
+  "library_required": "Adafruit NeoPixel",
+  "typical_current_ma_per_led": 60,
+  "notes": [
+    "每颗 LED 最大 60mA，全亮白色时电流很大，建议加限流",
+    "DIN 信号线建议串联 300-500Ω 电阻防止信号反射",
+    "电源和 GND 之间建议并联 100μF 电容滤波",
+    "3.3V 逻辑驱动 5V DIN 通常可以工作，但不稳定时加电平转换"
+  ],
+  "price_cny": {
+    "min": 6,
+    "max": 15,
+    "typical": 8
+  }
+}

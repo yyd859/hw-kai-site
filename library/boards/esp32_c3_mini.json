@@ -1,0 +1,64 @@
+{
+  "id": "esp32_c3_mini",
+  "label": "ESP32-C3-MINI-1",
+  "category": "board",
+  "subcategory": "microcontroller",
+  "description": "乐鑫 ESP32-C3 模组，RISC-V 单核，WiFi+BLE5，封装小巧",
+  "provides": [
+    "wifi",
+    "bluetooth5",
+    "gpio",
+    "i2c",
+    "spi",
+    "uart",
+    "pwm",
+    "adc"
+  ],
+  "interface": "usb",
+  "pin_spec": {
+    "3V3": {
+      "type": "power_out",
+      "voltage": "3.3V",
+      "note": "3.3V 电源"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    },
+    "GPIO2": {
+      "type": "io",
+      "voltage": "3.3V",
+      "note": "Boot 选择"
+    },
+    "GPIO18": {
+      "type": "io",
+      "voltage": "3.3V",
+      "note": "USB D-"
+    },
+    "GPIO19": {
+      "type": "io",
+      "voltage": "3.3V",
+      "note": "USB D+"
+    }
+  },
+  "compatible_boards": [],
+  "library_required": "Arduino ESP32 Core",
+  "specs": {
+    "cpu": "RISC-V 160MHz",
+    "flash": "4MB",
+    "ram": "400KB",
+    "wifi": "2.4GHz 802.11b/g/n",
+    "bt": "BLE 5.0",
+    "gpio": 22
+  },
+  "notes": [
+    "RISC-V 架构功耗低，适合电池设备",
+    "内置 USB Serial/JTAG，无需 CH340"
+  ],
+  "price_cny": {
+    "min": 8,
+    "max": 20,
+    "typical": 12
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "id": "oled_ssd1306",
+  "label": "OLED 显示屏 SSD1306 (0.96寸)",
+  "category": "output",
+  "subcategory": "display",
+  "description": "最常见的小型 OLED 显示屏，I2C 接口，显示文字和图形",
+  "provides": ["display", "text_display", "graphics"],
+  "interface": "i2c",
+  "pin_spec": {
+    "SDA": {"type": "i2c_data", "note": "I2C 数据线"},
+    "SCL": {"type": "i2c_clock", "note": "I2C 时钟线"},
+    "VCC": {"type": "power", "voltage": "3.3V to 5V"},
+    "GND": {"type": "ground"}
+  },
+  "specs": {
+    "resolution": "128x64 pixels",
+    "color": "单色（白/蓝/黄蓝混色）",
+    "i2c_address": "0x3C（或 0x3D，取决于模块）",
+    "size_inch": 0.96,
+    "driver": "SSD1306"
+  },
+  "compatible_boards": ["esp32_devkit_v1", "arduino_uno", "arduino_nano"],
+  "library_required": "Adafruit SSD1306 + Adafruit GFX",
+  "notes": [
+    "I2C 地址默认 0x3C，部分模块可通过短接跳线改为 0x3D",
+    "多个 I2C 设备共用总线时注意地址冲突",
+    "有机自发光，长时间固定显示同一图案会有烧屏风险"
+  ],
+  "price_cny": {
+    "min": 8,
+    "max": 20,
+    "typical": 12
+  }
+}

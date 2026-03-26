@@ -1,0 +1,83 @@
+{
+  "id": "arduino_uno_r3",
+  "label": "Arduino Uno R3",
+  "category": "board",
+  "subcategory": "microcontroller",
+  "description": "经典 Arduino Uno R3，ATmega328P，最广泛使用的入门开发板",
+  "provides": [
+    "gpio",
+    "i2c",
+    "spi",
+    "uart",
+    "pwm",
+    "adc"
+  ],
+  "interface": "usb",
+  "pin_spec": {
+    "5V": {
+      "type": "power_out",
+      "voltage": "5V",
+      "note": "5V 电源输出"
+    },
+    "3V3": {
+      "type": "power_out",
+      "voltage": "3.3V",
+      "note": "3.3V 输出"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    },
+    "VIN": {
+      "type": "power_in",
+      "voltage": "7-12V",
+      "note": "外部电源输入"
+    },
+    "A0-A5": {
+      "type": "analog_in",
+      "voltage": "0-5V",
+      "note": "6路模拟输入"
+    },
+    "D2": {
+      "type": "io",
+      "voltage": "5V",
+      "note": "外部中断 INT0"
+    },
+    "D3": {
+      "type": "io",
+      "voltage": "5V",
+      "note": "PWM + 外部中断 INT1"
+    },
+    "SCL": {
+      "type": "i2c_clk",
+      "voltage": "5V",
+      "note": "I2C 时钟 (A5)"
+    },
+    "SDA": {
+      "type": "i2c_data",
+      "voltage": "5V",
+      "note": "I2C 数据 (A4)"
+    }
+  },
+  "compatible_boards": [],
+  "library_required": "内置",
+  "specs": {
+    "cpu": "ATmega328P 16MHz",
+    "flash": "32KB",
+    "ram": "2KB",
+    "eeprom": "1KB",
+    "gpio": 14,
+    "adc": "6ch 10bit",
+    "pwm": "6ch"
+  },
+  "notes": [
+    "IO 电压 5V，与 3.3V 模块连接需要电平转换",
+    "PWM 引脚: D3/D5/D6/D9/D10/D11"
+  ],
+  "price_cny": {
+    "min": 15,
+    "max": 45,
+    "typical": 25
+  }
+}

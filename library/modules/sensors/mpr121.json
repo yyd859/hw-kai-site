@@ -1,0 +1,63 @@
+{
+  "id": "mpr121",
+  "label": "MPR121 12点电容触摸",
+  "category": "input",
+  "subcategory": "sensor",
+  "description": "NXP MPR121，I2C 12通道电容触摸控制器，可做键盘、乐器等",
+  "provides": [
+    "multi_touch",
+    "capacitive_touch",
+    "touch_keyboard"
+  ],
+  "interface": "i2c",
+  "pin_spec": {
+    "VCC": {
+      "type": "power_in",
+      "voltage": "3.3V",
+      "note": "电源"
+    },
+    "SDA": {
+      "type": "i2c_data",
+      "voltage": "3.3V",
+      "note": "I2C 数据"
+    },
+    "SCL": {
+      "type": "i2c_clk",
+      "voltage": "3.3V",
+      "note": "I2C 时钟"
+    },
+    "IRQ": {
+      "type": "digital_out",
+      "voltage": "3.3V",
+      "note": "触摸中断输出，低有效"
+    },
+    "ADD": {
+      "type": "io",
+      "voltage": "3.3V",
+      "note": "地址选择 0x5A-0x5D"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    }
+  },
+  "compatible_boards": [
+    "esp32_devkit_v1",
+    "arduino_uno_r3"
+  ],
+  "library_required": "Adafruit MPR121",
+  "specs": {
+    "channels": 12,
+    "i2c_addr": "0x5A/5B/5C/5D"
+  },
+  "notes": [
+    "最多 4 个 MPR121 级联，共 48 个触摸点",
+    "触摸面积大小影响灵敏度，可通过寄存器调整阈值"
+  ],
+  "price_cny": {
+    "min": 8,
+    "max": 20,
+    "typical": 12
+  }
+}

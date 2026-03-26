@@ -1,0 +1,47 @@
+{
+  "id": "water_level_sensor",
+  "label": "水位传感器",
+  "category": "input",
+  "subcategory": "sensor",
+  "description": "简单水位/液位检测传感器，模拟输出，越深电压越高",
+  "provides": [
+    "water_level",
+    "liquid_detection",
+    "flood_detection"
+  ],
+  "interface": "analog",
+  "pin_spec": {
+    "VCC": {
+      "type": "power_in",
+      "voltage": "3.3-5V",
+      "note": "电源"
+    },
+    "S": {
+      "type": "analog_out",
+      "voltage": "0-5V",
+      "note": "模拟信号输出"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    }
+  },
+  "compatible_boards": [
+    "esp32_devkit_v1",
+    "arduino_uno_r3"
+  ],
+  "library_required": "无",
+  "specs": {
+    "length": "约 40mm 感测区"
+  },
+  "notes": [
+    "仅适合检测是否有水，不适合精确液位测量",
+    "读值时才上电，避免电解腐蚀"
+  ],
+  "price_cny": {
+    "min": 1,
+    "max": 5,
+    "typical": 2
+  }
+}

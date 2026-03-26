@@ -1,0 +1,60 @@
+{
+  "id": "esp32_s2_mini",
+  "label": "ESP32-S2 Mini (Wemos)",
+  "category": "board",
+  "subcategory": "microcontroller",
+  "description": "Wemos 出品的 ESP32-S2 迷你开发板，支持 WiFi 和 USB OTG，体积超小",
+  "provides": [
+    "wifi",
+    "usb_otg",
+    "gpio",
+    "i2c",
+    "spi",
+    "uart",
+    "pwm",
+    "adc",
+    "dac"
+  ],
+  "interface": "usb",
+  "pin_spec": {
+    "3V3": {
+      "type": "power_out",
+      "voltage": "3.3V",
+      "note": "3.3V 电源"
+    },
+    "5V": {
+      "type": "power_in",
+      "voltage": "5V",
+      "note": "5V 供电"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    },
+    "GPIO0": {
+      "type": "io",
+      "voltage": "3.3V",
+      "note": "Boot 模式"
+    }
+  },
+  "compatible_boards": [],
+  "library_required": "Arduino ESP32 Core",
+  "specs": {
+    "cpu": "Xtensa LX7 单核 240MHz",
+    "flash": "4MB",
+    "ram": "320KB",
+    "wifi": "2.4GHz 802.11b/g/n",
+    "gpio": 43,
+    "dac": "2ch 8bit"
+  },
+  "notes": [
+    "无蓝牙，只有 WiFi",
+    "支持 USB HID，可模拟鼠标键盘"
+  ],
+  "price_cny": {
+    "min": 18,
+    "max": 35,
+    "typical": 25
+  }
+}

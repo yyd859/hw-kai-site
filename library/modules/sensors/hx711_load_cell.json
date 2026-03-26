@@ -1,0 +1,64 @@
+{
+  "id": "hx711_load_cell",
+  "label": "HX711 称重传感器模块",
+  "category": "input",
+  "subcategory": "sensor",
+  "description": "HX711 24位 ADC，专用于应变片称重传感器，高精度称重应用",
+  "provides": [
+    "weight_sensing",
+    "load_cell",
+    "force_measurement"
+  ],
+  "interface": "digital",
+  "pin_spec": {
+    "VCC": {
+      "type": "power_in",
+      "voltage": "2.6-5.5V",
+      "note": "电源"
+    },
+    "DOUT": {
+      "type": "digital_out",
+      "voltage": "VCC",
+      "note": "串行数据输出"
+    },
+    "SCK": {
+      "type": "digital_in",
+      "voltage": "VCC",
+      "note": "串行时钟输入"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    },
+    "E+/E-": {
+      "type": "analog",
+      "voltage": "激励电压",
+      "note": "称重传感器激励端"
+    },
+    "A+/A-": {
+      "type": "analog",
+      "voltage": "mV级",
+      "note": "称重传感器信号端"
+    }
+  },
+  "compatible_boards": [
+    "esp32_devkit_v1",
+    "arduino_uno_r3"
+  ],
+  "library_required": "HX711 by bogde",
+  "specs": {
+    "resolution": "24bit",
+    "rate": "10/80 SPS",
+    "gain": "32/64/128"
+  },
+  "notes": [
+    "需要搭配应变片传感器使用，4线全桥接法",
+    "校准时需要标准砝码，每次上电需重新归零"
+  ],
+  "price_cny": {
+    "min": 3,
+    "max": 10,
+    "typical": 5
+  }
+}

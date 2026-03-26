@@ -1,0 +1,44 @@
+{
+  "id": "force_fsr402",
+  "label": "FSR402 压力传感器",
+  "category": "input",
+  "subcategory": "sensor",
+  "description": "Interlink FSR402 薄膜压力传感器，压力越大电阻越小",
+  "provides": [
+    "pressure_sensing",
+    "force_sensing",
+    "touch_detection"
+  ],
+  "interface": "analog",
+  "pin_spec": {
+    "A": {
+      "type": "io",
+      "voltage": "任意",
+      "note": "传感器一端"
+    },
+    "B": {
+      "type": "io",
+      "voltage": "任意",
+      "note": "传感器另一端（配分压电路使用）"
+    }
+  },
+  "compatible_boards": [
+    "esp32_devkit_v1",
+    "arduino_uno_r3"
+  ],
+  "library_required": "无",
+  "specs": {
+    "range": "0.2-20N",
+    "resistance_no_force": ">1MΩ",
+    "resistance_max": "约 200Ω"
+  },
+  "notes": [
+    "需要与固定电阻组成分压电路才能读取",
+    "不能精确测力，只能判断有无接触和大致力度级别"
+  ],
+  "price_cny": {
+    "min": 10,
+    "max": 30,
+    "typical": 18
+  }
+}

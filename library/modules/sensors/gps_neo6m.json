@@ -1,0 +1,56 @@
+{
+  "id": "gps_neo6m",
+  "label": "GPS 模块 NEO-6M",
+  "category": "input",
+  "subcategory": "sensor",
+  "description": "u-blox NEO-6M GPS 模块，UART 输出 NMEA 语句，定位精度约 2.5m",
+  "provides": [
+    "gps",
+    "location",
+    "latitude_longitude",
+    "time_sync"
+  ],
+  "interface": "uart",
+  "pin_spec": {
+    "VCC": {
+      "type": "power_in",
+      "voltage": "3.3-5V",
+      "note": "电源"
+    },
+    "TX": {
+      "type": "uart_tx",
+      "voltage": "3.3V",
+      "note": "GPS 数据发送（接 MCU RX）"
+    },
+    "RX": {
+      "type": "uart_rx",
+      "voltage": "3.3V",
+      "note": "GPS 接收命令（接 MCU TX）"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    }
+  },
+  "compatible_boards": [
+    "esp32_devkit_v1",
+    "arduino_uno_r3"
+  ],
+  "library_required": "TinyGPS++ by Mikal Hart",
+  "specs": {
+    "baud": "9600",
+    "channels": 50,
+    "accuracy": "2.5m CEP",
+    "ttff_cold": "<27s"
+  },
+  "notes": [
+    "首次定位（冷启动）可能需要几分钟，需要在开阔天空下",
+    "内置电池保存星历数据，热启动更快"
+  ],
+  "price_cny": {
+    "min": 15,
+    "max": 40,
+    "typical": 25
+  }
+}
