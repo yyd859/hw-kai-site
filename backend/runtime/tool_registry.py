@@ -18,11 +18,37 @@ CAPABILITY_TO_MODULE = {
     "soil_moisture": "soil_moisture_sensor",
     "relay": "relay_module",
     "pump": "relay_module",
+    "actuator": "relay_module",
 }
 
 MODULE_TO_LEGACY_SENSOR_TYPE = {
     "dht22": "temperature_humidity",
     "soil_moisture_sensor": "soil_moisture",
+}
+
+ROLE_HINT_TO_CAPABILITY = {
+    "button": "button",
+    "switch": "button",
+    "input": "button",
+    "light": "light",
+    "led": "light",
+    "lamp": "light",
+    "sound": "sound",
+    "buzzer": "sound",
+    "beep": "sound",
+    "display": "display",
+    "screen": "display",
+    "oled": "display",
+    "temperature": "temperature_humidity",
+    "humidity": "temperature_humidity",
+    "temp": "temperature_humidity",
+    "soil": "soil_moisture",
+    "moisture": "soil_moisture",
+    "watering": "pump",
+    "water": "pump",
+    "pump": "pump",
+    "relay": "relay",
+    "actuator": "actuator",
 }
 
 UNSUPPORTED_KEYWORDS = {
@@ -35,8 +61,14 @@ class ToolExecutionError(Exception):
     pass
 
 
-def library_search(query: str = "", capabilities: list[str] | None = None, limit: int = 8) -> dict[str, Any]:
-    capabilities = capabilities or []
+def library_search(
+    query: str = "",
+    capabilities: list[str] | None = None,
+    roles: list[dict[str, Any] | str] | None = None,
+    limit: int = 8,
+) -> dict[str, Any]:
+    capabilities = _string_list(capabilities)
+    normalized_roles = _normalize_roles(roles)
     query_l = (query or "").lower()
     capability_l = [item.lower() for item in capabilities]
 
@@ -55,11 +87,22 @@ def library_search(query: str = "", capabilities: list[str] | None = None, limit
     board_hits.sort(key=lambda item: (-item[0], item[1]["id"]))
     module_hits.sort(key=lambda item: (-item[0], item[1]["id"]))
 
+    resolved_components, unresolved_roles = _resolve_roles(normalized_roles, capabilities, query)
+    suggestions = _gap_suggestions(unresolved_roles)
+
     return {
         "query": query,
         "capabilities": capabilities,
+        "roles": normalized_roles,
         "boards": [item for _, item in board_hits[: max(1, limit // 2)]],
         "modules": [item for _, item in module_hits[:limit]],
+        "resolved_components": resolved_components,
+        "unresolved_roles": unresolved_roles,
+        "gap_analysis": {
+            "resolved": [_resolved_summary(item) for item in resolved_components],
+            "unresolved": [_role_summary(item) for item in unresolved_roles],
+            "suggestions": suggestions,
+        },
     }
 
 
@@ -85,10 +128,7 @@ def build_plan_from_context(context: dict[str, Any]) -> dict[str, Any]:
     if not board:
         raise MissingComponentsError([f"board:{preflight['board_id']}"])
 
-    selected_modules = [
-        find_module(module_id)
-        for module_id in preflight["selected_module_ids"]
-    ]
+    selected_modules = [find_module(module_id) for module_id in preflight["selected_module_ids"]]
     selected_modules = [module for module in selected_modules if module]
 
     if len(selected_modules) != len(preflight["selected_module_ids"]):
@@ -119,6 +159,9 @@ def preflight_build_context(context: dict[str, Any]) -> dict[str, Any]:
             "selected_module_ids": normalized["selected_module_ids"],
             "board_id": normalized["selected_board_id"],
             "legacy_spec": normalized["legacy_spec"],
+            "resolved_components": normalized["resolved_components"],
+            "unresolved_roles": _merge_unresolved_roles(normalized["unresolved_roles"], [{"role": item, "capability": item} for item in unsupported]),
+            "gap_analysis": _merge_gap_analysis(normalized, unsupported),
         }
 
     explicit_ids = normalized["selected_module_ids"]
@@ -126,28 +169,41 @@ def preflight_build_context(context: dict[str, Any]) -> dict[str, Any]:
         combo_check = _check_explicit_modules(normalized["selected_board_id"], explicit_ids)
         combo_check["normalized_context"] = normalized
         combo_check["legacy_spec"] = normalized["legacy_spec"]
+        combo_check["resolved_components"] = normalized["resolved_components"]
+        combo_check["unresolved_roles"] = normalized["unresolved_roles"]
+        combo_check["gap_analysis"] = _merge_gap_analysis(normalized, combo_check.get("missing_components") or [])
         return combo_check
 
     try:
         selection = select_modules(normalized["legacy_spec"])
         module_ids = [module["id"] for module in selection["selected_modules"]]
+        inferred_resolved = _merge_resolved_components(
+            normalized["resolved_components"],
+            [{"role": module_id, "capability": module_id, "module_id": module_id, "label": module.get("label", module_id)} for module_id, module in zip(module_ids, selection["selected_modules"])],
+        )
         return {
             "buildable": True,
             "selected_module_ids": module_ids,
             "board_id": selection["board"]["id"],
             "missing_components": [],
-            "normalized_context": {**normalized, "selected_module_ids": module_ids},
+            "normalized_context": {**normalized, "selected_module_ids": module_ids, "resolved_components": inferred_resolved},
             "legacy_spec": normalized["legacy_spec"],
+            "resolved_components": inferred_resolved,
+            "unresolved_roles": normalized["unresolved_roles"],
+            "gap_analysis": _merge_gap_analysis({**normalized, "resolved_components": inferred_resolved}, []),
         }
     except MissingComponentsError as exc:
         return {
             "buildable": False,
             "error_type": "missing_components",
             "missing_components": exc.missing_capabilities,
-            "selected_module_ids": [],
+            "selected_module_ids": normalized["selected_module_ids"],
             "board_id": normalized["selected_board_id"],
             "normalized_context": normalized,
             "legacy_spec": normalized["legacy_spec"],
+            "resolved_components": normalized["resolved_components"],
+            "unresolved_roles": _merge_unresolved_roles(normalized["unresolved_roles"], [{"role": item, "capability": item} for item in exc.missing_capabilities]),
+            "gap_analysis": _merge_gap_analysis(normalized, exc.missing_capabilities),
         }
 
 
@@ -156,17 +212,45 @@ def normalize_build_context(context: dict[str, Any]) -> dict[str, Any]:
     project_brief = str(context.get("project_brief") or context.get("message") or context.get("query") or "").strip()
     requirements = _string_list(context.get("requirements"))
     constraints = _string_list(context.get("constraints"))
+    subsystems = _string_list(context.get("subsystems"))
+    open_questions = _string_list(context.get("open_questions"))
     capabilities = _string_list(context.get("capabilities"))
-    selected_module_ids = _normalize_selected_module_ids(context.get("selected_module_ids") or context.get("module_ids") or [])
+    abstract_bom = _normalize_roles(context.get("abstract_bom"))
+    selected_direction = str(context.get("selected_direction") or "").strip()
+    resolved_components = _normalize_resolved_components(context.get("resolved_components"))
+    unresolved_roles = _normalize_roles(context.get("unresolved_roles"))
+    selected_module_ids = _normalize_selected_module_ids(
+        context.get("selected_module_ids")
+        or context.get("module_ids")
+        or [item.get("module_id") for item in resolved_components if item.get("module_id")]
+    )
     selected_board_id = str(context.get("selected_board_id") or DEFAULT_BOARD_ID)
 
-    legacy_spec = _context_to_legacy_spec(project_brief, requirements, constraints, capabilities, selected_module_ids)
+    inferred_capabilities = list(capabilities)
+    for role in abstract_bom:
+        capability = str(role.get("capability") or "").strip().lower()
+        if capability and capability not in inferred_capabilities:
+            inferred_capabilities.append(capability)
+    for component in resolved_components:
+        capability = str(component.get("capability") or "").strip().lower()
+        if capability and capability not in inferred_capabilities:
+            inferred_capabilities.append(capability)
+
+    legacy_spec = _context_to_legacy_spec(project_brief, requirements, constraints, inferred_capabilities, selected_module_ids)
+    gap_analysis = context.get("gap_analysis") if isinstance(context.get("gap_analysis"), dict) else {}
 
     return {
         "project_brief": project_brief,
         "requirements": requirements,
         "constraints": constraints,
-        "capabilities": capabilities,
+        "subsystems": subsystems,
+        "abstract_bom": abstract_bom,
+        "open_questions": open_questions,
+        "selected_direction": selected_direction,
+        "capabilities": inferred_capabilities,
+        "resolved_components": resolved_components,
+        "unresolved_roles": unresolved_roles,
+        "gap_analysis": gap_analysis,
         "selected_module_ids": selected_module_ids,
         "selected_board_id": selected_board_id,
         "legacy_spec": legacy_spec,
@@ -239,6 +323,43 @@ def _normalize_selected_module_ids(values: list[Any]) -> list[str]:
     return result
 
 
+def _normalize_roles(values: Any) -> list[dict[str, Any]]:
+    if not isinstance(values, list):
+        return []
+    result: list[dict[str, Any]] = []
+    for raw in values:
+        if isinstance(raw, dict):
+            role = str(raw.get("role") or raw.get("name") or raw.get("capability") or "").strip()
+            capability = str(raw.get("capability") or "").strip()
+            notes = str(raw.get("notes") or raw.get("description") or "").strip()
+            if role or capability or notes:
+                result.append({"role": role, "capability": capability, "notes": notes})
+        elif isinstance(raw, str) and raw.strip():
+            result.append({"role": raw.strip(), "capability": _infer_capability(raw), "notes": ""})
+    return result
+
+
+def _normalize_resolved_components(values: Any) -> list[dict[str, Any]]:
+    if not isinstance(values, list):
+        return []
+    result: list[dict[str, Any]] = []
+    for raw in values:
+        if not isinstance(raw, dict):
+            continue
+        module_id = str(raw.get("module_id") or raw.get("id") or "").strip().lower()
+        role = str(raw.get("role") or raw.get("capability") or module_id or "").strip()
+        label = str(raw.get("label") or "").strip()
+        capability = str(raw.get("capability") or _infer_capability(role) or _infer_capability(module_id)).strip()
+        if module_id or role:
+            result.append({
+                "role": role,
+                "capability": capability,
+                "module_id": module_id,
+                "label": label,
+            })
+    return result
+
+
 def _context_to_legacy_spec(project_brief: str, requirements: list[str], constraints: list[str], capabilities: list[str], selected_module_ids: list[str]) -> dict[str, Any]:
     text = " ".join([project_brief, *requirements, *constraints, *capabilities, *selected_module_ids]).lower()
     spec = {
@@ -277,14 +398,15 @@ def _context_to_legacy_spec(project_brief: str, requirements: list[str], constra
 
 
 def infer_unsupported_capabilities(normalized_context: dict[str, Any]) -> list[str]:
-    text = " ".join(
-        [
-            normalized_context.get("project_brief", ""),
-            *normalized_context.get("requirements", []),
-            *normalized_context.get("constraints", []),
-            *normalized_context.get("capabilities", []),
-        ]
-    ).lower()
+    texts = [
+        normalized_context.get("project_brief", ""),
+        *normalized_context.get("requirements", []),
+        *normalized_context.get("constraints", []),
+        *normalized_context.get("capabilities", []),
+    ]
+    texts.extend(str(item.get("role") or "") for item in normalized_context.get("abstract_bom", []))
+    texts.extend(str(item.get("capability") or "") for item in normalized_context.get("abstract_bom", []))
+    text = " ".join(texts).lower()
 
     missing: list[str] = []
     for capability, keywords in UNSUPPORTED_KEYWORDS.items():
@@ -396,3 +518,110 @@ def _instance_id_for(module_id: str, index: int) -> str:
         "relay_module": "relay1",
     }
     return defaults.get(module_id, f"module{index + 1}")
+
+
+def _resolve_roles(roles: list[dict[str, Any]], capabilities: list[str], query: str) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    resolved: list[dict[str, Any]] = []
+    unresolved: list[dict[str, Any]] = []
+    queue = list(roles)
+
+    if not queue:
+        for cap in capabilities:
+            queue.append({"role": cap, "capability": cap, "notes": ""})
+
+    for role in queue:
+        capability = str(role.get("capability") or _infer_capability(role.get("role") or "") or _infer_capability(query) or "").strip().lower()
+        module_id = CAPABILITY_TO_MODULE.get(capability)
+        module = find_module(module_id) if module_id else None
+        if module:
+            resolved.append(
+                {
+                    "role": role.get("role") or capability,
+                    "capability": capability,
+                    "module_id": module["id"],
+                    "label": module.get("label", module["id"]),
+                }
+            )
+        else:
+            unresolved.append(
+                {
+                    "role": str(role.get("role") or capability or "unknown").strip(),
+                    "capability": capability,
+                    "notes": str(role.get("notes") or "").strip(),
+                }
+            )
+
+    return _merge_resolved_components([], resolved), _merge_unresolved_roles([], unresolved)
+
+
+def _infer_capability(text: Any) -> str:
+    lowered = str(text or "").lower()
+    for token, capability in ROLE_HINT_TO_CAPABILITY.items():
+        if token in lowered:
+            return capability
+    return ""
+
+
+def _merge_resolved_components(existing: list[dict[str, Any]], updates: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    merged: list[dict[str, Any]] = []
+    seen: set[tuple[str, str]] = set()
+    for item in [*existing, *updates]:
+        normalized = _normalize_resolved_components([item])
+        if not normalized:
+            continue
+        component = normalized[0]
+        key = (component.get("role", ""), component.get("module_id", ""))
+        if key in seen:
+            continue
+        seen.add(key)
+        merged.append(component)
+    return merged
+
+
+def _merge_unresolved_roles(existing: list[dict[str, Any]], updates: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    merged: list[dict[str, Any]] = []
+    seen: set[tuple[str, str]] = set()
+    for item in [*existing, *updates]:
+        normalized = _normalize_roles([item])
+        if not normalized:
+            continue
+        role = normalized[0]
+        key = (role.get("role", ""), role.get("capability", ""))
+        if key in seen:
+            continue
+        seen.add(key)
+        merged.append(role)
+    return merged
+
+
+def _merge_gap_analysis(normalized: dict[str, Any], missing_components: list[str]) -> dict[str, Any]:
+    unresolved_roles = _merge_unresolved_roles(
+        normalized.get("unresolved_roles", []),
+        [{"role": item, "capability": item} for item in missing_components],
+    )
+    return {
+        "resolved": [_resolved_summary(item) for item in normalized.get("resolved_components", [])],
+        "unresolved": [_role_summary(item) for item in unresolved_roles],
+        "suggestions": _gap_suggestions(unresolved_roles),
+    }
+
+
+def _resolved_summary(item: dict[str, Any]) -> str:
+    role = item.get("role") or item.get("capability") or "role"
+    module_id = item.get("module_id") or item.get("label") or "unknown"
+    return f"{role} -> {module_id}"
+
+
+def _role_summary(item: dict[str, Any]) -> str:
+    role = item.get("role") or item.get("capability") or "unknown"
+    capability = item.get("capability") or ""
+    return f"{role} ({capability})" if capability and capability != role else str(role)
+
+
+def _gap_suggestions(unresolved_roles: list[dict[str, Any]]) -> list[str]:
+    if not unresolved_roles:
+        return []
+    suggestions = ["先按已 resolve 的部分做一个可验证 MVP", "尝试替代交互或降级掉缺失角色", "后续补充库组件后再扩展"]
+    if any("camera" in str(item.get("capability") or item.get("role") or "") for item in unresolved_roles):
+        suggestions.insert(1, "把视觉识别改成按钮、红外或其他非视觉触发")
+    return suggestions[:3]

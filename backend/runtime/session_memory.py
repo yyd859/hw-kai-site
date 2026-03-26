@@ -13,9 +13,18 @@ class SessionState:
             "project_brief": "",
             "requirements": [],
             "constraints": [],
+            "subsystems": [],
+            "abstract_bom": [],
+            "open_questions": [],
+            "selected_direction": "",
+            "capabilities": [],
+            "resolved_components": [],
+            "unresolved_roles": [],
+            "gap_analysis": {},
             "selected_module_ids": [],
             "selected_board_id": "esp32_devkit_v1",
             "last_search": [],
+            "last_resolution": {},
             "last_inspected": {},
             "last_build_check": None,
             "ready_to_build": False,
@@ -25,6 +34,22 @@ class SessionState:
 
 
 _sessions: dict[str, SessionState] = {}
+
+
+LIST_FIELDS = {
+    "requirements",
+    "constraints",
+    "subsystems",
+    "abstract_bom",
+    "open_questions",
+    "capabilities",
+    "resolved_components",
+    "unresolved_roles",
+    "selected_module_ids",
+    "last_search",
+}
+
+DICT_FIELDS = {"last_inspected", "last_build_check", "gap_analysis", "last_resolution"}
 
 
 def get_session(session_id: str) -> SessionState:
@@ -45,9 +70,9 @@ def merge_memory(session: SessionState, patch: dict[str, Any] | None) -> None:
     for key, value in patch.items():
         if value is None:
             continue
-        if key in {"requirements", "constraints", "selected_module_ids", "last_search"} and isinstance(value, list):
+        if key in LIST_FIELDS and isinstance(value, list):
             session.memory[key] = value
-        elif key == "last_inspected" and isinstance(value, dict):
+        elif key in DICT_FIELDS and isinstance(value, dict):
             session.memory[key] = value
         else:
             session.memory[key] = value

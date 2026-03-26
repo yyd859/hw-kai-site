@@ -12,7 +12,7 @@ from agent.generator import GenerationNotSupportedError, generate_output
 from agent.module_selector import MissingComponentsError, select_modules
 from agent.pin_allocator import PinAllocationError, allocate_pins
 from runtime.chat_runtime import process_chat_message
-from runtime.tool_registry import build_plan_from_context
+from runtime.tool_registry import build_plan_from_context, preflight_build_context
 
 app = FastAPI(title="HW-KAI Agent API", version="0.2.0")
 
@@ -63,13 +63,28 @@ async def generate(req: GenerateRequest):
     spec = req.spec
 
     try:
-        if any(key in spec for key in ["project_brief", "requirements", "selected_module_ids", "capabilities"]):
+        if any(key in spec for key in ["project_brief", "requirements", "selected_module_ids", "capabilities", "abstract_bom", "resolved_components"]):
             return build_plan_from_context(spec)
 
         selection = select_modules(spec)
         hardware_plan = allocate_pins(selection["board"], selection["selected_modules"])
         return generate_output(selection["board"], selection["selected_modules"], hardware_plan, spec)
     except MissingComponentsError as exc:
+        if any(key in spec for key in ["project_brief", "requirements", "selected_module_ids", "capabilities", "abstract_bom", "resolved_components"]):
+            preflight = preflight_build_context(spec)
+            return {
+                "message": "当前还不能直接生成，但已整理出可落地部分和缺口。",
+                "assistant_message": "当前还不能直接生成，但已整理出可落地部分和缺口。",
+                "error": "当前库里缺少可满足需求的模块",
+                "error_type": "missing_components",
+                "missing_capabilities": exc.missing_capabilities,
+                "resolved_components": preflight.get("resolved_components", []),
+                "unresolved_roles": preflight.get("unresolved_roles", []),
+                "gap_analysis": preflight.get("gap_analysis", {}),
+                "ready_to_build": False,
+                "options": ["按降级 MVP 继续", "看看替代方案", "先补充库再做"],
+                "current_spec": preflight.get("normalized_context"),
+            }
         return {
             "error": "当前库里缺少可满足需求的模块",
             "error_type": "missing_components",
