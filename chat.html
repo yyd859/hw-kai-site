@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HW-KAI — 硬件方案助手</title>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --bg2: #111118;
+    --bg3: #1a1a24;
+    --bg4: #22222e;
+    --accent: #6c63ff;
+    --accent2: #00d4ff;
+    --accent-dim: rgba(108,99,255,0.15);
+    --accent2-dim: rgba(0,212,255,0.1);
+    --text: #e8e8f0;
+    --text-dim: #888899;
+    --border: rgba(108,99,255,0.2);
+    --border2: rgba(255,255,255,0.06);
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Layout ── */
+  #app {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  #chat-panel {
+    display: flex;
+    flex-direction: column;
+    width: 420px;
+    min-width: 320px;
+    border-right: 1px solid var(--border2);
+    background: var(--bg2);
+  }
+
+  #result-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* ── Chat header ── */
+  #chat-header {
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid var(--border2);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+
+  .logo-icon {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .logo-text {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .logo-sub {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-left: 2px;
+  }
+
+  /* ── Messages ── */
+  #messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 16px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    scroll-behavior: smooth;
+  }
+
+  #messages::-webkit-scrollbar { width: 4px; }
+  #messages::-webkit-scrollbar-track { background: transparent; }
+  #messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .msg-row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .msg-row.user {
+    align-items: flex-end;
+  }
+
+  .msg-row.assistant {
+    align-items: flex-start;
+  }
+
+  .bubble {
+    max-width: 88%;
+    padding: 10px 14px;
+    border-radius: var(--radius);
+    font-size: 14px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .msg-row.assistant .bubble {
+    background: var(--accent-dim);
+    border: 1px solid var(--border);
+    border-bottom-left-radius: 4px;
+    color: var(--text);
+  }
+
+  .msg-row.user .bubble {
+    background: var(--bg4);
+    border: 1px solid var(--border2);
+    border-bottom-right-radius: 4px;
+    color: var(--text);
+  }
+
+  /* Options buttons */
+  .options-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    max-width: 92%;
+  }
+
+  .option-btn {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--accent2);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .option-btn:hover {
+    background: var(--accent-dim);
+    border-color: var(--accent);
+    color: var(--text);
+  }
+
+  /* Typing indicator */
+  .typing-bubble {
+    background: var(--accent-dim);
+    border: 1px solid var(--border);
+    border-bottom-left-radius: 4px;
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    display: flex;
+    gap: 4px;
+    align-items: center;
+  }
+
+  .dot {
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: bounce 1.2s infinite;
+  }
+  .dot:nth-child(2) { animation-delay: 0.2s; }
+  .dot:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes bounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+    30% { transform: translateY(-5px); opacity: 1; }
+  }
+
+  /* Confirmation card */
+  .confirm-card {
+    background: var(--bg3);
+    border: 1px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    max-width: 92%;
+  }
+
+  .confirm-card-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent2);
+    margin-bottom: 8px;
+  }
+
+  .confirm-card-body {
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+
+  .confirm-card-desc {
+    font-size: 14px;
+    color: var(--text);
+    background: var(--bg4);
+    border-radius: var(--radius-sm);
+    padding: 8px 10px;
+    margin-bottom: 12px;
+    white-space: pre-wrap;
+  }
+
+  .confirm-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .btn-confirm {
+    background: linear-gradient(135deg, var(--accent), #5548e0);
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: opacity 0.15s;
+    font-weight: 600;
+  }
+
+  .btn-confirm:hover { opacity: 0.85; }
+
+  .btn-retry {
+    background: var(--bg4);
+    color: var(--text-dim);
+    border: 1px solid var(--border2);
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-retry:hover { color: var(--text); border-color: var(--border); }
+
+  /* ── Input ── */
+  #input-area {
+    padding: 12px 14px;
+    border-top: 1px solid var(--border2);
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  #user-input {
+    flex: 1;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-size: 14px;
+    padding: 9px 12px;
+    resize: none;
+    height: 40px;
+    max-height: 100px;
+    outline: none;
+    transition: border-color 0.15s;
+    font-family: inherit;
+  }
+
+  #user-input:focus {
+    border-color: var(--accent);
+  }
+
+  #user-input::placeholder { color: var(--text-dim); }
+
+  #send-btn {
+    width: 40px; height: 40px;
+    background: linear-gradient(135deg, var(--accent), #5548e0);
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: opacity 0.15s;
+  }
+
+  #send-btn:hover { opacity: 0.85; }
+  #send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  #send-btn svg { width: 16px; height: 16px; fill: #fff; }
+
+  /* ── Result panel ── */
+  #result-header {
+    padding: 18px 24px 0;
+    border-bottom: 1px solid var(--border2);
+    flex-shrink: 0;
+  }
+
+  #result-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-dim);
+    padding-bottom: 14px;
+  }
+
+  .tab-bar {
+    display: flex;
+    gap: 0;
+  }
+
+  .tab {
+    padding: 8px 16px;
+    font-size: 13px;
+    color: var(--text-dim);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+    user-select: none;
+  }
+
+  .tab:hover { color: var(--text); }
+
+  .tab.active {
+    color: var(--accent2);
+    border-bottom-color: var(--accent2);
+  }
+
+  #result-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 24px;
+  }
+
+  #result-body::-webkit-scrollbar { width: 4px; }
+  #result-body::-webkit-scrollbar-track { background: transparent; }
+  #result-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .result-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 12px;
+    color: var(--text-dim);
+    text-align: center;
+  }
+
+  .result-placeholder .icon {
+    font-size: 40px;
+    opacity: 0.4;
+  }
+
+  .result-placeholder p {
+    font-size: 14px;
+    opacity: 0.6;
+    max-width: 240px;
+    line-height: 1.5;
+  }
+
+  /* BOM table */
+  .bom-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .bom-table th {
+    text-align: left;
+    padding: 8px 10px;
+    color: var(--text-dim);
+    font-weight: 500;
+    border-bottom: 1px solid var(--border2);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .bom-table td {
+    padding: 9px 10px;
+    border-bottom: 1px solid var(--border2);
+    color: var(--text);
+    vertical-align: top;
+  }
+
+  .bom-table tr:last-child td { border-bottom: none; }
+  .bom-table tr:hover td { background: var(--bg3); }
+
+  .bom-total {
+    margin-top: 12px;
+    text-align: right;
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+
+  .bom-total span {
+    color: var(--accent2);
+    font-weight: 600;
+  }
+
+  /* Wiring table */
+  .wiring-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .wiring-table th {
+    text-align: left;
+    padding: 8px 10px;
+    color: var(--text-dim);
+    font-weight: 500;
+    border-bottom: 1px solid var(--border2);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .wiring-table td {
+    padding: 9px 10px;
+    border-bottom: 1px solid var(--border2);
+    color: var(--text);
+    vertical-align: top;
+    font-family: monospace;
+    font-size: 12px;
+  }
+
+  .wiring-table td:last-child {
+    font-family: inherit;
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+
+  .wiring-table tr:last-child td { border-bottom: none; }
+  .wiring-table tr:hover td { background: var(--bg3); }
+
+  .arrow { color: var(--accent); }
+
+  /* Code block */
+  .code-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .code-label {
+    font-size: 12px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .copy-btn {
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    color: var(--text-dim);
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .copy-btn:hover { color: var(--text); border-color: var(--border); }
+  .copy-btn.copied { color: var(--accent2); border-color: var(--accent2); }
+
+  pre.code-block {
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    overflow-x: auto;
+    font-size: 12px;
+    line-height: 1.6;
+    color: #c8d4e0;
+    font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', monospace;
+    white-space: pre;
+  }
+
+  pre.code-block::-webkit-scrollbar { height: 4px; }
+  pre.code-block::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* Steps */
+  .steps-section {
+    margin-bottom: 20px;
+  }
+
+  .steps-section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent2);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .step-item {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 8px;
+    align-items: flex-start;
+  }
+
+  .step-num {
+    width: 22px; height: 22px;
+    background: var(--accent-dim);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    color: var(--accent);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .step-text {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.5;
+  }
+
+  /* ── API status dot ── */
+  #api-status {
+    position: fixed;
+    bottom: 14px;
+    right: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--text-dim);
+    z-index: 100;
+    user-select: none;
+  }
+
+  .status-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #555;
+    transition: background 0.3s;
+  }
+
+  .status-dot.online { background: #22c55e; box-shadow: 0 0 6px #22c55e88; }
+  .status-dot.offline { background: #555; }
+
+  /* ── Generating spinner ── */
+  .generating-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--accent2);
+    padding: 4px 10px;
+    background: var(--accent2-dim);
+    border: 1px solid rgba(0,212,255,0.2);
+    border-radius: 20px;
+    margin-bottom: 16px;
+  }
+
+  .spin {
+    width: 12px; height: 12px;
+    border: 2px solid rgba(0,212,255,0.3);
+    border-top-color: var(--accent2);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* ── Mobile ── */
+  @media (max-width: 768px) {
+    body { overflow: auto; }
+
+    #app {
+      flex-direction: column;
+      height: auto;
+      min-height: 100vh;
+    }
+
+    #chat-panel {
+      width: 100%;
+      min-width: unset;
+      border-right: none;
+      border-bottom: 1px solid var(--border2);
+      height: 60vh;
+      min-height: 400px;
+    }
+
+    #result-panel {
+      height: 60vh;
+      min-height: 360px;
+    }
+  }
+
+  /* tag chips */
+  .tag {
+    display: inline-block;
+    background: var(--bg4);
+    border: 1px solid var(--border2);
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-size: 11px;
+    color: var(--text-dim);
+    font-family: monospace;
+  }
+
+  .badge-mock {
+    font-size: 10px;
+    color: #f59e0b;
+    background: rgba(245,158,11,0.1);
+    border: 1px solid rgba(245,158,11,0.2);
+    border-radius: 4px;
+    padding: 1px 6px;
+    margin-left: 6px;
+  }
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- Chat Panel -->
+  <div id="chat-panel">
+    <div id="chat-header">
+      <div class="logo-icon">⚙️</div>
+      <div>
+        <div class="logo-text">HW-KAI</div>
+        <div class="logo-sub">硬件方案助手</div>
+      </div>
+    </div>
+
+    <div id="messages"></div>
+
+    <div id="input-area">
+      <textarea id="user-input" placeholder="告诉我你想做什么…" rows="1"></textarea>
+      <button id="send-btn" title="发送 (Enter)">
+        <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Result Panel -->
+  <div id="result-panel">
+    <div id="result-header">
+      <div id="result-title">方案详情</div>
+      <div class="tab-bar" id="tab-bar" style="display:none">
+        <div class="tab active" data-tab="bom">📦 BOM</div>
+        <div class="tab" data-tab="wiring">🔌 接线</div>
+        <div class="tab" data-tab="code">💻 代码</div>
+        <div class="tab" data-tab="steps">📝 步骤</div>
+      </div>
+    </div>
+    <div id="result-body">
+      <div class="result-placeholder">
+        <div class="icon">🔧</div>
+        <p>确认方案后，这里会生成完整的硬件方案</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- API Status -->
+<div id="api-status">
+  <div class="status-dot" id="status-dot"></div>
+  <span id="status-label">检测中…</span>
+</div>
+
+<script>
+  // ── Config ──────────────────────────────────────────────────────────────
+  const params = new URLSearchParams(location.search);
+  const API_BASE = params.get('apiBase')
+    || localStorage.getItem('hw_kai_api_base')
+    || 'https://hw-kai-backend-842295210592.us-central1.run.app';
+
+  const SESSION_ID = crypto.randomUUID();
+  let currentSpec = null;
+  let isTyping = false;
+  let generatedData = null;
+
+  // ── DOM refs ─────────────────────────────────────────────────────────────
+  const messagesEl = document.getElementById('messages');
+  const inputEl    = document.getElementById('user-input');
+  const sendBtn    = document.getElementById('send-btn');
+  const statusDot  = document.getElementById('status-dot');
+  const statusLabel = document.getElementById('status-label');
+  const tabBar     = document.getElementById('tab-bar');
+  const resultBody = document.getElementById('result-body');
+  const resultTitle = document.getElementById('result-title');
+
+  // ── API status check ─────────────────────────────────────────────────────
+  async function checkApiStatus() {
+    try {
+      const r = await fetch(`${API_BASE}/api/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ session_id: SESSION_ID, message: '__ping__', action: 'chat' }),
+        signal: AbortSignal.timeout(3000)
+      });
+      if (r.ok || r.status === 400 || r.status === 422) {
+        statusDot.className = 'status-dot online';
+        statusLabel.textContent = '在线';
+      } else {
+        throw new Error('not ok');
+      }
+    } catch {
+      statusDot.className = 'status-dot offline';
+      statusLabel.textContent = 'Mock 模式';
+    }
+  }
+
+  // ── Message helpers ───────────────────────────────────────────────────────
+  function appendMessage(role, text, extra = {}) {
+    const row = document.createElement('div');
+    row.className = `msg-row ${role}`;
+
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+    bubble.textContent = text;
+
+    if (extra.isMock) {
+      const badge = document.createElement('span');
+      badge.className = 'badge-mock';
+      badge.textContent = 'mock';
+      bubble.appendChild(badge);
+    }
+
+    row.appendChild(bubble);
+    messagesEl.appendChild(row);
+    scrollBottom();
+    return row;
+  }
+
+  function appendOptions(options, parentRow) {
+    if (!options || options.length === 0) return;
+    const optRow = document.createElement('div');
+    optRow.className = 'options-row';
+    options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.textContent = opt;
+      btn.addEventListener('click', () => {
+        disableOptions(parentRow);
+        sendMessage(opt);
+      });
+      optRow.appendChild(btn);
+    });
+    parentRow.appendChild(optRow);
+    scrollBottom();
+  }
+
+  function disableOptions(row) {
+    row.querySelectorAll('.option-btn').forEach(b => {
+      b.disabled = true;
+      b.style.opacity = '0.4';
+      b.style.cursor = 'default';
+    });
+  }
+
+  function showTyping() {
+    const row = document.createElement('div');
+    row.className = 'msg-row assistant';
+    row.id = 'typing-row';
+    const bubble = document.createElement('div');
+    bubble.className = 'typing-bubble';
+    bubble.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+    row.appendChild(bubble);
+    messagesEl.appendChild(row);
+    scrollBottom();
+  }
+
+  function hideTyping() {
+    const el = document.getElementById('typing-row');
+    if (el) el.remove();
+  }
+
+  function appendConfirmCard(msgText, spec) {
+    const row = document.createElement('div');
+    row.className = 'msg-row assistant';
+
+    const card = document.createElement('div');
+    card.className = 'confirm-card';
+    card.innerHTML = `
+      <div class="confirm-card-title">📋 方案确认</div>
+      <div class="confirm-card-body">我理解你想做的是：</div>
+      <div class="confirm-card-desc">${escHtml(msgText)}</div>
+      <div class="confirm-actions">
+        <button class="btn-confirm" id="btn-do-confirm">✅ 确认，生成方案</button>
+        <button class="btn-retry" id="btn-do-retry">🔄 重新描述</button>
+      </div>
+    `;
+
+    row.appendChild(card);
+    messagesEl.appendChild(row);
+    scrollBottom();
+
+    card.querySelector('#btn-do-confirm').addEventListener('click', () => {
+      card.querySelector('#btn-do-confirm').disabled = true;
+      card.querySelector('#btn-do-retry').disabled = true;
+      card.style.opacity = '0.6';
+      doGenerate(spec);
+    });
+
+    card.querySelector('#btn-do-retry').addEventListener('click', () => {
+      card.style.opacity = '0.6';
+      card.querySelector('#btn-do-confirm').disabled = true;
+      card.querySelector('#btn-do-retry').disabled = true;
+      appendMessage('assistant', '好的，我们重新来过。告诉我你想做什么？');
+    });
+  }
+
+  function scrollBottom() {
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  function escHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+  }
+
+  // ── Send ─────────────────────────────────────────────────────────────────
+  async function sendMessage(text) {
+    if (!text.trim() || isTyping) return;
+    isTyping = true;
+    sendBtn.disabled = true;
+
+    appendMessage('user', text.trim());
+    inputEl.value = '';
+    autoResize();
+    showTyping();
+
+    try {
+      const res = await fetch(`${API_BASE}/api/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          session_id: SESSION_ID,
+          message: text.trim(),
+          action: 'chat'
+        }),
+        signal: AbortSignal.timeout(30000)
+      });
+
+      hideTyping();
+
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+
+      const data = await res.json();
+      currentSpec = data.current_spec || currentSpec;
+
+      const isMock = data.intent_source === 'mock';
+      const msgRow = appendMessage('assistant', data.assistant_message || '', { isMock });
+
+      if (data.is_ready_for_final) {
+        appendConfirmCard(data.assistant_message, data.current_spec);
+      } else {
+        appendOptions(data.options, msgRow);
+      }
+
+    } catch (err) {
+      hideTyping();
+      const errMsg = err.name === 'TimeoutError'
+        ? '请求超时，请检查后端是否在线'
+        : `出了点问题：${err.message}`;
+      appendMessage('assistant', `⚠️ ${errMsg}`);
+    }
+
+    isTyping = false;
+    sendBtn.disabled = false;
+    inputEl.focus();
+  }
+
+  // ── Generate ──────────────────────────────────────────────────────────────
+  async function doGenerate(spec) {
+    resultTitle.textContent = '生成中…';
+    resultBody.innerHTML = `
+      <div class="result-placeholder">
+        <div class="generating-badge"><div class="spin"></div>正在生成硬件方案…</div>
+        <p style="color:var(--text-dim);font-size:13px">这可能需要几秒钟</p>
+      </div>`;
+
+    try {
+      const res = await fetch(`${API_BASE}/api/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ session_id: SESSION_ID, spec }),
+        signal: AbortSignal.timeout(60000)
+      });
+
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      generatedData = data;
+
+      resultTitle.textContent = data.recipe_label || '方案详情';
+      tabBar.style.display = 'flex';
+      renderTab('bom');
+      appendMessage('assistant', `✅ 方案已生成！右侧查看 BOM、接线、代码和安装步骤。`);
+
+    } catch (err) {
+      resultTitle.textContent = '生成失败';
+      resultBody.innerHTML = `<div class="result-placeholder"><p style="color:#f87171">⚠️ 生成失败：${escHtml(err.message)}</p></div>`;
+      appendMessage('assistant', `⚠️ 生成方案时出了问题：${err.message}，请重试。`);
+    }
+  }
+
+  // ── Tabs ──────────────────────────────────────────────────────────────────
+  tabBar.addEventListener('click', e => {
+    const tab = e.target.closest('.tab');
+    if (!tab) return;
+    tabBar.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    renderTab(tab.dataset.tab);
+  });
+
+  function renderTab(name) {
+    if (!generatedData) return;
+    const d = generatedData;
+
+    if (name === 'bom') {
+      const rows = (d.bom || []).map(item => `
+        <tr>
+          <td>${escHtml(String(item.name || item.component || ''))}</td>
+          <td>${escHtml(String(item.qty || item.quantity || 1))}</td>
+          <td>${escHtml(String(item.unit_price_cny || item.price || ''))}</td>
+          <td>${escHtml(String(item.note || item.description || ''))}</td>
+        </tr>`).join('');
+      resultBody.innerHTML = `
+        <table class="bom-table">
+          <thead><tr><th>名称</th><th>数量</th><th>单价(¥)</th><th>备注</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+        <div class="bom-total">总计：<span>¥${d.bom_total_cny || 0}</span></div>`;
+    }
+
+    else if (name === 'wiring') {
+      const rows = (d.wiring || []).map(w => `
+        <tr>
+          <td>${escHtml(String(w.from || ''))}</td>
+          <td class="arrow">→</td>
+          <td>${escHtml(String(w.to || ''))}</td>
+          <td>${escHtml(String(w.note || w.description || ''))}</td>
+        </tr>`).join('');
+      resultBody.innerHTML = `
+        <table class="wiring-table">
+          <thead><tr><th>From</th><th></th><th>To</th><th>说明</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>`;
+    }
+
+    else if (name === 'code') {
+      const code = d.code || '// 暂无代码';
+      resultBody.innerHTML = `
+        <div class="code-header">
+          <span class="code-label">${escHtml(d.board || 'Arduino')}</span>
+          <button class="copy-btn" id="copy-code-btn">📋 复制</button>
+        </div>
+        <pre class="code-block">${escHtml(code)}</pre>`;
+      document.getElementById('copy-code-btn').addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(code);
+          const btn = document.getElementById('copy-code-btn');
+          btn.textContent = '✅ 已复制';
+          btn.classList.add('copied');
+          setTimeout(() => { btn.textContent = '📋 复制'; btn.classList.remove('copied'); }, 2000);
+        } catch { alert('复制失败，请手动选择代码'); }
+      });
+    }
+
+    else if (name === 'steps') {
+      const inst = d.instructions || {};
+      const assembly = Array.isArray(inst.assembly) ? inst.assembly
+        : Array.isArray(inst) ? inst : [];
+      const upload = Array.isArray(inst.upload) ? inst.upload : [];
+
+      const makeSteps = (arr) => arr.map((s, i) => `
+        <div class="step-item">
+          <div class="step-num">${i+1}</div>
+          <div class="step-text">${escHtml(String(s))}</div>
+        </div>`).join('');
+
+      let html = '';
+      if (assembly.length) {
+        html += `<div class="steps-section"><div class="steps-section-title">🔧 组装步骤</div>${makeSteps(assembly)}</div>`;
+      }
+      if (upload.length) {
+        html += `<div class="steps-section"><div class="steps-section-title">💾 烧录步骤</div>${makeSteps(upload)}</div>`;
+      }
+      if (!html) {
+        html = '<p style="color:var(--text-dim);font-size:13px">暂无步骤信息</p>';
+      }
+      resultBody.innerHTML = html;
+    }
+  }
+
+  // ── Input handling ────────────────────────────────────────────────────────
+  function autoResize() {
+    inputEl.style.height = 'auto';
+    inputEl.style.height = Math.min(inputEl.scrollHeight, 100) + 'px';
+  }
+
+  inputEl.addEventListener('input', autoResize);
+
+  inputEl.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage(inputEl.value);
+    }
+  });
+
+  sendBtn.addEventListener('click', () => sendMessage(inputEl.value));
+
+  // ── Init ──────────────────────────────────────────────────────────────────
+  function init() {
+    // AI greeting
+    appendMessage('assistant',
+      '你好！我是 HW-KAI，你的硬件方案助手 🛠️\n\n告诉我你想做什么？不需要懂技术，用你自己的话描述就好。\n\n比如：\n• 做一个按钮触发会发光的装置\n• 做一个自动浇花的系统\n• 做一个门开了会提醒我的东西'
+    );
+
+    checkApiStatus();
+    setInterval(checkApiStatus, 30000);
+
+    inputEl.focus();
+  }
+
+  init();
+</script>
+</body>
+</html>

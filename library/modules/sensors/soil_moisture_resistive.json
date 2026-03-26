@@ -1,0 +1,51 @@
+{
+  "id": "soil_moisture_resistive",
+  "label": "电阻式土壤湿度传感器",
+  "category": "input",
+  "subcategory": "sensor",
+  "description": "电阻式土壤湿度传感器，价格低廉，但探针会氧化腐蚀",
+  "provides": [
+    "soil_moisture",
+    "plant_watering"
+  ],
+  "interface": "analog",
+  "pin_spec": {
+    "VCC": {
+      "type": "power_in",
+      "voltage": "3.3-5V",
+      "note": "电源"
+    },
+    "AOUT": {
+      "type": "analog_out",
+      "voltage": "0-5V",
+      "note": "模拟输出"
+    },
+    "DOUT": {
+      "type": "digital_out",
+      "voltage": "3.3-5V",
+      "note": "阈值数字输出"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    }
+  },
+  "compatible_boards": [
+    "esp32_devkit_v1",
+    "arduino_uno_r3"
+  ],
+  "library_required": "无",
+  "specs": {
+    "output": "模拟+数字双输出"
+  },
+  "notes": [
+    "探针电解腐蚀问题严重，长期使用寿命短，推荐电容式替代",
+    "读取时再通电，避免长时间通电加速腐蚀"
+  ],
+  "price_cny": {
+    "min": 1,
+    "max": 5,
+    "typical": 2
+  }
+}

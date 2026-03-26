@@ -1,0 +1,55 @@
+{
+  "id": "sgp30",
+  "label": "SGP30 VOC+CO2 传感器",
+  "category": "input",
+  "subcategory": "sensor",
+  "description": "Sensirion SGP30，I2C VOC 和 eCO2 气体传感器，适合室内空气质量监测",
+  "provides": [
+    "voc_sensing",
+    "eco2_sensing",
+    "air_quality",
+    "tvoc"
+  ],
+  "interface": "i2c",
+  "pin_spec": {
+    "VCC": {
+      "type": "power_in",
+      "voltage": "3.3V",
+      "note": "电源"
+    },
+    "SDA": {
+      "type": "i2c_data",
+      "voltage": "3.3V",
+      "note": "I2C 数据"
+    },
+    "SCL": {
+      "type": "i2c_clk",
+      "voltage": "3.3V",
+      "note": "I2C 时钟"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    }
+  },
+  "compatible_boards": [
+    "esp32_devkit_v1",
+    "arduino_uno_r3"
+  ],
+  "library_required": "Adafruit SGP30",
+  "specs": {
+    "eco2_range": "400-60000ppm",
+    "tvoc_range": "0-60000ppb",
+    "i2c_addr": "0x58"
+  },
+  "notes": [
+    "上电后需要约 15 秒初始化，初始值为 eCO2=400，TVOC=0",
+    "需每 1 秒读取一次维持内部基线自校准"
+  ],
+  "price_cny": {
+    "min": 15,
+    "max": 35,
+    "typical": 22
+  }
+}

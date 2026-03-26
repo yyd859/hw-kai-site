@@ -1,0 +1,48 @@
+{
+  "id": "max4466_microphone",
+  "label": "MAX4466 模拟麦克风放大",
+  "category": "input",
+  "subcategory": "sensor",
+  "description": "MAX4466 运放麦克风模块，可调增益，输出模拟音频信号",
+  "provides": [
+    "sound_detection",
+    "audio_capture",
+    "microphone"
+  ],
+  "interface": "analog",
+  "pin_spec": {
+    "VCC": {
+      "type": "power_in",
+      "voltage": "2.4-5V",
+      "note": "电源"
+    },
+    "OUT": {
+      "type": "analog_out",
+      "voltage": "VCC/2 ± signal",
+      "note": "模拟音频输出"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    }
+  },
+  "compatible_boards": [
+    "esp32_devkit_v1",
+    "arduino_uno_r3"
+  ],
+  "library_required": "无",
+  "specs": {
+    "gain": "25-125倍可调",
+    "frequency": "20-20000Hz"
+  },
+  "notes": [
+    "背面电位器调节增益，顺时针增大",
+    "输出中心电压为 VCC/2，需考虑 ADC 偏置"
+  ],
+  "price_cny": {
+    "min": 5,
+    "max": 15,
+    "typical": 8
+  }
+}

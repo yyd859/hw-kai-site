@@ -1,0 +1,50 @@
+{
+  "id": "fram_mb85rc256v",
+  "label": "MB85RC256V FRAM 模块",
+  "category": "interface",
+  "subcategory": "storage",
+  "description": "高速耐写 I2C FRAM 存储",
+  "provides": [
+    "persistent_storage",
+    "high_endurance_storage"
+  ],
+  "interface": "i2c",
+  "pin_spec": {
+    "VCC": {
+      "type": "power_in",
+      "voltage": "3.3V/5V",
+      "note": "电源输入"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    },
+    "SIG": {
+      "type": "io",
+      "voltage": "3.3V/5V",
+      "note": "存储/总线接口"
+    }
+  },
+  "compatible_boards": [
+    "esp32_devkit_v1",
+    "arduino_uno_r3",
+    "raspberry_pi_pico",
+    "esp32_s3_devkit",
+    "wemos_d1_mini"
+  ],
+  "library_required": "Depends on platform / common Arduino libraries",
+  "specs": {
+    "capacity": "256Kbit",
+    "write_cycles": "10^12+"
+  },
+  "notes": [
+    "参数按常见模块版本整理，实际购买前请核对卖家资料",
+    "涉及电机、泵、风扇、加热等负载时建议外部供电并与控制板共地"
+  ],
+  "price_cny": {
+    "min": 3,
+    "max": 80,
+    "typical": 15
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "id": "max30102",
+  "label": "MAX30102 心率血氧传感器",
+  "category": "input",
+  "subcategory": "sensor",
+  "description": "Maxim MAX30102，光电心率和血氧（SpO2）检测传感器，I2C 接口",
+  "provides": [
+    "heart_rate",
+    "spo2",
+    "blood_oxygen",
+    "pulse_detection"
+  ],
+  "interface": "i2c",
+  "pin_spec": {
+    "VCC": {
+      "type": "power_in",
+      "voltage": "1.8V",
+      "note": "核心 1.8V（模块通常有稳压）"
+    },
+    "SDA": {
+      "type": "i2c_data",
+      "voltage": "1.8-3.3V",
+      "note": "I2C 数据"
+    },
+    "SCL": {
+      "type": "i2c_clk",
+      "voltage": "1.8-3.3V",
+      "note": "I2C 时钟"
+    },
+    "INT": {
+      "type": "digital_out",
+      "voltage": "1.8V",
+      "note": "中断输出"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    }
+  },
+  "compatible_boards": [
+    "esp32_devkit_v1",
+    "arduino_uno_r3"
+  ],
+  "library_required": "MAX30105 by SparkFun",
+  "specs": {
+    "i2c_addr": "0x57",
+    "led": "红660nm+红外880nm"
+  },
+  "notes": [
+    "血氧计算需要专用算法，直接读原始值无意义",
+    "传感器需贴紧皮肤，手指放在模块上测量"
+  ],
+  "price_cny": {
+    "min": 8,
+    "max": 20,
+    "typical": 12
+  }
+}

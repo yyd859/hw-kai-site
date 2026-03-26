@@ -1,0 +1,58 @@
+{
+  "id": "raspberry_pi_pico",
+  "label": "Raspberry Pi Pico (RP2040)",
+  "category": "board",
+  "subcategory": "microcontroller",
+  "description": "树莓派 Pico，RP2040 双核 Cortex-M0+，支持 MicroPython 和 C/C++",
+  "provides": [
+    "gpio",
+    "i2c",
+    "spi",
+    "uart",
+    "pwm",
+    "adc",
+    "pio"
+  ],
+  "interface": "usb",
+  "pin_spec": {
+    "3V3": {
+      "type": "power_out",
+      "voltage": "3.3V",
+      "note": "3.3V 输出，最大 300mA"
+    },
+    "VSYS": {
+      "type": "power_in",
+      "voltage": "1.8-5.5V",
+      "note": "宽压电源输入"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    },
+    "GP26-GP28": {
+      "type": "analog_in",
+      "voltage": "0-3.3V",
+      "note": "3路 ADC 输入"
+    }
+  },
+  "compatible_boards": [],
+  "library_required": "MicroPython / C SDK",
+  "specs": {
+    "cpu": "RP2040 dual Cortex-M0+ 133MHz",
+    "flash": "2MB",
+    "ram": "264KB",
+    "gpio": 26,
+    "adc": "3ch 12bit",
+    "pio": "8 state machines"
+  },
+  "notes": [
+    "PIO 可编程 IO 可实现任意时序协议",
+    "无 WiFi，需 Pico W 版本获得无线功能"
+  ],
+  "price_cny": {
+    "min": 15,
+    "max": 30,
+    "typical": 20
+  }
+}

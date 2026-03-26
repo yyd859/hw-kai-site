@@ -1,0 +1,68 @@
+{
+  "id": "stm32_bluepill",
+  "label": "STM32F103 Blue Pill",
+  "category": "board",
+  "subcategory": "microcontroller",
+  "description": "STM32F103C8T6 蓝色小板，72MHz Cortex-M3，支持 Arduino IDE",
+  "provides": [
+    "gpio",
+    "i2c",
+    "spi",
+    "uart",
+    "pwm",
+    "adc",
+    "can",
+    "usb"
+  ],
+  "interface": "usb",
+  "pin_spec": {
+    "3V3": {
+      "type": "power_out",
+      "voltage": "3.3V",
+      "note": "3.3V 输出"
+    },
+    "5V": {
+      "type": "power_in",
+      "voltage": "5V",
+      "note": "5V 通过 USB 输入"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    },
+    "PA9": {
+      "type": "uart_tx",
+      "voltage": "3.3V",
+      "note": "UART1 TX"
+    },
+    "PA10": {
+      "type": "uart_rx",
+      "voltage": "3.3V",
+      "note": "UART1 RX"
+    },
+    "BOOT0": {
+      "type": "io",
+      "voltage": "3.3V",
+      "note": "启动模式选择"
+    }
+  },
+  "compatible_boards": [],
+  "library_required": "STM32duino",
+  "specs": {
+    "cpu": "STM32F103C8T6 Cortex-M3 72MHz",
+    "flash": "64KB",
+    "ram": "20KB",
+    "gpio": 37,
+    "adc": "10ch 12bit"
+  },
+  "notes": [
+    "克隆板 flash 实际可能是 128KB，但官方标 64KB",
+    "烧录需要 ST-Link 或通过 BOOT0 串口烧录"
+  ],
+  "price_cny": {
+    "min": 8,
+    "max": 20,
+    "typical": 12
+  }
+}

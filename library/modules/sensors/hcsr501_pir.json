@@ -1,0 +1,50 @@
+{
+  "id": "hcsr501_pir",
+  "label": "HC-SR501 PIR 人体红外",
+  "category": "input",
+  "subcategory": "sensor",
+  "description": "被动红外人体运动检测模块，常用于安防和自动照明",
+  "provides": [
+    "motion_detection",
+    "presence_sensing",
+    "pir"
+  ],
+  "interface": "digital",
+  "pin_spec": {
+    "VCC": {
+      "type": "power_in",
+      "voltage": "5-20V",
+      "note": "宽压电源输入"
+    },
+    "OUT": {
+      "type": "digital_out",
+      "voltage": "3.3V",
+      "note": "检测到运动输出高电平"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    }
+  },
+  "compatible_boards": [
+    "esp32_devkit_v1",
+    "arduino_uno_r3"
+  ],
+  "library_required": "无",
+  "specs": {
+    "range": "7m",
+    "angle": "120°",
+    "delay_time": "5s-300s（可调）",
+    "hold_time": "5s-200s（可调）"
+  },
+  "notes": [
+    "板上有两个电位器：灵敏度调节和延迟时间调节",
+    "上电后需等待约 60 秒进行初始化，期间输出不稳定"
+  ],
+  "price_cny": {
+    "min": 3,
+    "max": 10,
+    "typical": 5
+  }
+}

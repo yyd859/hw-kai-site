@@ -1,0 +1,43 @@
+{
+  "id": "ldr_photoresistor",
+  "label": "光敏电阻 LDR",
+  "category": "input",
+  "subcategory": "sensor",
+  "description": "光敏电阻，光照越强电阻越小，配分压电路检测光线强弱",
+  "provides": [
+    "light_sensing",
+    "brightness_detection"
+  ],
+  "interface": "analog",
+  "pin_spec": {
+    "A": {
+      "type": "analog_in",
+      "voltage": "根据分压电路",
+      "note": "两端无极性，与固定电阻分压后接 ADC"
+    },
+    "B": {
+      "type": "analog_in",
+      "voltage": "根据分压电路",
+      "note": "另一端接 GND 或 VCC"
+    }
+  },
+  "compatible_boards": [
+    "esp32_devkit_v1",
+    "arduino_uno_r3"
+  ],
+  "library_required": "无",
+  "specs": {
+    "resistance_dark": "1MΩ",
+    "resistance_light": "1kΩ",
+    "wavelength": "560nm峰值"
+  },
+  "notes": [
+    "需与 10kΩ 固定电阻组成分压电路才能读取",
+    "响应速度慢（约 30ms），不适合高速闪光检测"
+  ],
+  "price_cny": {
+    "min": 0.5,
+    "max": 3,
+    "typical": 1
+  }
+}

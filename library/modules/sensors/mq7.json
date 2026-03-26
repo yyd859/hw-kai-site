@@ -1,0 +1,53 @@
+{
+  "id": "mq7",
+  "label": "MQ-7 CO 一氧化碳传感器",
+  "category": "input",
+  "subcategory": "sensor",
+  "description": "MQ-7 一氧化碳传感器，专门检测 CO，适合室内安全警报",
+  "provides": [
+    "co_detection",
+    "gas_detection",
+    "carbon_monoxide"
+  ],
+  "interface": "analog",
+  "pin_spec": {
+    "VCC": {
+      "type": "power_in",
+      "voltage": "5V",
+      "note": "5V 电源"
+    },
+    "AOUT": {
+      "type": "analog_out",
+      "voltage": "0-5V",
+      "note": "模拟输出"
+    },
+    "DOUT": {
+      "type": "digital_out",
+      "voltage": "5V",
+      "note": "阈值数字输出"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    }
+  },
+  "compatible_boards": [
+    "esp32_devkit_v1",
+    "arduino_uno_r3"
+  ],
+  "library_required": "无",
+  "specs": {
+    "range": "20-2000ppm CO",
+    "preheat": "每 90 秒需交替高低温"
+  },
+  "notes": [
+    "精确检测需要 5V/1.4V 交替加热循环（90秒高温，60秒低温）",
+    "模块版本通常简化了加热控制，精度有限"
+  ],
+  "price_cny": {
+    "min": 3,
+    "max": 10,
+    "typical": 6
+  }
+}

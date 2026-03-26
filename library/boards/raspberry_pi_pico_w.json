@@ -1,0 +1,54 @@
+{
+  "id": "raspberry_pi_pico_w",
+  "label": "Raspberry Pi Pico W",
+  "category": "board",
+  "subcategory": "microcontroller",
+  "description": "树莓派 Pico W，RP2040 + CYW43439，增加 WiFi 和 BLE 支持",
+  "provides": [
+    "wifi",
+    "bluetooth",
+    "gpio",
+    "i2c",
+    "spi",
+    "uart",
+    "pwm",
+    "adc",
+    "pio"
+  ],
+  "interface": "usb",
+  "pin_spec": {
+    "3V3": {
+      "type": "power_out",
+      "voltage": "3.3V",
+      "note": "3.3V 输出"
+    },
+    "VSYS": {
+      "type": "power_in",
+      "voltage": "1.8-5.5V",
+      "note": "宽压输入"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    }
+  },
+  "compatible_boards": [],
+  "library_required": "MicroPython / C SDK",
+  "specs": {
+    "cpu": "RP2040 dual Cortex-M0+ 133MHz",
+    "flash": "2MB",
+    "ram": "264KB",
+    "wifi": "2.4GHz 802.11n",
+    "bt": "BLE 5.2"
+  },
+  "notes": [
+    "WiFi 天线通过 CYW43439 实现，GPIO 控制有些不同",
+    "LED 引脚在 Pico W 上由 WiFi 芯片控制"
+  ],
+  "price_cny": {
+    "min": 30,
+    "max": 55,
+    "typical": 40
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "id": "adxl345",
+  "label": "ADXL345 3轴加速度传感器",
+  "category": "input",
+  "subcategory": "sensor",
+  "description": "ADI ADXL345，高分辨率 3轴加速度传感器，支持 I2C 和 SPI",
+  "provides": [
+    "accelerometer",
+    "tilt_sensing",
+    "tap_detection",
+    "freefall_detection"
+  ],
+  "interface": "i2c",
+  "pin_spec": {
+    "VCC": {
+      "type": "power_in",
+      "voltage": "3.3V",
+      "note": "电源"
+    },
+    "SDA": {
+      "type": "i2c_data",
+      "voltage": "3.3V",
+      "note": "I2C 数据"
+    },
+    "SCL": {
+      "type": "i2c_clk",
+      "voltage": "3.3V",
+      "note": "I2C 时钟"
+    },
+    "CS": {
+      "type": "io",
+      "voltage": "3.3V",
+      "note": "接高选 I2C 模式"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    }
+  },
+  "compatible_boards": [
+    "esp32_devkit_v1",
+    "arduino_uno_r3"
+  ],
+  "library_required": "Adafruit ADXL345",
+  "specs": {
+    "range": "±2/4/8/16g",
+    "resolution": "13bit",
+    "i2c_addr": "0x53/0x1D"
+  },
+  "notes": [
+    "有内置敲击检测和自由落体检测中断功能",
+    "低功耗模式电流仅 40μA"
+  ],
+  "price_cny": {
+    "min": 5,
+    "max": 15,
+    "typical": 8
+  }
+}

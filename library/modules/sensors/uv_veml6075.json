@@ -1,0 +1,53 @@
+{
+  "id": "uv_veml6075",
+  "label": "VEML6075 UV 紫外线传感器",
+  "category": "input",
+  "subcategory": "sensor",
+  "description": "Vishay VEML6075，I2C UV-A 和 UV-B 紫外线传感器，可计算 UV 指数",
+  "provides": [
+    "uv_sensing",
+    "uvi_calculation"
+  ],
+  "interface": "i2c",
+  "pin_spec": {
+    "VCC": {
+      "type": "power_in",
+      "voltage": "3.3V",
+      "note": "电源"
+    },
+    "SDA": {
+      "type": "i2c_data",
+      "voltage": "3.3V",
+      "note": "I2C 数据"
+    },
+    "SCL": {
+      "type": "i2c_clk",
+      "voltage": "3.3V",
+      "note": "I2C 时钟"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    }
+  },
+  "compatible_boards": [
+    "esp32_devkit_v1",
+    "arduino_uno_r3"
+  ],
+  "library_required": "Adafruit VEML6075",
+  "specs": {
+    "i2c_addr": "0x10",
+    "uva_range": "315-400nm",
+    "uvb_range": "280-315nm"
+  },
+  "notes": [
+    "玻璃会阻挡 UV，传感器需暴露在日光下测量",
+    "需结合温度补偿系数计算精确的 UVI 值"
+  ],
+  "price_cny": {
+    "min": 8,
+    "max": 20,
+    "typical": 12
+  }
+}

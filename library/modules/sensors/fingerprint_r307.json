@@ -1,0 +1,54 @@
+{
+  "id": "fingerprint_r307",
+  "label": "R307 指纹传感器",
+  "category": "input",
+  "subcategory": "sensor",
+  "description": "光学指纹识别模块，支持 360° 指纹录入和比对，UART 接口",
+  "provides": [
+    "fingerprint_recognition",
+    "biometric",
+    "access_control"
+  ],
+  "interface": "uart",
+  "pin_spec": {
+    "VCC": {
+      "type": "power_in",
+      "voltage": "3.6-6V",
+      "note": "电源"
+    },
+    "TX": {
+      "type": "uart_tx",
+      "voltage": "3.3V",
+      "note": "数据发送"
+    },
+    "RX": {
+      "type": "uart_rx",
+      "voltage": "3.3V",
+      "note": "数据接收"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    }
+  },
+  "compatible_boards": [
+    "esp32_devkit_v1",
+    "arduino_uno_r3"
+  ],
+  "library_required": "Adafruit Fingerprint Sensor Library",
+  "specs": {
+    "capacity": "127 枚指纹",
+    "baud": "57600",
+    "accuracy": "FAR<0.001%"
+  },
+  "notes": [
+    "支持存储最多 127 枚指纹，每枚 512 字节",
+    "光学式需要保持镜头清洁，油脂会影响识别率"
+  ],
+  "price_cny": {
+    "min": 25,
+    "max": 60,
+    "typical": 40
+  }
+}

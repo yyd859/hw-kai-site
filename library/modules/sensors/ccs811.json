@@ -1,0 +1,69 @@
+{
+  "id": "ccs811",
+  "label": "CCS811 eCO2+TVOC 传感器",
+  "category": "input",
+  "subcategory": "sensor",
+  "description": "ams CCS811，数字 MOX 气体传感器，测量 eCO2 和 TVOC，低功耗",
+  "provides": [
+    "eco2_sensing",
+    "tvoc_sensing",
+    "air_quality"
+  ],
+  "interface": "i2c",
+  "pin_spec": {
+    "VCC": {
+      "type": "power_in",
+      "voltage": "3.3V",
+      "note": "电源"
+    },
+    "SDA": {
+      "type": "i2c_data",
+      "voltage": "3.3V",
+      "note": "I2C 数据"
+    },
+    "SCL": {
+      "type": "i2c_clk",
+      "voltage": "3.3V",
+      "note": "I2C 时钟"
+    },
+    "ADDR": {
+      "type": "io",
+      "voltage": "3.3V",
+      "note": "低=0x5A，高=0x5B"
+    },
+    "WAKE": {
+      "type": "digital_in",
+      "voltage": "3.3V",
+      "note": "低电平唤醒芯片"
+    },
+    "INT": {
+      "type": "digital_out",
+      "voltage": "3.3V",
+      "note": "中断输出"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    }
+  },
+  "compatible_boards": [
+    "esp32_devkit_v1",
+    "arduino_uno_r3"
+  ],
+  "library_required": "Adafruit CCS811",
+  "specs": {
+    "eco2_range": "400-8192ppm",
+    "tvoc_range": "0-1187ppb",
+    "i2c_addr": "0x5A/0x5B"
+  },
+  "notes": [
+    "上电后需要 20 分钟预热，之后至少 24-48 小时才能完全稳定",
+    "可配合温湿度传感器进行环境补偿提高精度"
+  ],
+  "price_cny": {
+    "min": 15,
+    "max": 35,
+    "typical": 22
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "id": "hall_effect_a3144",
+  "label": "A3144 霍尔效应传感器",
+  "category": "input",
+  "subcategory": "sensor",
+  "description": "A3144 数字霍尔效应传感器，检测磁场，输出数字信号",
+  "provides": [
+    "magnetic_detection",
+    "hall_effect",
+    "rpm_sensing",
+    "position_sensing"
+  ],
+  "interface": "digital",
+  "pin_spec": {
+    "VCC": {
+      "type": "power_in",
+      "voltage": "4.5-24V",
+      "note": "宽压电源"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    },
+    "OUT": {
+      "type": "digital_out",
+      "voltage": "VCC",
+      "note": "开漏输出，检测到南极磁场低电平"
+    }
+  },
+  "compatible_boards": [
+    "esp32_devkit_v1",
+    "arduino_uno_r3"
+  ],
+  "library_required": "无",
+  "specs": {
+    "threshold": "约 -45 Gauss（南极面触发）"
+  },
+  "notes": [
+    "开漏输出，需要外接 10kΩ 上拉电阻",
+    "只响应南极（S 极），北极不触发"
+  ],
+  "price_cny": {
+    "min": 0.5,
+    "max": 3,
+    "typical": 1
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "id": "soil_moisture_capacitive",
+  "label": "电容式土壤湿度传感器",
+  "category": "input",
+  "subcategory": "sensor",
+  "description": "电容式土壤湿度传感器，不腐蚀，耐用，推荐使用",
+  "provides": [
+    "soil_moisture",
+    "plant_watering",
+    "agriculture"
+  ],
+  "interface": "analog",
+  "pin_spec": {
+    "VCC": {
+      "type": "power_in",
+      "voltage": "3.3-5V",
+      "note": "电源"
+    },
+    "AOUT": {
+      "type": "analog_out",
+      "voltage": "1.2-3V",
+      "note": "模拟输出，湿度越高电压越低"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    }
+  },
+  "compatible_boards": [
+    "esp32_devkit_v1",
+    "arduino_uno_r3"
+  ],
+  "library_required": "无",
+  "specs": {
+    "output": "模拟 1.2-3V",
+    "probe_length": "约 98mm"
+  },
+  "notes": [
+    "干燥时输出高，湿润时输出低（与电阻式相反）",
+    "需要在实际土壤中标定干湿参考值"
+  ],
+  "price_cny": {
+    "min": 5,
+    "max": 15,
+    "typical": 8
+  }
+}

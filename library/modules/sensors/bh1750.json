@@ -1,0 +1,58 @@
+{
+  "id": "bh1750",
+  "label": "BH1750 数字光照传感器",
+  "category": "input",
+  "subcategory": "sensor",
+  "description": "I2C 数字光照强度传感器，直接输出 lux 值，无需校准",
+  "provides": [
+    "light_sensing",
+    "lux_measurement"
+  ],
+  "interface": "i2c",
+  "pin_spec": {
+    "VCC": {
+      "type": "power_in",
+      "voltage": "3-5V",
+      "note": "电源"
+    },
+    "SDA": {
+      "type": "i2c_data",
+      "voltage": "3.3V",
+      "note": "I2C 数据"
+    },
+    "SCL": {
+      "type": "i2c_clk",
+      "voltage": "3.3V",
+      "note": "I2C 时钟"
+    },
+    "ADDR": {
+      "type": "io",
+      "voltage": "3.3V",
+      "note": "地址选择：低=0x23，高=0x5C"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    }
+  },
+  "compatible_boards": [
+    "esp32_devkit_v1",
+    "arduino_uno_r3"
+  ],
+  "library_required": "BH1750 by claws",
+  "specs": {
+    "range": "1-65535 lux",
+    "resolution": "1 lux",
+    "i2c_addr": "0x23/0x5C"
+  },
+  "notes": [
+    "支持双地址，同一总线可挂两个",
+    "有高分辨率模式（0.5 lux），测量时间约 120ms"
+  ],
+  "price_cny": {
+    "min": 3,
+    "max": 10,
+    "typical": 5
+  }
+}

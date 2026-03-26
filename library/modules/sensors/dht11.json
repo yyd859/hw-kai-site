@@ -1,0 +1,51 @@
+{
+  "id": "dht11",
+  "label": "DHT11 温湿度传感器",
+  "category": "input",
+  "subcategory": "sensor",
+  "description": "低成本单总线温湿度传感器，精度较低，适合入门",
+  "provides": [
+    "temperature_sensing",
+    "humidity_sensing"
+  ],
+  "interface": "single_wire",
+  "pin_spec": {
+    "VCC": {
+      "type": "power_in",
+      "voltage": "3.3-5V",
+      "note": "电源"
+    },
+    "DATA": {
+      "type": "io",
+      "voltage": "3.3-5V",
+      "note": "数据引脚，需 10kΩ 上拉"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    }
+  },
+  "compatible_boards": [
+    "esp32_devkit_v1",
+    "arduino_uno_r3",
+    "arduino_nano"
+  ],
+  "library_required": "DHT sensor library by Adafruit",
+  "specs": {
+    "temp_range": "0-50°C",
+    "temp_accuracy": "±2°C",
+    "humidity_range": "20-80%",
+    "humidity_accuracy": "±5%",
+    "sampling": "1次/秒"
+  },
+  "notes": [
+    "精度低于 DHT22，但价格更便宜",
+    "采样间隔至少 1 秒，不能过于频繁读取"
+  ],
+  "price_cny": {
+    "min": 2,
+    "max": 8,
+    "typical": 4
+  }
+}

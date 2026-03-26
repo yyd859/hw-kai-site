@@ -1,0 +1,27 @@
+{
+  "id": "soil_moisture_sensor",
+  "label": "土壤湿度传感器",
+  "category": "input",
+  "subcategory": "sensor",
+  "description": "通过探针导电性检测土壤含水量，输出模拟或数字信号",
+  "provides": ["soil_moisture_sensing"],
+  "interface": "analog_or_digital",
+  "pin_spec": {
+    "AO":  {"type": "analog_output", "note": "模拟输出，湿度越高电压越低"},
+    "DO":  {"type": "digital_output", "note": "数字输出，低于阈值时为 LOW（可调电位器）"},
+    "VCC": {"type": "power", "voltage": "3.3V to 5V"},
+    "GND": {"type": "ground"}
+  },
+  "compatible_boards": ["esp32_devkit_v1", "arduino_uno", "arduino_nano"],
+  "notes": [
+    "探针长期插在土壤中会氧化腐蚀，电容式传感器寿命更长",
+    "AO 读到的值因土质和探针状态差异较大，建议相对值判断",
+    "DO 阈值通过板上蓝色电位器调节",
+    "ESP32 ADC 参考电压 3.3V，接 5V 模拟输出需分压"
+  ],
+  "price_cny": {
+    "min": 3,
+    "max": 8,
+    "typical": 5
+  }
+}

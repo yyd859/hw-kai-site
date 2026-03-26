@@ -1,0 +1,59 @@
+{
+  "id": "qmc5883l",
+  "label": "QMC5883L 电子罗盘",
+  "category": "input",
+  "subcategory": "sensor",
+  "description": "QST QMC5883L，3轴磁力计，常见 HMC5883L 克隆替代品",
+  "provides": [
+    "magnetometer",
+    "compass",
+    "heading"
+  ],
+  "interface": "i2c",
+  "pin_spec": {
+    "VCC": {
+      "type": "power_in",
+      "voltage": "3.3V",
+      "note": "电源"
+    },
+    "SDA": {
+      "type": "i2c_data",
+      "voltage": "3.3V",
+      "note": "I2C 数据"
+    },
+    "SCL": {
+      "type": "i2c_clk",
+      "voltage": "3.3V",
+      "note": "I2C 时钟"
+    },
+    "DRDY": {
+      "type": "digital_out",
+      "voltage": "3.3V",
+      "note": "数据就绪引脚"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    }
+  },
+  "compatible_boards": [
+    "esp32_devkit_v1",
+    "arduino_uno_r3"
+  ],
+  "library_required": "QMC5883LCompass",
+  "specs": {
+    "range": "±8 Gauss",
+    "i2c_addr": "0x0D",
+    "resolution": "16bit"
+  },
+  "notes": [
+    "与 HMC5883L 引脚相同但寄存器地址不同，驱动不通用",
+    "需要硬铁和软铁校准，才能获得准确方位角"
+  ],
+  "price_cny": {
+    "min": 3,
+    "max": 10,
+    "typical": 5
+  }
+}

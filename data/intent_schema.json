@@ -1,0 +1,39 @@
+{
+  "version": "0.1.0",
+  "schema": {
+    "needs_light": {"type": "boolean", "description": "用户需要发光效果"},
+    "needs_sound": {"type": "boolean", "description": "用户需要声音效果"},
+    "needs_motion_detect": {"type": "boolean", "description": "用户需要运动/距离检测"},
+    "needs_display": {"type": "boolean", "description": "用户需要显示屏"},
+    "trigger": {
+      "type": "enum",
+      "values": ["button", "auto", "motion", "time", "remote"],
+      "description": "触发方式"
+    },
+    "light_behavior": {
+      "type": "enum",
+      "values": ["on_off", "blink", "pulse", "color_cycle", "unknown"],
+      "description": "灯光行为"
+    },
+    "sound_behavior": {
+      "type": "enum",
+      "values": ["beep", "melody", "alarm", "unknown"],
+      "description": "声音行为"
+    },
+    "complexity": {
+      "type": "enum",
+      "values": ["simple", "medium", "complex"],
+      "description": "用户描述的复杂度"
+    }
+  },
+  "example": {
+    "needs_light": true,
+    "needs_sound": true,
+    "needs_motion_detect": false,
+    "needs_display": false,
+    "trigger": "button",
+    "light_behavior": "on_off",
+    "sound_behavior": "beep",
+    "complexity": "simple"
+  }
+}

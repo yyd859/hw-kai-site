@@ -1,0 +1,61 @@
+{
+  "id": "seeed_xiao_esp32s3",
+  "label": "Seeed XIAO ESP32S3",
+  "category": "board",
+  "subcategory": "microcontroller",
+  "description": "Seeed Studio XIAO 系列最小 ESP32-S3 开发板，支持麦克风和摄像头",
+  "provides": [
+    "wifi",
+    "bluetooth5",
+    "gpio",
+    "i2c",
+    "spi",
+    "uart",
+    "pwm",
+    "adc",
+    "microphone",
+    "camera_interface"
+  ],
+  "interface": "usb",
+  "pin_spec": {
+    "3V3": {
+      "type": "power_out",
+      "voltage": "3.3V",
+      "note": "3.3V 输出"
+    },
+    "5V": {
+      "type": "power_in",
+      "voltage": "5V",
+      "note": "5V 输入"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    },
+    "BAT+": {
+      "type": "battery",
+      "voltage": "3.7V",
+      "note": "锂电池正极"
+    }
+  },
+  "compatible_boards": [],
+  "library_required": "Arduino ESP32 Core",
+  "specs": {
+    "cpu": "Xtensa LX7 dual-core 240MHz",
+    "flash": "8MB",
+    "ram": "8MB PSRAM",
+    "wifi": "2.4GHz",
+    "bt": "BLE 5.0",
+    "size": "21x17.5mm"
+  },
+  "notes": [
+    "内置 PDM 麦克风，直接录音无需外接",
+    "支持摄像头 FPC 连接器，可接 OV2640"
+  ],
+  "price_cny": {
+    "min": 45,
+    "max": 80,
+    "typical": 60
+  }
+}

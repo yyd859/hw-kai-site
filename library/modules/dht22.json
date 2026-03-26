@@ -1,0 +1,39 @@
+{
+  "id": "dht22",
+  "label": "DHT22 温湿度传感器",
+  "category": "input",
+  "subcategory": "sensor",
+  "description": "数字温湿度传感器，精度较高，单总线协议",
+  "provides": ["temperature_sensing", "humidity_sensing"],
+  "interface": "single_wire_digital",
+  "pin_spec": {
+    "DATA": {"type": "digital_input_output", "note": "单总线数据线，需上拉至 VCC"},
+    "VCC": {"type": "power", "voltage": "3.3V to 5V"},
+    "GND": {"type": "ground"}
+  },
+  "specs": {
+    "temperature_range": "-40 to +80°C",
+    "temperature_accuracy": "±0.5°C",
+    "humidity_range": "0-100% RH",
+    "humidity_accuracy": "±2-5% RH",
+    "sampling_interval_s": 2,
+    "protocol": "Single-wire"
+  },
+  "wiring": {
+    "pullup_required": true,
+    "pullup_value": "4.7kΩ to 10kΩ to VCC"
+  },
+  "compatible_boards": ["esp32_devkit_v1", "arduino_uno", "arduino_nano"],
+  "library_required": "DHT sensor library (Adafruit)",
+  "vs_dht11": "DHT22 精度更高，范围更大，价格略贵；DHT11 精度低但便宜",
+  "notes": [
+    "DATA 线必须接上拉电阻，否则读数不稳定",
+    "采样间隔至少 2 秒，不能连续读",
+    "模块版（带上拉电阻的板子）更易用，推荐新手使用模块版"
+  ],
+  "price_cny": {
+    "min": 8,
+    "max": 20,
+    "typical": 12
+  }
+}

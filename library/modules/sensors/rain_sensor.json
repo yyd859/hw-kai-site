@@ -1,0 +1,49 @@
+{
+  "id": "rain_sensor",
+  "label": "雨滴传感器",
+  "category": "input",
+  "subcategory": "sensor",
+  "description": "雨滴检测模块，雨水越多模拟值越低，同时有数字输出",
+  "provides": [
+    "rain_detection",
+    "water_detection"
+  ],
+  "interface": "analog",
+  "pin_spec": {
+    "VCC": {
+      "type": "power_in",
+      "voltage": "3.3-5V",
+      "note": "电源"
+    },
+    "AOUT": {
+      "type": "analog_out",
+      "voltage": "0-5V",
+      "note": "模拟输出"
+    },
+    "DOUT": {
+      "type": "digital_out",
+      "voltage": "3.3-5V",
+      "note": "数字输出，有雨低电平"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    }
+  },
+  "compatible_boards": [
+    "esp32_devkit_v1",
+    "arduino_uno_r3"
+  ],
+  "library_required": "无",
+  "specs": {},
+  "notes": [
+    "传感板和控制板分离，传感板放到室外，控制板放室内",
+    "数字输出阈值通过蓝色电位器调节"
+  ],
+  "price_cny": {
+    "min": 2,
+    "max": 8,
+    "typical": 4
+  }
+}

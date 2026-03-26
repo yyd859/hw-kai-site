@@ -1,0 +1,68 @@
+{
+  "id": "esp32_devkit_v1",
+  "label": "ESP32 DevKit V1",
+  "category": "board",
+  "chip": "ESP32",
+  "manufacturer": "Espressif",
+  "description": "最常见的 ESP32 开发板，适合绝大多数入门和原型项目",
+  "provides": [
+    "compute",
+    "wifi",
+    "bluetooth",
+    "pwm",
+    "i2c",
+    "spi",
+    "uart",
+    "adc",
+    "dac",
+    "touch_sensor"
+  ],
+  "specs": {
+    "cpu": "Xtensa LX6 dual-core 240MHz",
+    "flash": "4MB",
+    "ram": "520KB SRAM",
+    "wifi": "802.11 b/g/n 2.4GHz",
+    "bluetooth": "BT 4.2 + BLE",
+    "supply_voltage": "3.3V / 5V (via USB)",
+    "operating_voltage": "3.3V logic",
+    "usb": "Micro-USB",
+    "dimensions_mm": "48 x 26"
+  },
+  "gpio": {
+    "total": 30,
+    "digital_io": [2, 4, 5, 12, 13, 14, 15, 16, 17, 18, 19, 21, 22, 23, 25, 26, 27, 32, 33],
+    "input_only": [34, 35, 36, 39],
+    "pwm_capable": [2, 4, 5, 12, 13, 14, 15, 16, 17, 18, 19, 21, 22, 23, 25, 26, 27, 32, 33],
+    "adc": [34, 35, 36, 39, 32, 33, 25, 26, 27],
+    "dac": [25, 26],
+    "i2c_default": {"sda": 21, "scl": 22},
+    "spi_default": {"mosi": 23, "miso": 19, "sck": 18, "cs": 5},
+    "uart0": {"tx": 1, "rx": 3},
+    "uart2": {"tx": 17, "rx": 16}
+  },
+  "power_output": {
+    "3v3": true,
+    "5v": true,
+    "gnd": true,
+    "max_current_per_gpio_ma": 40,
+    "max_total_gpio_current_ma": 1200
+  },
+  "programming": {
+    "frameworks": ["Arduino", "ESP-IDF", "MicroPython"],
+    "programmer": "USB via CH340/CP2102",
+    "bootloader": "内置，无需外部烧录器"
+  },
+  "notes": [
+    "GPIO34/35/36/39 仅输入，不能做输出",
+    "上电/复位时 GPIO0/2/12/15 电平有要求，注意启动限制",
+    "ADC2 在 WiFi 启用时不可用",
+    "3.3V GPIO 逻辑，与 5V 模块直连需注意电平转换",
+    "板载 LED 通常在 GPIO2"
+  ],
+  "price_cny": {
+    "min": 18,
+    "max": 30,
+    "typical": 22
+  },
+  "where_to_buy": ["淘宝", "立创商城", "京东"]
+}

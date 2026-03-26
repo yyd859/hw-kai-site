@@ -1,0 +1,54 @@
+{
+  "id": "mq135",
+  "label": "MQ-135 空气质量传感器",
+  "category": "input",
+  "subcategory": "sensor",
+  "description": "MQ-135 有害气体传感器，检测 NH3、NOx、苯、烟雾、CO2 等",
+  "provides": [
+    "air_quality",
+    "gas_detection",
+    "nh3_detection",
+    "co2_detection"
+  ],
+  "interface": "analog",
+  "pin_spec": {
+    "VCC": {
+      "type": "power_in",
+      "voltage": "5V",
+      "note": "5V 电源"
+    },
+    "AOUT": {
+      "type": "analog_out",
+      "voltage": "0-5V",
+      "note": "模拟输出"
+    },
+    "DOUT": {
+      "type": "digital_out",
+      "voltage": "5V",
+      "note": "阈值数字输出"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    }
+  },
+  "compatible_boards": [
+    "esp32_devkit_v1",
+    "arduino_uno_r3"
+  ],
+  "library_required": "MQ135 by GeorgK",
+  "specs": {
+    "sensitivity": "10-1000ppm",
+    "preheat": "24小时以上效果最好"
+  },
+  "notes": [
+    "初次使用需 24 小时以上老化，数值才会稳定",
+    "不能精确测量 CO2，建议用 SCD40 替代"
+  ],
+  "price_cny": {
+    "min": 3,
+    "max": 10,
+    "typical": 6
+  }
+}

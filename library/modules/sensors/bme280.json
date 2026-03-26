@@ -1,0 +1,67 @@
+{
+  "id": "bme280",
+  "label": "BME280 温湿度气压传感器",
+  "category": "input",
+  "subcategory": "sensor",
+  "description": "Bosch BME280，三合一温度+湿度+气压传感器，支持 I2C/SPI",
+  "provides": [
+    "temperature_sensing",
+    "humidity_sensing",
+    "pressure_sensing",
+    "altitude_estimation"
+  ],
+  "interface": "i2c",
+  "pin_spec": {
+    "VCC": {
+      "type": "power_in",
+      "voltage": "3.3V",
+      "note": "电源（注意 3.3V）"
+    },
+    "SDA": {
+      "type": "i2c_data",
+      "voltage": "3.3V",
+      "note": "I2C 数据"
+    },
+    "SCL": {
+      "type": "i2c_clk",
+      "voltage": "3.3V",
+      "note": "I2C 时钟"
+    },
+    "SDO": {
+      "type": "io",
+      "voltage": "3.3V",
+      "note": "I2C 地址选择，低=0x76，高=0x77"
+    },
+    "CSB": {
+      "type": "io",
+      "voltage": "3.3V",
+      "note": "SPI 片选 / I2C 模式选择"
+    },
+    "GND": {
+      "type": "gnd",
+      "voltage": "0V",
+      "note": "地"
+    }
+  },
+  "compatible_boards": [
+    "esp32_devkit_v1",
+    "arduino_uno_r3",
+    "raspberry_pi_pico"
+  ],
+  "library_required": "Adafruit BME280",
+  "specs": {
+    "temp_range": "-40-85°C",
+    "pressure_range": "300-1100hPa",
+    "humidity_range": "0-100%",
+    "i2c_addr": "0x76/0x77"
+  },
+  "notes": [
+    "芯片只耐 3.6V，模块板一般已有稳压可接 5V",
+    "可通过气压推算海拔，精度约 ±1m"
+  ],
+  "price_cny": {
+    "min": 5,
+    "max": 20,
+    "typical": 10
+  }
+}
