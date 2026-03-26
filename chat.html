@@ -694,7 +694,7 @@
   const params = new URLSearchParams(location.search);
   const API_BASE = params.get('apiBase')
     || localStorage.getItem('hw_kai_api_base')
-    || 'http://localhost:8788';
+    || 'https://hw-kai-backend-842295210592.us-central1.run.app';
 
   const SESSION_ID = crypto.randomUUID();
   let currentSpec = null;
