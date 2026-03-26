@@ -1,0 +1,14 @@
+{
+  "template_id": "btn_led_only_v1",
+  "connections": [
+    {"from": "ESP32.GPIO{{LED_PIN}}", "to": "LED.ANODE", "note": "LED 正极信号线，建议串联 220Ω 电阻"},
+    {"from": "ESP32.GND", "to": "LED.CATHODE", "note": "LED 负极接地"},
+    {"from": "ESP32.GPIO{{BUTTON_PIN}}", "to": "Button.PIN1", "note": "按钮信号（内部上拉）"},
+    {"from": "ESP32.GND", "to": "Button.PIN2", "note": "按钮接地"}
+  ],
+  "notes": [
+    "单色 LED 正极建议串联 220Ω 电阻，避免烧灯珠",
+    "按钮使用内部上拉，无需外接电阻",
+    "所有 GND 共地"
+  ]
+}

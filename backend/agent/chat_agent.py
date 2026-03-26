@@ -126,7 +126,7 @@ def _apply_keyword_updates(message: str, spec: dict) -> dict:
     updated = dict(spec)
     msg_lower = message.lower()
 
-    light_keywords = ["led", "灯", "light", "亮"]
+    light_keywords = ["led", "灯", "light", "亮", "发光", "灯光", "彩色", "单色"]
     sound_keywords = ["beep", "蜂鸣", "sound", "声音", "buzzer"]
     display_keywords = ["oled", "display", "屏幕", "显示"]
     sensor_keywords = ["sensor", "传感器", "温度", "temperature", "距离", "ultrasonic", "土壤", "soil"]
@@ -137,6 +137,10 @@ def _apply_keyword_updates(message: str, spec: dict) -> dict:
         updated["needs_light"] = True
         if not updated.get("object"):
             updated["object"] = "LED 灯光控制"
+        if "彩色" in message:
+            updated["extra_notes"] = "彩色灯光效果"
+        elif "单色" in message:
+            updated["extra_notes"] = "单色灯光效果"
 
     if _contains_negative_phrase(message, sound_keywords):
         updated["needs_sound"] = False

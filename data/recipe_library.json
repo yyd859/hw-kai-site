@@ -613,6 +613,70 @@
       ],
       "code_template": "ble_led_v1",
       "wiring_template": "ble_led_v1"
+    },
+    "btn_led_only_v1": {
+      "id": "btn_led_only_v1",
+      "label": "按钮触发 LED 灯光",
+      "description": "按下按钮时点亮 LED，松开后熄灭，适合最简单的灯光交互原型",
+      "tags": [
+        "button",
+        "light",
+        "beginner"
+      ],
+      "intent_match": {
+        "needs_light": true,
+        "needs_sound": false,
+        "trigger": "button"
+      },
+      "board": "esp32_devkit_v1",
+      "modules": [
+        {
+          "id": "led1",
+          "type": "single_led",
+          "pin": 2,
+          "role": "light"
+        },
+        {
+          "id": "btn1",
+          "type": "push_button_momentary",
+          "pin": 12,
+          "role": "trigger"
+        }
+      ],
+      "code_template": "btn_led_only_v1",
+      "wiring_template": "btn_led_only_v1",
+      "bom": [
+        {
+          "item": "ESP32 DevKit V1",
+          "qty": 1,
+          "unit_price_cny": 25
+        },
+        {
+          "item": "单色 LED（红/绿/蓝）",
+          "qty": 1,
+          "unit_price_cny": 0.5
+        },
+        {
+          "item": "220Ω 电阻",
+          "qty": 1,
+          "unit_price_cny": 0.1
+        },
+        {
+          "item": "轻触按钮",
+          "qty": 1,
+          "unit_price_cny": 0.5
+        },
+        {
+          "item": "杜邦线若干",
+          "qty": 1,
+          "unit_price_cny": 3
+        },
+        {
+          "item": "USB 数据线",
+          "qty": 1,
+          "unit_price_cny": 5
+        }
+      ]
     }
   }
 }

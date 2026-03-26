@@ -73,6 +73,11 @@ def _passes_hard_guards(intent: dict, recipe_match: dict) -> bool:
     if intent.get("needs_actuator") is True and recipe_match.get("needs_actuator") is not True:
         return False
 
+    # 用户明确不需要某能力时，不要选带该能力的 recipe
+    for key in ["needs_light", "needs_sound", "needs_display", "needs_sensor"]:
+        if intent.get(key) is False and recipe_match.get(key) is True:
+            return False
+
     trigger = intent.get("trigger")
     if trigger == "remote" and recipe_match.get("trigger") not in (None, "remote"):
         return False
