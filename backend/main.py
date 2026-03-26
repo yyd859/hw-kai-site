@@ -1,20 +1,19 @@
-import sys
 import os
-
-# Ensure backend dir is in path for imports
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import sys
+from typing import Any, Optional
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import Optional
 
-from agent.chat_agent import process_message, get_or_create_session
-from agent.planner import select_recipe
-from agent.generator import generate_output
-from agent.validator import validate_output
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-app = FastAPI(title="HW-KAI Agent API", version="0.1.0")
+from agent.chat_agent import process_message
+from agent.generator import GenerationNotSupportedError, generate_output
+from agent.module_selector import MissingComponentsError, select_modules
+from agent.pin_allocator import PinAllocationError, allocate_pins
+
+app = FastAPI(title="HW-KAI Agent API", version="0.2.0")
 
 app.add_middleware(
     CORSMiddleware,
@@ -23,8 +22,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-# ─── Request / Response Models ───────────────────────────────────────────────
 
 class ChatRequest(BaseModel):
     session_id: str
@@ -40,19 +37,19 @@ class Spec(BaseModel):
     needs_display: bool = False
     needs_sensor: bool = False
     sensor_type: Optional[str] = None
+    needs_actuator: bool = False
+    actuator_type: Optional[str] = None
     extra_notes: Optional[str] = None
 
 
 class GenerateRequest(BaseModel):
     session_id: str
-    spec: dict
+    spec: dict[str, Any]
 
-
-# ─── Routes ──────────────────────────────────────────────────────────────────
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "version": "0.1.0"}
+    return {"status": "ok", "version": "0.2.0"}
 
 
 @app.post("/api/chat")
@@ -64,17 +61,24 @@ async def chat(req: ChatRequest):
 async def generate(req: GenerateRequest):
     spec = req.spec
 
-    # Select recipe based on spec
-    recipe = select_recipe(spec)
-    if not recipe:
+    try:
+        selection = select_modules(spec)
+        hardware_plan = allocate_pins(selection["board"], selection["selected_modules"])
+        return generate_output(selection["board"], selection["selected_modules"], hardware_plan, spec)
+    except MissingComponentsError as exc:
         return {
-            "error": "暂不支持该需求，请描述更简单的功能（如：按钮控制LED）",
-            "validation": {"passed": False, "warnings": [], "errors": ["未找到匹配方案"]}
+            "error": "当前库里缺少可满足需求的模块",
+            "error_type": "missing_components",
+            "missing_capabilities": exc.missing_capabilities,
         }
-
-    # Generate output
-    output = generate_output(recipe)
-
-    # Validate
-    result = validate_output(output)
-    return result
+    except GenerationNotSupportedError as exc:
+        return {
+            "error": "当前模块组合暂时还不能自动生成代码",
+            "error_type": exc.error_type,
+            "selected_module_ids": exc.module_ids,
+        }
+    except PinAllocationError as exc:
+        return {
+            "error": str(exc),
+            "error_type": "pin_allocation_failed",
+        }
