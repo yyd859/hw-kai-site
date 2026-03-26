@@ -1,0 +1,16 @@
+{
+  "template_id": "ir_remote_led_v1",
+  "connections": [
+    {"from": "ESP32.GPIO{{LED_PIN}}", "to": "LED.ANODE", "note": "LED 正极信号线，建议串联 220Ω 电阻"},
+    {"from": "ESP32.GND", "to": "LED.CATHODE", "note": "LED 负极接地"},
+    {"from": "ESP32.GPIO{{IR_RECEIVER_PIN}}", "to": "IR_Receiver.OUT", "note": "红外接收头数字输出"},
+    {"from": "ESP32.3.3V", "to": "IR_Receiver.VCC", "note": "红外接收头供电（3.3V）"},
+    {"from": "ESP32.GND", "to": "IR_Receiver.GND", "note": "红外接收头地线"}
+  ],
+  "notes": [
+    "单色 LED 正极建议串联 220Ω 电阻，避免烧灯珠",
+    "常见 VS1838B / KY-022 模块可直接用 3.3V 供电",
+    "如果遥控器无反应，先检查电池、方向和接收头引脚定义",
+    "所有 GND 共地"
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "version": "0.1.0",
+  "modules": {
+    "esp32_devkit_v1": {
+      "type": "board",
+      "label": "ESP32 DevKit V1",
+      "provides": ["compute", "wifi", "bluetooth"],
+      "gpio_pins": [2,4,5,12,13,14,15,16,17,18,19,21,22,23,25,26,27,32,33,34,35],
+      "power_out": ["3v3", "5v"],
+      "notes": "GPIO34/35 input only"
+    },
+    "ws2812_ring_8": {
+      "type": "output",
+      "label": "WS2812 LED Ring (8颗)",
+      "provides": ["light", "blink", "pulse", "color"],
+      "pin_spec": {"din": "digital_output"},
+      "power": "5v",
+      "compatible_boards": ["esp32_devkit_v1"],
+      "constraints": ["requires_level_shifter_3v3_to_5v_optional"]
+    },
+    "active_buzzer_5v": {
+      "type": "output",
+      "label": "有源蜂鸣器 5V",
+      "provides": ["sound", "beep"],
+      "pin_spec": {"sig": "digital_output"},
+      "power": "5v",
+      "compatible_boards": ["esp32_devkit_v1"],
+      "constraints": []
+    },
+    "push_button_momentary": {
+      "type": "input",
+      "label": "轻触按钮",
+      "provides": ["press_trigger", "toggle_trigger"],
+      "pin_spec": {"out": "digital_input_pullup"},
+      "power": null,
+      "compatible_boards": ["esp32_devkit_v1"],
+      "constraints": ["use_internal_pullup"]
+    },
+    "passive_buzzer": {
+      "type": "output",
+      "label": "无源蜂鸣器",
+      "provides": ["sound", "melody", "beep"],
+      "pin_spec": {"sig": "pwm_output"},
+      "power": "3v3",
+      "compatible_boards": ["esp32_devkit_v1"],
+      "constraints": []
+    },
+    "single_led": {
+      "type": "output",
+      "label": "单色 LED",
+      "provides": ["light", "blink"],
+      "pin_spec": {"anode": "digital_output"},
+      "power": "3v3",
+      "compatible_boards": ["esp32_devkit_v1"],
+      "constraints": ["requires_220ohm_resistor"]
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "template_id": "dht22_oled_v1",
+  "connections": [
+    {"from": "ESP32.GPIO{{DHT_PIN}}", "to": "DHT22.DATA", "note": "DHT22 数据线（建议串联 10kΩ 上拉电阻到 3.3V）"},
+    {"from": "ESP32.3.3V", "to": "DHT22.VCC", "note": "DHT22 电源（3.3V）"},
+    {"from": "ESP32.GND", "to": "DHT22.GND", "note": "DHT22 地线"},
+    {"from": "ESP32.GPIO{{OLED_SDA}}", "to": "OLED_SSD1306.SDA", "note": "OLED I2C 数据线（SDA）"},
+    {"from": "ESP32.GPIO{{OLED_SCL}}", "to": "OLED_SSD1306.SCL", "note": "OLED I2C 时钟线（SCL）"},
+    {"from": "ESP32.3.3V", "to": "OLED_SSD1306.VCC", "note": "OLED 电源（3.3V）"},
+    {"from": "ESP32.GND", "to": "OLED_SSD1306.GND", "note": "OLED 地线"}
+  ],
+  "notes": [
+    "OLED 使用 I2C 协议，默认地址 0x3C（大部分模块）",
+    "DHT22 DATA 引脚建议接 10kΩ 上拉电阻到 3.3V",
+    "ESP32 默认 I2C 引脚：SDA=21, SCL=22",
+    "所有 GND 共地"
+  ]
+}

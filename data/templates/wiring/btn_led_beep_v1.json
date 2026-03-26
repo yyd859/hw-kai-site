@@ -1,0 +1,18 @@
+{
+  "template_id": "btn_led_beep_v1",
+  "connections": [
+    {"from": "ESP32.GPIO{{LED_PIN}}", "to": "WS2812_Ring.DIN", "note": "LED 数据线"},
+    {"from": "ESP32.5V", "to": "WS2812_Ring.VCC", "note": "LED 电源（5V）"},
+    {"from": "ESP32.GND", "to": "WS2812_Ring.GND", "note": "LED 地线"},
+    {"from": "ESP32.GPIO{{BUZZER_PIN}}", "to": "Buzzer.SIG", "note": "蜂鸣器信号"},
+    {"from": "ESP32.5V", "to": "Buzzer.VCC", "note": "蜂鸣器电源"},
+    {"from": "ESP32.GND", "to": "Buzzer.GND", "note": "蜂鸣器地线"},
+    {"from": "ESP32.GPIO{{BUTTON_PIN}}", "to": "Button.PIN1", "note": "按钮信号（内部上拉）"},
+    {"from": "ESP32.GND", "to": "Button.PIN2", "note": "按钮接地"}
+  ],
+  "notes": [
+    "所有 GND 共地",
+    "WS2812 建议接 5V 供电",
+    "按钮使用内部上拉电阻，无需外接"
+  ]
+}

@@ -1,0 +1,618 @@
+{
+  "version": "0.1.0",
+  "recipes": {
+    "btn_led_beep_v1": {
+      "id": "btn_led_beep_v1",
+      "label": "按钮触发 LED + 蜂鸣",
+      "description": "按下按钮，LED 亮起并蜂鸣器响一声",
+      "tags": [
+        "button",
+        "light",
+        "sound",
+        "beginner"
+      ],
+      "intent_match": {
+        "needs_light": true,
+        "needs_sound": true,
+        "trigger": "button"
+      },
+      "board": "esp32_devkit_v1",
+      "modules": [
+        {
+          "id": "led1",
+          "type": "ws2812_ring_8",
+          "pin": 5,
+          "role": "light"
+        },
+        {
+          "id": "buzz1",
+          "type": "active_buzzer_5v",
+          "pin": 18,
+          "role": "sound"
+        },
+        {
+          "id": "btn1",
+          "type": "push_button_momentary",
+          "pin": 12,
+          "role": "trigger"
+        }
+      ],
+      "code_template": "btn_led_beep_v1",
+      "wiring_template": "btn_led_beep_v1",
+      "bom": [
+        {
+          "item": "ESP32 DevKit V1",
+          "qty": 1,
+          "unit_price_cny": 25
+        },
+        {
+          "item": "WS2812 LED Ring 8颗",
+          "qty": 1,
+          "unit_price_cny": 8
+        },
+        {
+          "item": "有源蜂鸣器 5V",
+          "qty": 1,
+          "unit_price_cny": 2
+        },
+        {
+          "item": "轻触按钮",
+          "qty": 1,
+          "unit_price_cny": 0.5
+        },
+        {
+          "item": "杜邦线若干",
+          "qty": 1,
+          "unit_price_cny": 3
+        },
+        {
+          "item": "USB 数据线",
+          "qty": 1,
+          "unit_price_cny": 5
+        }
+      ]
+    },
+    "auto_blink_v1": {
+      "id": "auto_blink_v1",
+      "label": "自动循环闪烁 LED",
+      "description": "LED 自动循环闪烁，无需按钮",
+      "tags": [
+        "light",
+        "auto",
+        "beginner"
+      ],
+      "intent_match": {
+        "needs_light": true,
+        "needs_sound": false,
+        "trigger": "auto"
+      },
+      "board": "esp32_devkit_v1",
+      "modules": [
+        {
+          "id": "led1",
+          "type": "single_led",
+          "pin": 2,
+          "role": "light"
+        }
+      ],
+      "code_template": "auto_blink_v1",
+      "wiring_template": "auto_blink_v1",
+      "bom": [
+        {
+          "item": "ESP32 DevKit V1",
+          "qty": 1,
+          "unit_price_cny": 25
+        },
+        {
+          "item": "单色 LED（红/绿/蓝）",
+          "qty": 1,
+          "unit_price_cny": 0.5
+        },
+        {
+          "item": "220Ω 电阻",
+          "qty": 1,
+          "unit_price_cny": 0.1
+        },
+        {
+          "item": "面包板",
+          "qty": 1,
+          "unit_price_cny": 5
+        },
+        {
+          "item": "杜邦线若干",
+          "qty": 1,
+          "unit_price_cny": 3
+        },
+        {
+          "item": "USB 数据线",
+          "qty": 1,
+          "unit_price_cny": 5
+        }
+      ]
+    },
+    "dht22_oled_v1": {
+      "id": "dht22_oled_v1",
+      "label": "温湿度监测 + OLED 显示",
+      "description": "DHT22 传感器实时采集温湿度，每 2 秒刷新显示在 OLED 屏上",
+      "tags": [
+        "sensor",
+        "temperature",
+        "humidity",
+        "display",
+        "oled",
+        "intermediate"
+      ],
+      "intent_match": {
+        "needs_display": true,
+        "needs_sensor": true,
+        "sensor_type": "temperature_humidity"
+      },
+      "board": "esp32_devkit_v1",
+      "modules": [
+        {
+          "id": "dht1",
+          "type": "dht22_sensor",
+          "pin": 4,
+          "role": "temp_humidity"
+        },
+        {
+          "id": "oled1",
+          "type": "ssd1306_oled_128x64",
+          "pin": 21,
+          "role": "display_sda",
+          "pin2": 22,
+          "role2": "display_scl"
+        }
+      ],
+      "code_template": "dht22_oled_v1",
+      "wiring_template": "dht22_oled_v1",
+      "bom": [
+        {
+          "item": "ESP32 DevKit V1",
+          "qty": 1,
+          "unit_price_cny": 25
+        },
+        {
+          "item": "DHT22 温湿度传感器",
+          "qty": 1,
+          "unit_price_cny": 12
+        },
+        {
+          "item": "OLED 显示屏 0.96\" SSD1306 I2C",
+          "qty": 1,
+          "unit_price_cny": 15
+        },
+        {
+          "item": "10kΩ 电阻（DHT22 上拉）",
+          "qty": 1,
+          "unit_price_cny": 0.1
+        },
+        {
+          "item": "杜邦线若干",
+          "qty": 1,
+          "unit_price_cny": 3
+        },
+        {
+          "item": "USB 数据线",
+          "qty": 1,
+          "unit_price_cny": 5
+        }
+      ]
+    },
+    "ultrasonic_v1": {
+      "id": "ultrasonic_v1",
+      "label": "超声波测距 + 近距离报警",
+      "description": "HC-SR04 超声波传感器测量距离，目标小于 20cm 时蜂鸣器报警",
+      "tags": [
+        "sensor",
+        "distance",
+        "ultrasonic",
+        "alarm",
+        "intermediate"
+      ],
+      "intent_match": {
+        "needs_sensor": true,
+        "needs_sound": true,
+        "sensor_type": "distance"
+      },
+      "board": "esp32_devkit_v1",
+      "modules": [
+        {
+          "id": "trig1",
+          "type": "hcsr04_trig",
+          "pin": 5,
+          "role": "ultrasonic_trig"
+        },
+        {
+          "id": "echo1",
+          "type": "hcsr04_echo",
+          "pin": 18,
+          "role": "ultrasonic_echo"
+        },
+        {
+          "id": "buzz1",
+          "type": "active_buzzer_5v",
+          "pin": 19,
+          "role": "sound"
+        }
+      ],
+      "code_template": "ultrasonic_v1",
+      "wiring_template": "ultrasonic_v1",
+      "bom": [
+        {
+          "item": "ESP32 DevKit V1",
+          "qty": 1,
+          "unit_price_cny": 25
+        },
+        {
+          "item": "HC-SR04 超声波测距模块",
+          "qty": 1,
+          "unit_price_cny": 5
+        },
+        {
+          "item": "有源蜂鸣器 5V",
+          "qty": 1,
+          "unit_price_cny": 2
+        },
+        {
+          "item": "1kΩ 电阻（ECHO 分压）",
+          "qty": 1,
+          "unit_price_cny": 0.1
+        },
+        {
+          "item": "2kΩ 电阻（ECHO 分压）",
+          "qty": 1,
+          "unit_price_cny": 0.1
+        },
+        {
+          "item": "面包板",
+          "qty": 1,
+          "unit_price_cny": 5
+        },
+        {
+          "item": "杜邦线若干",
+          "qty": 1,
+          "unit_price_cny": 3
+        },
+        {
+          "item": "USB 数据线",
+          "qty": 1,
+          "unit_price_cny": 5
+        }
+      ]
+    },
+    "soil_moisture_v1": {
+      "id": "soil_moisture_v1",
+      "label": "土壤湿度监测 + 自动浇水",
+      "description": "实时监测土壤湿度，干燥时通过继电器自动开启水泵浇水，湿润后自动停止",
+      "tags": [
+        "sensor",
+        "plant",
+        "soil",
+        "relay",
+        "pump",
+        "automation",
+        "intermediate"
+      ],
+      "intent_match": {
+        "needs_sensor": true,
+        "sensor_type": "soil_moisture",
+        "needs_actuator": true
+      },
+      "board": "esp32_devkit_v1",
+      "modules": [
+        {
+          "id": "soil1",
+          "type": "soil_moisture_analog",
+          "pin": 34,
+          "role": "soil_sensor"
+        },
+        {
+          "id": "relay1",
+          "type": "relay_5v_1ch",
+          "pin": 26,
+          "role": "relay"
+        },
+        {
+          "id": "led1",
+          "type": "single_led",
+          "pin": 2,
+          "role": "status_led"
+        }
+      ],
+      "code_template": "soil_moisture_v1",
+      "wiring_template": "soil_moisture_v1",
+      "bom": [
+        {
+          "item": "ESP32 DevKit V1",
+          "qty": 1,
+          "unit_price_cny": 25
+        },
+        {
+          "item": "土壤湿度传感器模块（带 AO 端）",
+          "qty": 1,
+          "unit_price_cny": 5
+        },
+        {
+          "item": "5V 单路继电器模块",
+          "qty": 1,
+          "unit_price_cny": 8
+        },
+        {
+          "item": "小型抽水泵（3V~5V 直流）",
+          "qty": 1,
+          "unit_price_cny": 15
+        },
+        {
+          "item": "单色 LED",
+          "qty": 1,
+          "unit_price_cny": 0.5
+        },
+        {
+          "item": "220Ω 电阻",
+          "qty": 1,
+          "unit_price_cny": 0.1
+        },
+        {
+          "item": "杜邦线若干",
+          "qty": 1,
+          "unit_price_cny": 3
+        },
+        {
+          "item": "USB 数据线",
+          "qty": 1,
+          "unit_price_cny": 5
+        }
+      ]
+    },
+    "rfid_access_v1": {
+      "id": "rfid_access_v1",
+      "label": "RFID 刷卡门禁",
+      "description": "MFRC522 RFID 读卡器，刷白名单卡片后绿灯亮 + 蜂鸣 1 声解锁继电器（模拟电磁门锁），陌生卡红灯 + 长鸣拒绝",
+      "tags": [
+        "rfid",
+        "access",
+        "security",
+        "relay",
+        "door",
+        "lock",
+        "intermediate"
+      ],
+      "intent_match": {
+        "needs_light": true,
+        "needs_sound": true,
+        "needs_actuator": true,
+        "trigger": "rfid"
+      },
+      "board": "esp32_devkit_v1",
+      "modules": [
+        {
+          "id": "rfid1",
+          "type": "mfrc522_rfid",
+          "pin": 21,
+          "role": "rfid_sda",
+          "pin_sck": 18,
+          "pin_mosi": 23,
+          "pin_miso": 19,
+          "pin_rst": 22
+        },
+        {
+          "id": "relay1",
+          "type": "relay_5v_1ch",
+          "pin": 26,
+          "role": "relay"
+        },
+        {
+          "id": "led_green",
+          "type": "single_led",
+          "pin": 2,
+          "role": "status_led_ok"
+        },
+        {
+          "id": "led_red",
+          "type": "single_led",
+          "pin": 4,
+          "role": "status_led_deny"
+        },
+        {
+          "id": "buzz1",
+          "type": "active_buzzer_5v",
+          "pin": 27,
+          "role": "sound"
+        }
+      ],
+      "code_template": "rfid_access_v1",
+      "wiring_template": "rfid_access_v1",
+      "bom": [
+        {
+          "item": "ESP32 DevKit V1",
+          "qty": 1,
+          "unit_price_cny": 25
+        },
+        {
+          "item": "MFRC522 RFID 读卡模块 + S50 白卡",
+          "qty": 1,
+          "unit_price_cny": 12
+        },
+        {
+          "item": "5V 单路继电器模块",
+          "qty": 1,
+          "unit_price_cny": 8
+        },
+        {
+          "item": "绿色 LED",
+          "qty": 1,
+          "unit_price_cny": 0.5
+        },
+        {
+          "item": "红色 LED",
+          "qty": 1,
+          "unit_price_cny": 0.5
+        },
+        {
+          "item": "220Ω 电阻",
+          "qty": 2,
+          "unit_price_cny": 0.1
+        },
+        {
+          "item": "有源蜂鸣器 5V",
+          "qty": 1,
+          "unit_price_cny": 2
+        },
+        {
+          "item": "面包板",
+          "qty": 1,
+          "unit_price_cny": 5
+        },
+        {
+          "item": "杜邦线若干",
+          "qty": 1,
+          "unit_price_cny": 3
+        },
+        {
+          "item": "USB 数据线",
+          "qty": 1,
+          "unit_price_cny": 5
+        }
+      ]
+    },
+    "ir_remote_led_v1": {
+      "id": "ir_remote_led_v1",
+      "label": "红外遥控单色 LED",
+      "description": "使用红外遥控器控制单色 LED 开关，按下任意有效按键即可切换亮灭状态",
+      "tags": [
+        "ir",
+        "infrared",
+        "remote",
+        "led",
+        "light",
+        "beginner"
+      ],
+      "intent_match": {
+        "needs_light": true,
+        "needs_sound": false,
+        "trigger": "remote"
+      },
+      "board": "esp32_devkit_v1",
+      "modules": [
+        {
+          "id": "led1",
+          "type": "single_led",
+          "pin": 2,
+          "role": "light"
+        },
+        {
+          "id": "ir1",
+          "type": "ir_receiver_vs1838b",
+          "pin": 15,
+          "role": "remote_receiver"
+        }
+      ],
+      "code_template": "ir_remote_led_v1",
+      "wiring_template": "ir_remote_led_v1",
+      "bom": [
+        {
+          "item": "ESP32 DevKit V1",
+          "qty": 1,
+          "unit_price_cny": 25
+        },
+        {
+          "item": "单色 LED（红/绿/蓝）",
+          "qty": 1,
+          "unit_price_cny": 0.5
+        },
+        {
+          "item": "220Ω 电阻",
+          "qty": 1,
+          "unit_price_cny": 0.1
+        },
+        {
+          "item": "红外接收头 VS1838B / KY-022",
+          "qty": 1,
+          "unit_price_cny": 2
+        },
+        {
+          "item": "红外遥控器（NEC 常见款）",
+          "qty": 1,
+          "unit_price_cny": 4
+        },
+        {
+          "item": "面包板",
+          "qty": 1,
+          "unit_price_cny": 5
+        },
+        {
+          "item": "杜邦线若干",
+          "qty": 1,
+          "unit_price_cny": 3
+        },
+        {
+          "item": "USB 数据线",
+          "qty": 1,
+          "unit_price_cny": 5
+        }
+      ]
+    },
+    "ble_led_v1": {
+      "id": "ble_led_v1",
+      "label": "蓝牙控制 LED",
+      "description": "通过手机蓝牙 APP（串口助手）发送指令控制 LED 开关亮灭，支持多色 LED 或单色 LED",
+      "tags": [
+        "bluetooth",
+        "ble",
+        "light",
+        "wireless",
+        "remote",
+        "intermediate"
+      ],
+      "intent_match": {
+        "needs_light": true,
+        "needs_sound": false,
+        "trigger": "bluetooth"
+      },
+      "board": "esp32_devkit_v1",
+      "modules": [
+        {
+          "id": "led1",
+          "role": "light",
+          "type": "single_led",
+          "pin": 2
+        }
+      ],
+      "bom": [
+        {
+          "item": "ESP32 DevKit V1",
+          "qty": 1,
+          "unit_price_cny": 25
+        },
+        {
+          "item": "LED（颜色任选）",
+          "qty": 1,
+          "unit_price_cny": 0.5
+        },
+        {
+          "item": "220Ω 限流电阻",
+          "qty": 1,
+          "unit_price_cny": 0.1
+        },
+        {
+          "item": "面包板",
+          "qty": 1,
+          "unit_price_cny": 5
+        },
+        {
+          "item": "杜邦线若干",
+          "qty": 1,
+          "unit_price_cny": 3
+        },
+        {
+          "item": "USB 数据线",
+          "qty": 1,
+          "unit_price_cny": 5
+        }
+      ],
+      "code_template": "ble_led_v1",
+      "wiring_template": "ble_led_v1"
+    }
+  }
+}
