@@ -1,0 +1,29 @@
+{
+  "template_id": "rfid_access_v1",
+  "connections": [
+    {"from": "ESP32.GPIO{{RFID_SDA_PIN}}", "to": "MFRC522.SDA(SS)", "note": "RFID 从机选择（SPI CS）"},
+    {"from": "ESP32.GPIO18",              "to": "MFRC522.SCK",     "note": "SPI 时钟"},
+    {"from": "ESP32.GPIO23",              "to": "MFRC522.MOSI",    "note": "SPI 主发从收"},
+    {"from": "ESP32.GPIO19",              "to": "MFRC522.MISO",    "note": "SPI 主收从发"},
+    {"from": "ESP32.GPIO{{RFID_RST_PIN}}","to": "MFRC522.RST",     "note": "硬复位引脚"},
+    {"from": "ESP32.3.3V",               "to": "MFRC522.3.3V",    "note": "MFRC522 只能接 3.3V，严禁接 5V"},
+    {"from": "ESP32.GND",                "to": "MFRC522.GND",     "note": "共地"},
+    {"from": "ESP32.GPIO{{RELAY_PIN}}",  "to": "Relay.IN",        "note": "继电器控制信号，低电平触发"},
+    {"from": "ESP32.5V",                 "to": "Relay.VCC",       "note": "继电器线圈供电 5V"},
+    {"from": "ESP32.GND",                "to": "Relay.GND",       "note": "继电器共地"},
+    {"from": "ESP32.GPIO{{LED_GREEN_PIN}}", "to": "LED_Green.ANODE", "note": "绿灯，串联 220Ω 电阻"},
+    {"from": "ESP32.GND",                "to": "LED_Green.CATHODE","note": "绿灯负极"},
+    {"from": "ESP32.GPIO{{LED_RED_PIN}}", "to": "LED_Red.ANODE",  "note": "红灯，串联 220Ω 电阻"},
+    {"from": "ESP32.GND",                "to": "LED_Red.CATHODE", "note": "红灯负极"},
+    {"from": "ESP32.GPIO{{BUZZ_PIN}}",   "to": "Buzzer.+",        "note": "有源蜂鸣器正极"},
+    {"from": "ESP32.GND",                "to": "Buzzer.-",        "note": "有源蜂鸣器负极"}
+  ],
+  "notes": [
+    "MFRC522 工作电压 3.3V，接 5V 会损坏模块！",
+    "继电器模块通常为低电平触发（IN = LOW 时吸合）",
+    "继电器 COM/NO 接门锁或被控设备；电磁锁建议外加独立电源",
+    "绿/红 LED 各需串联一颗 220Ω 电阻",
+    "首次上电后打开串口监视器（115200），刷卡可看到 UID，复制到代码白名单中",
+    "所有 GND 共地"
+  ]
+}

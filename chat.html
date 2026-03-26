@@ -943,7 +943,7 @@
     if (name === 'bom') {
       const rows = (d.bom || []).map(item => `
         <tr>
-          <td>${escHtml(String(item.item || item.name || item.component || ''))}</td>
+          <td>${escHtml(String(item.name || item.component || ''))}</td>
           <td>${escHtml(String(item.qty || item.quantity || 1))}</td>
           <td>${escHtml(String(item.unit_price_cny || item.price || ''))}</td>
           <td>${escHtml(String(item.note || item.description || ''))}</td>
@@ -992,10 +992,9 @@
 
     else if (name === 'steps') {
       const inst = d.instructions || {};
-      const prepare = Array.isArray(inst.prepare) ? inst.prepare : [];
-      const wire = Array.isArray(inst.wire) ? inst.wire : [];
+      const assembly = Array.isArray(inst.assembly) ? inst.assembly
+        : Array.isArray(inst) ? inst : [];
       const upload = Array.isArray(inst.upload) ? inst.upload : [];
-      const test = Array.isArray(inst.test) ? inst.test : [];
 
       const makeSteps = (arr) => arr.map((s, i) => `
         <div class="step-item">
@@ -1004,17 +1003,11 @@
         </div>`).join('');
 
       let html = '';
-      if (prepare.length) {
-        html += `<div class="steps-section"><div class="steps-section-title">📦 准备材料</div>${makeSteps(prepare)}</div>`;
-      }
-      if (wire.length) {
-        html += `<div class="steps-section"><div class="steps-section-title">🔧 接线步骤</div>${makeSteps(wire)}</div>`;
+      if (assembly.length) {
+        html += `<div class="steps-section"><div class="steps-section-title">🔧 组装步骤</div>${makeSteps(assembly)}</div>`;
       }
       if (upload.length) {
         html += `<div class="steps-section"><div class="steps-section-title">💾 烧录步骤</div>${makeSteps(upload)}</div>`;
-      }
-      if (test.length) {
-        html += `<div class="steps-section"><div class="steps-section-title">🧪 测试步骤</div>${makeSteps(test)}</div>`;
       }
       if (!html) {
         html = '<p style="color:var(--text-dim);font-size:13px">暂无步骤信息</p>';

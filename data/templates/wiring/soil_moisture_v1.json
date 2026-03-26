@@ -1,0 +1,23 @@
+{
+  "template_id": "soil_moisture_v1",
+  "connections": [
+    {"from": "ESP32.GPIO{{SOIL_SENSOR_PIN}}", "to": "SoilSensor.AO", "note": "土壤传感器模拟输出（AO）→ 模拟输入引脚"},
+    {"from": "ESP32.3.3V", "to": "SoilSensor.VCC", "note": "土壤传感器电源（3.3V）"},
+    {"from": "ESP32.GND", "to": "SoilSensor.GND", "note": "土壤传感器地线"},
+    {"from": "ESP32.GPIO{{RELAY_PIN}}", "to": "Relay.IN", "note": "继电器控制信号（低电平触发）"},
+    {"from": "ESP32.5V", "to": "Relay.VCC", "note": "继电器控制板电源（5V）"},
+    {"from": "ESP32.GND", "to": "Relay.GND", "note": "继电器控制板地线"},
+    {"from": "Relay.COM", "to": "WaterPump.+", "note": "水泵正极接继电器公共端"},
+    {"from": "Relay.NO", "to": "PowerSupply.+", "note": "继电器常开端接外部电源正极"},
+    {"from": "WaterPump.-", "to": "PowerSupply.-", "note": "水泵负极接外部电源负极"},
+    {"from": "ESP32.GPIO{{LED_PIN}}", "to": "LED.+", "note": "状态 LED 正极（浇水时亮）"},
+    {"from": "LED.-（串220Ω）", "to": "ESP32.GND", "note": "LED 负极经限流电阻接地"}
+  ],
+  "notes": [
+    "水泵需要独立电源（5V~12V DC，根据水泵规格），不要直接用 ESP32 供电",
+    "继电器默认高电平断开，低电平闭合（NO 端），代码已适配",
+    "土壤传感器 AO 端输出模拟电压，接 ADC 引脚（ESP32 推荐 GPIO34/35/36/39，仅输入）",
+    "如使用 ESP32 内置 LED（GPIO2），可省略外接 LED",
+    "所有控制部分 GND 共地，水泵电源与 ESP32 电源 GND 也需要共地"
+  ]
+}

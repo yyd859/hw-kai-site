@@ -1,0 +1,38 @@
+{
+  "template": "ble_led_v1",
+  "label": "蓝牙控制 LED 接线",
+  "connections": [
+    {
+      "from": "ESP32 GPIO {{LED_PIN}}",
+      "to": "220Ω 电阻 一端",
+      "note": "LED 信号线，经过限流电阻"
+    },
+    {
+      "from": "220Ω 电阻 另一端",
+      "to": "LED 正极（长脚/Anode）",
+      "note": "限流电阻保护 LED，勿省略"
+    },
+    {
+      "from": "LED 负极（短脚/Cathode）",
+      "to": "ESP32 GND",
+      "note": "LED 地线"
+    },
+    {
+      "from": "ESP32 3.3V 或 5V",
+      "to": "面包板正轨（VCC）",
+      "note": "如使用多个元件可统一从正轨取电"
+    },
+    {
+      "from": "ESP32 GND",
+      "to": "面包板负轨（GND）",
+      "note": "公共地线"
+    }
+  ],
+  "notes": [
+    "ESP32 内置蓝牙，无需额外 HC-05/HC-06 模块",
+    "LED 限流电阻 220Ω，防止 ESP32 GPIO 过流（最大 12mA）",
+    "手机端：Android 推荐「Serial Bluetooth Terminal」，iOS 可用「LightBlue」",
+    "首次使用：手机蓝牙设置 → 搜索「HW-KAI LED」→ 配对 → 在 APP 中连接",
+    "GPIO 2 是 ESP32 内置 LED 引脚，上传代码时需断开外接 LED 避免干扰"
+  ]
+}

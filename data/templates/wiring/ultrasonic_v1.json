@@ -1,0 +1,18 @@
+{
+  "template_id": "ultrasonic_v1",
+  "connections": [
+    {"from": "ESP32.GPIO{{TRIG_PIN}}", "to": "HC-SR04.TRIG", "note": "触发引脚（输出）"},
+    {"from": "ESP32.GPIO{{ECHO_PIN}}", "to": "HC-SR04.ECHO", "note": "回波引脚（输入）⚠️ HC-SR04 输出 5V，建议加分压电阻（1kΩ + 2kΩ）降到 3.3V"},
+    {"from": "ESP32.5V", "to": "HC-SR04.VCC", "note": "HC-SR04 需要 5V 供电"},
+    {"from": "ESP32.GND", "to": "HC-SR04.GND", "note": "HC-SR04 地线"},
+    {"from": "ESP32.GPIO{{BUZZER_PIN}}", "to": "Buzzer.SIG", "note": "蜂鸣器信号（近距离报警）"},
+    {"from": "ESP32.5V", "to": "Buzzer.VCC", "note": "蜂鸣器电源"},
+    {"from": "ESP32.GND", "to": "Buzzer.GND", "note": "蜂鸣器地线"}
+  ],
+  "notes": [
+    "HC-SR04 ECHO 输出 5V 电平，ESP32 GPIO 耐压 3.3V，必须加分压（1kΩ串联，GND接2kΩ）",
+    "HC-SR04 需要 5V 供电才能正常工作",
+    "测量范围：2cm ~ 400cm，精度约 3mm",
+    "所有 GND 共地"
+  ]
+}

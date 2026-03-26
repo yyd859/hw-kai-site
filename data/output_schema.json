@@ -1,0 +1,27 @@
+{
+  "version": "0.1.0",
+  "schema": {
+    "recipe_id": "string",
+    "recipe_label": "string",
+    "board": "string",
+    "bom": [
+      {"item": "string", "qty": "number", "unit_price_cny": "number"}
+    ],
+    "bom_total_cny": "number",
+    "wiring": [
+      {"from": "string", "to": "string", "note": "string"}
+    ],
+    "code": "string",
+    "instructions": {
+      "prepare": ["string"],
+      "wire": ["string"],
+      "upload": ["string"],
+      "test": ["string"]
+    },
+    "validation": {
+      "passed": "boolean",
+      "warnings": ["string"],
+      "errors": ["string"]
+    }
+  }
+}

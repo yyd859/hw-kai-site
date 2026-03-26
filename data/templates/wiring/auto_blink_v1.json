@@ -1,0 +1,12 @@
+{
+  "template_id": "auto_blink_v1",
+  "connections": [
+    {"from": "ESP32.GPIO{{LED_PIN}}", "to": "LED.ANODE", "note": "LED 正极信号线，建议串联 220Ω 电阻"},
+    {"from": "ESP32.GND", "to": "LED.CATHODE", "note": "LED 负极接地"}
+  ],
+  "notes": [
+    "单色 LED 正极建议串联 220Ω 电阻，避免烧灯珠",
+    "如果使用 ESP32 开发板内置 LED，可按实际板型调整引脚",
+    "所有 GND 共地"
+  ]
+}
