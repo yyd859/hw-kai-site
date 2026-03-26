@@ -1,127 +1,265 @@
-import sys
+from __future__ import annotations
+
 import os
+import sys
+from pathlib import Path
+from typing import Any
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from data_loader import get_code_template, get_wiring_template
+from data_loader import get_code_template
+
+ROLE_TO_PIN_TEMPLATE_KEY = {
+    "push_button": {"PIN1": "BUTTON_PIN"},
+    "ws2812_led_ring": {"DIN": "LED_PIN"},
+    "single_led": {"SIG": "LED_PIN"},
+    "active_buzzer": {"SIG": "BUZZER_PIN"},
+    "dht22": {"DATA": "DHT_PIN"},
+    "oled_ssd1306": {"SDA": "OLED_SDA", "SCL": "OLED_SCL"},
+    "soil_moisture_capacitive": {"AOUT": "SOIL_SENSOR_PIN"},
+    "relay_module": {"IN": "RELAY_PIN"},
+}
+
+SUPPORTED_COMBOS = {
+    frozenset(["push_button", "ws2812_led_ring"]): "button_light",
+    frozenset(["push_button", "ws2812_led_ring", "active_buzzer"]): "button_light_sound",
+    frozenset(["dht22", "oled_ssd1306"]): "temp_display",
+    frozenset(["soil_moisture_capacitive"]): "soil_only",
+    frozenset(["soil_moisture_capacitive", "relay_module"]): "soil_relay",
+}
 
 
-def generate_output(recipe: dict) -> dict:
-    """根据 recipe 生成完整输出包"""
-    
-    ROLE_TO_KEY = {
-        "light":            "LED_PIN",
-        "sound":            "BUZZER_PIN",
-        "trigger":          "BUTTON_PIN",
-        "temp_humidity":    "DHT_PIN",
-        "display_sda":      "OLED_SDA",
-        "display_scl":      "OLED_SCL",
-        "ultrasonic_trig":  "TRIG_PIN",
-        "ultrasonic_echo":  "ECHO_PIN",
-        "soil_sensor":      "SOIL_SENSOR_PIN",
-        "relay":            "RELAY_PIN",
-        "status_led":       "LED_PIN",
-        "remote_receiver":  "IR_RECEIVER_PIN",
-        "rfid_sda":         "RFID_SDA_PIN",
-        "status_led_ok":    "LED_GREEN_PIN",
-        "status_led_deny":  "LED_RED_PIN",
-    }
+class GenerationNotSupportedError(Exception):
+    def __init__(self, module_ids: list[str]):
+        self.module_ids = module_ids
+        self.error_type = "generation_not_supported_yet"
+        super().__init__("当前组合还没有可用代码模板")
 
-    pin_params = {}
-    for module in recipe["modules"]:
-        role = module["role"]
-        key = ROLE_TO_KEY.get(role, f"{role.upper()}_PIN")
-        pin_params[key] = module["pin"]
-        if module.get("type") == "mfrc522_rfid":
-            if "pin_rst" in module:
-                pin_params["RFID_RST_PIN"] = module["pin_rst"]
-        if "pin2" in module and "role2" in module:
-            key2 = ROLE_TO_KEY.get(module["role2"], f"{module['role2'].upper()}_PIN")
-            pin_params[key2] = module["pin2"]
-    
-    code = get_code_template(recipe["code_template"])
-    for key, value in pin_params.items():
-        code = code.replace(f"{{{{{key}}}}}", str(value))
-    
-    wiring_tpl = get_wiring_template(recipe["wiring_template"])
-    wiring = []
-    for conn in wiring_tpl["connections"]:
-        from_pin = conn["from"]
-        to_pin = conn["to"]
-        for key, value in pin_params.items():
-            from_pin = from_pin.replace(f"{{{{{key}}}}}", str(value))
-            to_pin = to_pin.replace(f"{{{{{key}}}}}", str(value))
-        wiring.append({"from": from_pin, "to": to_pin, "note": conn["note"]})
-    
-    bom = recipe["bom"]
-    bom_total = sum(item["qty"] * item["unit_price_cny"] for item in bom)
-    
-    instructions = _generate_instructions(recipe)
-    
+
+def generate_output(
+    board: dict[str, Any],
+    selected_modules: list[dict[str, Any]],
+    hardware_plan: dict[str, Any],
+    spec: dict[str, Any],
+) -> dict[str, Any]:
+    combo_key = _resolve_combo_key(selected_modules)
+    if combo_key not in SUPPORTED_COMBOS.values():
+        raise GenerationNotSupportedError([module["id"] for module in selected_modules])
+
+    selected_module_ids = [module["id"] for module in selected_modules]
+    bom = _build_bom(board, selected_modules)
+    bom_total = round(sum(item["qty"] * item["unit_price_cny"] for item in bom), 2)
+    wiring = _build_wiring(board, hardware_plan)
+    code = _build_code(combo_key, hardware_plan)
+    instructions = _build_instructions(combo_key, board, selected_modules)
+
     return {
-        "recipe_id": recipe["id"],
-        "recipe_label": recipe["label"],
-        "board": recipe["board"],
+        "recipe_label": _build_plan_label(combo_key),
+        "board": board,
+        "selected_modules": selected_modules,
+        "hardware_plan": hardware_plan,
         "bom": bom,
-        "bom_total_cny": round(bom_total, 2),
+        "bom_total_cny": bom_total,
         "wiring": wiring,
-        "wiring_notes": wiring_tpl.get("notes", []),
         "code": code,
         "instructions": instructions,
+        "validation": {
+            "passed": True,
+            "warnings": _build_warnings(combo_key, selected_modules, spec),
+            "errors": [],
+        },
+        "meta": {
+            "combo": combo_key,
+            "selected_module_ids": selected_module_ids,
+        },
     }
 
 
-def _generate_instructions(recipe: dict) -> dict:
-    intent_match = recipe.get("intent_match", {})
-    trigger = intent_match.get("trigger")
-    module_types = {module.get("type", "") for module in recipe.get("modules", [])}
+def _resolve_combo_key(selected_modules: list[dict[str, Any]]) -> str:
+    module_ids = frozenset(module["id"] for module in selected_modules)
+    combo_key = SUPPORTED_COMBOS.get(module_ids)
+    if not combo_key:
+        raise GenerationNotSupportedError(sorted(module_ids))
+    return combo_key
 
-    if not trigger:
-        if intent_match.get("needs_sensor") or intent_match.get("needs_actuator"):
-            trigger = "auto"
-        else:
-            trigger = "button"
 
-    test_step = "上传成功后，按下按钮测试功能"
-    if trigger == "auto":
-        test_step = "上传成功后，观察设备是否自动运行"
-    elif trigger == "remote":
-        test_step = "上传成功后，用红外遥控器对准接收头按任意有效按键测试 LED 开关"
-    elif trigger == "rfid":
-        test_step = "上传成功后，打开串口监视器（115200）→ 刷卡获取 UID → 复制到代码白名单后重新上传 → 再次刷卡验证绿灯亮起"
-    elif trigger == "bluetooth":
-        test_step = "上传成功后，手机蓝牙搜索「HW-KAI LED」→ 配对 → 在蓝牙串口 APP 中发送 ON 开灯、OFF 关灯"
+def _build_bom(board: dict[str, Any], selected_modules: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    items = [_bom_item(board, qty=1)]
+    items.extend(_bom_item(module, qty=1) for module in selected_modules)
+    return items
+
+
+def _bom_item(item: dict[str, Any], qty: int) -> dict[str, Any]:
+    price = item.get("price_cny", {})
+    return {
+        "name": item.get("label") or item.get("id"),
+        "component": item.get("id"),
+        "qty": qty,
+        "unit_price_cny": price.get("typical", 0),
+        "note": item.get("description", ""),
+    }
+
+
+def _build_wiring(board: dict[str, Any], hardware_plan: dict[str, Any]) -> list[dict[str, Any]]:
+    board_label = board.get("label", board.get("id", "Board"))
+    wiring: list[dict[str, Any]] = []
+
+    for module in hardware_plan.get("modules", []):
+        module_type = module["type"]
+        module_label = module.get("label", module_type)
+        module_meta = module.get("meta", {})
+        pin_spec = module_meta.get("pin_spec", {})
+        assigned = module.get("pins", {})
+
+        for pin_name, gpio in assigned.items():
+            note = pin_spec.get(pin_name, {}).get("note", "")
+            wiring.append(
+                {
+                    "from": f"{board_label}.GPIO{gpio}",
+                    "to": f"{module_label}.{pin_name}",
+                    "note": note,
+                }
+            )
+
+        for power_pin in ["VCC", "PIN2", "GND"]:
+            if power_pin not in pin_spec:
+                continue
+            target = f"{module_label}.{power_pin}"
+            if power_pin == "VCC":
+                voltage = str(pin_spec[power_pin].get("voltage") or "")
+                board_pin = "5V" if "5" in voltage else "3.3V"
+                wiring.append({"from": f"{board_label}.{board_pin}", "to": target, "note": pin_spec[power_pin].get("note", "")})
+            elif power_pin == "PIN2":
+                wiring.append({"from": f"{board_label}.GND", "to": target, "note": pin_spec[power_pin].get("note", "")})
+            elif power_pin == "GND":
+                wiring.append({"from": f"{board_label}.GND", "to": target, "note": pin_spec[power_pin].get("note", "")})
+
+        if module_type == "relay_module":
+            wiring.extend(
+                [
+                    {"from": "外部电源正极", "to": f"{module_label}.NO", "note": "常开端接外部负载电源正极"},
+                    {"from": f"{module_label}.COM", "to": "执行器/水泵正极", "note": "继电器吸合时给负载供电"},
+                    {"from": "执行器/水泵负极", "to": "外部电源负极", "note": "负载负极回到外部电源"},
+                ]
+            )
+
+    return wiring
+
+
+def _build_code(combo_key: str, hardware_plan: dict[str, Any]) -> str:
+    pin_params = _build_pin_params(hardware_plan)
+
+    if combo_key == "button_light":
+        return _render_template("btn_ws2812_only_v1", pin_params)
+    if combo_key == "button_light_sound":
+        return _render_template("btn_led_beep_v1", pin_params)
+    if combo_key == "temp_display":
+        return _render_template("dht22_oled_v1", pin_params)
+    if combo_key == "soil_relay":
+        return _render_template("soil_moisture_v1", {**pin_params, "LED_PIN": 2})
+    if combo_key == "soil_only":
+        return _render_template("soil_moisture_sensor_only_v1", pin_params)
+
+    raise GenerationNotSupportedError(sorted(module["type"] for module in hardware_plan.get("modules", [])))
+
+
+def _render_template(template_id: str, params: dict[str, Any]) -> str:
+    code = get_code_template(template_id)
+    for key, value in params.items():
+        code = code.replace(f"{{{{{key}}}}}", str(value))
+    return code
+
+
+def _build_pin_params(hardware_plan: dict[str, Any]) -> dict[str, Any]:
+    pin_params: dict[str, Any] = {}
+    for module in hardware_plan.get("modules", []):
+        mapping = ROLE_TO_PIN_TEMPLATE_KEY.get(module["type"], {})
+        for pin_name, gpio in module.get("pins", {}).items():
+            template_key = mapping.get(pin_name)
+            if template_key:
+                pin_params[template_key] = gpio
+    return pin_params
+
+
+def _build_instructions(combo_key: str, board: dict[str, Any], selected_modules: list[dict[str, Any]]) -> dict[str, Any]:
+    libraries = [
+        module.get("library_required")
+        for module in selected_modules
+        if module.get("library_required") and module.get("library_required") != "无"
+    ]
 
     upload_steps = [
-        "安装 Arduino IDE（https://www.arduino.cc/en/software）",
-        "在 Arduino IDE 中安装 ESP32 开发板包：工具 → 开发板 → 开发板管理器 → 搜索 esp32",
+        "安装 Arduino IDE。",
+        "在开发板管理器安装 ESP32 开发板包。",
+        f"选择开发板：{board.get('label', 'ESP32 Dev Module')}。",
+        "连接 USB 数据线并选择对应串口。",
     ]
-    if any("ws2812" in t for t in module_types):
-        upload_steps.append("安装库：工具 → 管理库 → 搜索 Adafruit NeoPixel")
-    if any("ir" in t for t in module_types):
-        upload_steps.append("安装库：工具 → 管理库 → 搜索 IRremote")
-    if any("mfrc522" in t for t in module_types):
-        upload_steps.append("安装库：工具 → 管理库 → 搜索 MFRC522（作者 GithubCommunity）")
-    upload_steps.extend([
-        "选择开发板：工具 → 开发板 → ESP32 Arduino → ESP32 Dev Module",
-        "连接 USB，选择对应串口",
-        "点击上传按钮（→）",
-    ])
+    upload_steps.extend([f"安装依赖库：{item}" for item in libraries])
+    upload_steps.append("复制生成代码到 Arduino IDE，点击上传。")
 
-    return {
-        "prepare": [
-            f"准备好以下元件：{', '.join(item['item'] for item in recipe['bom'])}",
-            "确保有 USB 数据线（带数据传输功能，非仅充电线）",
+    assembly_map = {
+        "button_light": [
+            "把 WS2812 LED Ring 的 DIN 接到 GPIO5，VCC 接 5V，GND 接 GND。",
+            "把按钮一侧接 GPIO12，另一侧接 GND，软件使用内部上拉。",
+            "确认共地后再上电。",
         ],
-        "wire": [
-            "按照接线表连接元件，建议先接 GND 地线",
-            "再接 VCC 电源线",
-            "最后接信号线",
-            "仔细检查无短路后再通电",
+        "button_light_sound": [
+            "连接 WS2812 LED Ring：DIN→GPIO5，VCC→5V，GND→GND。",
+            "连接有源蜂鸣器：SIG→GPIO18，VCC→5V/3.3V，GND→GND。",
+            "连接按钮：PIN1→GPIO12，PIN2→GND。",
         ],
-        "upload": upload_steps,
-        "test": [
-            test_step,
-            "如果没有反应，检查接线是否正确",
-            "如果报错，检查串口是否选择正确",
+        "temp_display": [
+            "连接 DHT22：DATA→GPIO4，VCC→3.3V，GND→GND，并给 DATA 加上拉。",
+            "连接 OLED：SDA→GPIO21，SCL→GPIO22，VCC→3.3V，GND→GND。",
+            "确认 I2C 地址通常为 0x3C。",
+        ],
+        "soil_only": [
+            "连接土壤湿度传感器：AOUT→GPIO34，VCC→3.3V，GND→GND。",
+            "把探头插入土壤后先读取串口数值，记录干湿参考值。",
+        ],
+        "soil_relay": [
+            "连接土壤湿度传感器：AOUT→GPIO34，VCC→3.3V，GND→GND。",
+            "连接继电器：IN→GPIO19，VCC→5V，GND→GND。",
+            "把水泵电源正极串到继电器 NO/COM，使用独立电源并与 ESP32 共地。",
         ],
     }
+
+    test_map = {
+        "button_light": ["按下按钮，灯环点亮；松开后熄灭。"],
+        "button_light_sound": ["按下按钮，灯环点亮并蜂鸣 1 次。"],
+        "temp_display": ["上电后每 2 秒显示一次温湿度读数。"],
+        "soil_only": ["打开串口监视器，查看 ADC 数值和湿度百分比。"],
+        "soil_relay": ["把探头放入干土中，观察继电器/水泵是否按阈值动作。"],
+    }
+
+    return {
+        "assembly": assembly_map.get(combo_key, []),
+        "upload": upload_steps,
+        "test": test_map.get(combo_key, []),
+    }
+
+
+def _build_plan_label(combo_key: str) -> str:
+    labels = {
+        "button_light": "按钮触发灯光方案",
+        "button_light_sound": "按钮触发灯光+蜂鸣器方案",
+        "temp_display": "温湿度显示方案",
+        "soil_only": "土壤湿度监测方案",
+        "soil_relay": "土壤湿度自动浇水方案",
+    }
+    return labels.get(combo_key, "硬件方案")
+
+
+def _build_warnings(combo_key: str, selected_modules: list[dict[str, Any]], spec: dict[str, Any]) -> list[str]:
+    warnings: list[str] = []
+    if combo_key in {"button_light", "button_light_sound"}:
+        warnings.append("WS2812 建议使用 5V 供电，必要时加 300-500Ω 串联电阻和滤波电容。")
+    if combo_key == "temp_display":
+        warnings.append("DHT22 采样间隔至少 2 秒，DATA 线建议加 4.7kΩ-10kΩ 上拉。")
+    if combo_key in {"soil_only", "soil_relay"}:
+        warnings.append("土壤湿度传感器需要先在实际盆栽环境中标定干湿阈值。")
+    if combo_key == "soil_relay":
+        warnings.append("水泵等执行器必须使用外部供电，不要直接由 ESP32 GPIO 驱动。")
+    if spec.get("needs_sound") and not any(module["id"] == "active_buzzer" for module in selected_modules):
+        warnings.append("需求包含声音，但当前组合未选到蜂鸣器。")
+    return warnings
