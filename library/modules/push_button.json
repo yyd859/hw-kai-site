@@ -1,0 +1,42 @@
+{
+  "id": "push_button",
+  "label": "轻触按钮（Momentary Push Button）",
+  "category": "input",
+  "subcategory": "mechanical",
+  "description": "最常见的瞬时按钮，按下接通，松开断开",
+  "provides": ["press_trigger", "toggle_trigger"],
+  "interface": "digital_input",
+  "pin_spec": {
+    "PIN1": {"type": "digital_input", "note": "接主控 GPIO，配合内部上拉"},
+    "PIN2": {"type": "ground", "note": "接 GND"}
+  },
+  "wiring_modes": {
+    "internal_pullup": {
+      "description": "使用主控内部上拉电阻（推荐）",
+      "logic": "未按：HIGH，按下：LOW",
+      "resistor_needed": false
+    },
+    "external_pullup": {
+      "description": "外接 10kΩ 上拉电阻到 VCC",
+      "logic": "未按：HIGH，按下：LOW",
+      "resistor_needed": true,
+      "resistor_value": "10kΩ"
+    }
+  },
+  "compatible_boards": ["esp32_devkit_v1", "arduino_uno", "arduino_nano"],
+  "variants": [
+    {"id": "push_button_6x6",  "label": "6x6mm 轻触按钮（最常见）", "price_cny": 0.3},
+    {"id": "push_button_12x12", "label": "12x12mm 大按钮", "price_cny": 0.5},
+    {"id": "push_button_cap",  "label": "带帽轻触按钮", "price_cny": 1.0}
+  ],
+  "notes": [
+    "几乎所有主控都有内部上拉，优先用 INPUT_PULLUP 模式",
+    "按下时为 LOW（接地），注意软件逻辑判断",
+    "如有抖动问题，软件加 10-50ms debounce 延时"
+  ],
+  "price_cny": {
+    "min": 0.2,
+    "max": 1.5,
+    "typical": 0.5
+  }
+}
