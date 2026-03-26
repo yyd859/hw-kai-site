@@ -9,7 +9,7 @@ DEFAULT_PINS = {
     "push_button": {"PIN1": 12},
     "dht22": {"DATA": 4},
     "oled_ssd1306": {"SDA": 21, "SCL": 22},
-    "soil_moisture_capacitive": {"AOUT": 34},
+    "soil_moisture_sensor": {"AO": 34},
     "relay_module": {"IN": 19},
 }
 
@@ -81,5 +81,6 @@ def _assert_pin_available(
     if not is_analog and pin_number not in digital_io:
         raise PinAllocationError(f"GPIO{pin_number} 不在开发板可用 GPIO 范围内")
 
-    if any(token in pin_type for token in ["output", "clock", "data", "io"]) and is_input_only and "input_output" not in pin_type:
+    needs_output_capability = any(token in pin_type for token in ["digital_output", "pwm_output", "clock_output", "serial_output"])
+    if needs_output_capability and is_input_only and "input_output" not in pin_type:
         raise PinAllocationError(f"GPIO{pin_number} 是仅输入引脚，不能分配给 {module_id}.{pin_name}")

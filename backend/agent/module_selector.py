@@ -18,7 +18,7 @@ CAPABILITY_CANDIDATES = {
     "sound": ["active_buzzer"],
     "display": ["oled_ssd1306"],
     "temperature_humidity": ["dht22"],
-    "soil_moisture": ["soil_moisture_capacitive"],
+    "soil_moisture": ["soil_moisture_sensor"],
     "button": ["push_button"],
     "actuator": ["relay_module"],
 }
@@ -31,7 +31,7 @@ MODULE_ORDER = {
     "active_buzzer": 30,
     "oled_ssd1306": 40,
     "dht22": 50,
-    "soil_moisture_capacitive": 60,
+    "soil_moisture_sensor": 60,
     "relay_module": 70,
 }
 
@@ -43,7 +43,7 @@ MODULE_INSTANCE_ID = {
     "active_buzzer": "buzz1",
     "oled_ssd1306": "oled1",
     "dht22": "sensor1",
-    "soil_moisture_capacitive": "sensor1",
+    "soil_moisture_sensor": "sensor1",
     "relay_module": "relay1",
 }
 

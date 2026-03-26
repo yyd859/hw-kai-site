@@ -8,10 +8,11 @@ from pydantic import BaseModel
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from agent.chat_agent import process_message
 from agent.generator import GenerationNotSupportedError, generate_output
 from agent.module_selector import MissingComponentsError, select_modules
 from agent.pin_allocator import PinAllocationError, allocate_pins
+from runtime.chat_runtime import process_chat_message
+from runtime.tool_registry import build_plan_from_context
 
 app = FastAPI(title="HW-KAI Agent API", version="0.2.0")
 
@@ -54,7 +55,7 @@ def health():
 
 @app.post("/api/chat")
 async def chat(req: ChatRequest):
-    return await process_message(req.session_id, req.message)
+    return await process_chat_message(req.session_id, req.message)
 
 
 @app.post("/api/generate")
@@ -62,6 +63,9 @@ async def generate(req: GenerateRequest):
     spec = req.spec
 
     try:
+        if any(key in spec for key in ["project_brief", "requirements", "selected_module_ids", "capabilities"]):
+            return build_plan_from_context(spec)
+
         selection = select_modules(spec)
         hardware_plan = allocate_pins(selection["board"], selection["selected_modules"])
         return generate_output(selection["board"], selection["selected_modules"], hardware_plan, spec)

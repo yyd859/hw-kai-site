@@ -16,7 +16,7 @@ ROLE_TO_PIN_TEMPLATE_KEY = {
     "active_buzzer": {"SIG": "BUZZER_PIN"},
     "dht22": {"DATA": "DHT_PIN"},
     "oled_ssd1306": {"SDA": "OLED_SDA", "SCL": "OLED_SCL"},
-    "soil_moisture_capacitive": {"AOUT": "SOIL_SENSOR_PIN"},
+    "soil_moisture_sensor": {"AO": "SOIL_SENSOR_PIN"},
     "relay_module": {"IN": "RELAY_PIN"},
 }
 
@@ -24,8 +24,8 @@ SUPPORTED_COMBOS = {
     frozenset(["push_button", "ws2812_led_ring"]): "button_light",
     frozenset(["push_button", "ws2812_led_ring", "active_buzzer"]): "button_light_sound",
     frozenset(["dht22", "oled_ssd1306"]): "temp_display",
-    frozenset(["soil_moisture_capacitive"]): "soil_only",
-    frozenset(["soil_moisture_capacitive", "relay_module"]): "soil_relay",
+    frozenset(["soil_moisture_sensor"]): "soil_only",
+    frozenset(["soil_moisture_sensor", "relay_module"]): "soil_relay",
 }
 
 
@@ -214,11 +214,11 @@ def _build_instructions(combo_key: str, board: dict[str, Any], selected_modules:
             "确认 I2C 地址通常为 0x3C。",
         ],
         "soil_only": [
-            "连接土壤湿度传感器：AOUT→GPIO34，VCC→3.3V，GND→GND。",
+            "连接土壤湿度传感器：AO→GPIO34，VCC→3.3V，GND→GND。",
             "把探头插入土壤后先读取串口数值，记录干湿参考值。",
         ],
         "soil_relay": [
-            "连接土壤湿度传感器：AOUT→GPIO34，VCC→3.3V，GND→GND。",
+            "连接土壤湿度传感器：AO→GPIO34，VCC→3.3V，GND→GND。",
             "连接继电器：IN→GPIO19，VCC→5V，GND→GND。",
             "把水泵电源正极串到继电器 NO/COM，使用独立电源并与 ESP32 共地。",
         ],
@@ -263,3 +263,4 @@ def _build_warnings(combo_key: str, selected_modules: list[dict[str, Any]], spec
     if spec.get("needs_sound") and not any(module["id"] == "active_buzzer" for module in selected_modules):
         warnings.append("需求包含声音，但当前组合未选到蜂鸣器。")
     return warnings
+
