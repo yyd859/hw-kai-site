@@ -46,5 +46,6 @@ curl https://YOUR_CLOUD_RUN_URL/health
 ## 说明
 - Dockerfile 使用项目根目录 build context
 - Cloud Run 会读取 `/app/data`
+- library-first backend 还会读取 `/app/library`
 - secret 名默认是 `openai-api-key`
 - 前端可通过 `?apiBase=https://xxx.run.app` 指向后端
